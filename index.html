@@ -554,12 +554,6 @@ body {
     font-family: 'Cairo', sans-serif;
     line-height: 1;
 }
-.hour-tile .h-count {
-    font-size: 9px;
-    color: var(--text-muted);
-    margin-top: 3px;
-    font-family: 'JetBrains Mono', monospace;
-}
 .hour-tile .h-bg {
     position: absolute;
     inset: 0;
@@ -632,7 +626,7 @@ body {
 }
 .delayed-ids-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
     gap: 8px;
     background: var(--bg-input);
     border: 1px solid var(--border-subtle);
@@ -831,7 +825,7 @@ body {
     line-height: 1;
 }
 .slide-hour-tile .hbg {
-    position: absolute inset: 0;
+    position: absolute; inset: 0;
     opacity: 0.12;
 }
 .slide-footer {
@@ -948,7 +942,7 @@ body {
     .actions-buttons .btn { flex: 1; min-width: 130px; }
     .hospital-header { padding: 14px 16px; }
     .hospital-body { padding: 16px; }
-    .delayed-ids-grid { grid-template-columns: repeat(auto-fill, minmax(125px, 1fr)); }
+    .delayed-ids-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
 }
 @media (max-width: 420px) {
     .hourly-grid { grid-template-columns: repeat(4, 1fr); }
@@ -1017,7 +1011,7 @@ body {
 
     <div class="empty-state" id="emptyState">
         <h3>ارفع ملف واحد على الأقل لبدء التحليل</h3>
-        <p>الداشبورد يحلل عينات الطوارئ ER ويستثني العينات المرفوضة والمعلقة</p>
+        <p>الداشبورد يحلل عينات الطوارئ ER ويستثني العينات المرفوضة والملغاة والمعلقة</p>
     </div>
 
     <section class="results-section" id="resultsSection">
@@ -1306,10 +1300,12 @@ function normalizeRow(row, schema) {
 }
 
 function isER(pt) { return pt && pt.toString().toUpperCase().includes('ER'); }
+
 function isRejected(row, schema) {
     if (schema === 'kfh') return false;
     const s = (row.status || '').toLowerCase();
-    return s.includes('reject') || (row.rejectReason && row.rejectReason !== '');
+    // استبعاد العينات المرفوضة، الملغاة، والمعلقة بشكل صريح
+    return s.includes('reject') || s.includes('cancel') || s.includes('pending') || (row.rejectReason && row.rejectReason !== '');
 }
 
 function processHospital(key) {
@@ -1320,7 +1316,6 @@ function processHospital(key) {
     const all = raw.map(r => normalizeRow(r, schema));
     const erAll = all.filter(r => isER(r.patientType));
 
-    // شلنا تتبع وحساب العينات المرفوضة
     const completed = erAll.filter(r =>
         r.orderDate && r.collectDate && r.receiveDate && r.completeDate &&
         !isRejected(r, schema)
@@ -1557,7 +1552,6 @@ function createHospitalCard(h, p) {
                             return `<div class="hour-tile no-data">
                                 <div class="h-time">${String(hr).padStart(2,'0')}:00</div>
                                 <div class="h-pct" style="color:var(--text-tertiary);">--</div>
-                                <div class="h-count">0</div>
                             </div>`;
                         }
                         const color = compColor(hd.comp);
@@ -1565,7 +1559,6 @@ function createHospitalCard(h, p) {
                             <div class="h-bg" style="background: ${color};"></div>
                             <div class="h-time">${String(hr).padStart(2,'0')}:00</div>
                             <div class="h-pct" style="color: ${color};">${hd.comp.toFixed(0)}%</div>
-                            <div class="h-count">${hd.count.toLocaleString('en')} عينة</div>
                         </div>`;
                     }).join('')}
                 </div>
@@ -1616,7 +1609,7 @@ function createHospitalCard(h, p) {
                         ${p.delayedIds.map(d => `
                             <div class="delayed-id-chip">
                                 <span class="sid">${d.id}</span>
-                                <span class="sval">${d.val.toFixed(0)} د (+${(d.val - 60).toFixed(0)})</span>
+                                <span class="sval">${d.val.toFixed(0)} دقيقة</span>
                             </div>
                         `).join('')}
                     </div>
