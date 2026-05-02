@@ -317,14 +317,10 @@ body {
     border-radius: 2px;
 }
 .indicator-text {
-    color: var(--text-secondary);
+    color: var(--text-primary);
     font-size: 14px;
     line-height: 1.85;
     margin-bottom: 18px;
-}
-.indicator-text strong {
-    color: var(--text-primary);
-    font-weight: 700;
 }
 .indicator-stages-grid {
     display: grid;
@@ -398,7 +394,7 @@ body {
 /* KPI ROW */
 .kpi-row {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 12px;
     margin-bottom: 24px;
 }
@@ -409,7 +405,6 @@ body {
     padding: 14px;
 }
 .kpi-tile.flagship { border-top: 3px solid var(--accent-emerald); }
-.kpi-tile.info { border-top: 3px solid var(--accent-blue); }
 .kpi-tile .kpi-label {
     font-size: 11.5px; color: var(--text-secondary);
     font-weight: 600; margin-bottom: 8px;
@@ -734,7 +729,7 @@ body {
 }
 .slide-kpi-row {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 16px;
     margin-bottom: 22px;
 }
@@ -745,7 +740,6 @@ body {
     border: 1px solid var(--border-subtle);
 }
 .slide-kpi.flagship { border-top: 4px solid var(--accent-emerald); }
-.slide-kpi.info { border-top: 4px solid var(--accent-blue); }
 .slide-kpi .label {
     font-size: 14px; color: var(--text-secondary);
     font-weight: 600; margin-bottom: 8px;
@@ -837,7 +831,7 @@ body {
     line-height: 1;
 }
 .slide-hour-tile .hbg {
-    position: absolute; inset: 0;
+    position: absolute inset: 0;
     opacity: 0.12;
 }
 .slide-footer {
@@ -922,7 +916,7 @@ body {
 @media (max-width: 1500px) {
     .upload-grid { grid-template-columns: repeat(3, 1fr); }
     .indicator-stages-grid { grid-template-columns: repeat(3, 1fr); }
-    .kpi-row { grid-template-columns: repeat(3, 1fr); }
+    .kpi-row { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 1100px) {
     .cmd-main { padding: 24px 22px 60px; }
@@ -1030,13 +1024,13 @@ body {
         <div class="indicator-explainer">
             <h2>تعريف المؤشر</h2>
             <p class="indicator-text">
-                مؤشر <strong>زمن إنجاز عينات الطوارئ (TAT)</strong> يقيس الزمن الكلي بين <strong>طلب الفحص من قسم الطوارئ</strong> وحتى <strong>ظهور النتيجة معتمدة في النظام</strong>. المستهدف العام هو <strong>٦٠ دقيقة فأقل</strong> ولكل عينة طوارئ. لتحديد نقطة التأخير بدقة وتحويل المعالجة من تشخيص عام إلى تدخل موجّه على المرحلة المسببة، تم تقسيم رحلة العينة إلى ثلاث مراحل تشغيلية مستقلة، يخضع كل منها لمستهدف زمني خاص ويمكن قياسه ومتابعته بمعزل عن البقية.
+                مؤشر زمن إنجاز عينات الطوارئ (TAT) يقيس الزمن الكلي بين طلب الفحص من قسم الطوارئ وحتى ظهور النتيجة معتمدة في النظام. المستهدف العام هو ٦٠ دقيقة فأقل. لتحديد نقطة التأخير بدقة، تم تقسيم رحلة العينة إلى ثلاث مراحل تشغيلية مستقلة، يخضع كل منها لمستهدف زمني خاص.
             </p>
             <div class="indicator-stages-grid">
                 <div class="indicator-stage-box">
                     <span class="num">١</span>
                     <div class="nm">من الطلب إلى سحب العينة</div>
-                    <div class="tg">المستهدف ≤ 5 دقائق</div>
+                    <div class="tg">المستهدف ≤ 10 دقائق</div>
                 </div>
                 <div class="indicator-stage-box">
                     <span class="num">٢</span>
@@ -1080,7 +1074,7 @@ const STATE = { files: {}, rawData: {}, processed: {} };
 Object.keys(HOSPITALS).forEach(k => { STATE.files[k] = null; STATE.rawData[k] = null; STATE.processed[k] = null; });
 
 const TARGET_TOTAL = 60;
-const TARGET_ORDER_COLLECT = 5;
+const TARGET_ORDER_COLLECT = 10;
 const TARGET_COLLECT_RECEIVE = 10;
 const TARGET_RECEIVE_RESULT = 40;
 
@@ -1326,17 +1320,14 @@ function processHospital(key) {
     const all = raw.map(r => normalizeRow(r, schema));
     const erAll = all.filter(r => isER(r.patientType));
 
-    const rejected = erAll.filter(r => isRejected(r, schema));
-    const uniqueRejIds = new Set(rejected.map(t => t.sampleId).filter(id => id !== ''));
-    const rejectedCount = uniqueRejIds.size + rejected.filter(t => !t.sampleId).length;
-
+    // شلنا تتبع وحساب العينات المرفوضة
     const completed = erAll.filter(r =>
         r.orderDate && r.collectDate && r.receiveDate && r.completeDate &&
         !isRejected(r, schema)
     );
 
     if (completed.length === 0) {
-        return { key, total: erAll.length, completed: 0, rejected: rejectedCount, empty: true };
+        return { key, total: erAll.length, completed: 0, empty: true };
     }
 
     const timings = completed.map(r => {
@@ -1362,7 +1353,7 @@ function processHospital(key) {
     }).filter(r => r.tot !== null);
 
     if (timings.length === 0) {
-        return { key, total: erAll.length, completed: 0, rejected: rejectedCount, empty: true };
+        return { key, total: erAll.length, completed: 0, empty: true };
     }
 
     const avg = (arr, k) => {
@@ -1380,8 +1371,8 @@ function processHospital(key) {
     const delayedTimings = timings.filter(t => !t.compTotal && t.tot <= 4 * 60); 
     const delayedMap = new Map();
     delayedTimings.forEach(t => {
-        const id = t.sampleId || `بدون رقم (${Math.random().toString(36).slice(2,7)})`;
-        const displayId = t.sampleId || 'بدون رقم';
+        const id = t.patientId || `بدون رقم ملف (${Math.random().toString(36).slice(2,7)})`;
+        const displayId = t.patientId || 'بدون رقم ملف';
         if (!delayedMap.has(id)) {
             delayedMap.set(id, { id: displayId, val: t.tot });
         } else {
@@ -1431,7 +1422,6 @@ function processHospital(key) {
         key,
         total: erAll.length,
         completed: timings.length,
-        rejected: rejectedCount,
         overall,
         byShift,
         byHour,
@@ -1505,7 +1495,7 @@ function createHospitalCard(h, p) {
             <div class="hospital-body">
                 <div style="text-align:center; padding: 50px 20px; color: var(--text-tertiary);">
                     <h3 style="margin-bottom:6px;">لا توجد عينات مكتملة بمواصفات التحليل</h3>
-                    <p style="font-size: 12px;">إجمالي عينات ER: ${p.total} • مرفوضة: ${p.rejected}</p>
+                    <p style="font-size: 12px;">إجمالي عينات ER: ${p.total}</p>
                 </div>
             </div>
         `;
@@ -1540,18 +1530,13 @@ function createHospitalCard(h, p) {
                     <div class="kpi-value">${fmt(o.total_avg)}<span style="font-size:13px;color:var(--text-tertiary);"> د</span></div>
                     <div class="kpi-target">الوسيط: ${fmt(o.total_median)} دقيقة</div>
                 </div>
-                <div class="kpi-tile info">
-                    <div class="kpi-label">العينات المرفوضة / المعلقة</div>
-                    <div class="kpi-value">${p.rejected.toLocaleString('en')}</div>
-                    <div class="kpi-target">من إجمالي ${p.total.toLocaleString('en')} عينة ER</div>
-                </div>
             </div>
 
             <div class="section-title" style="margin: 0 0 14px 0;">
                 <h2 style="font-size: 15px;">تحليل المراحل الثلاث — تحديد نقطة التأخير</h2>
             </div>
             <div class="stages-strip">
-                ${stageCard(1, 'من الطلب الى سحب العينة', '≤ 5 دقائق', o.stage1_compliance, o.stage1_avg, o.stage1_median)}
+                ${stageCard(1, 'من الطلب الى سحب العينة', '≤ 10 دقائق', o.stage1_compliance, o.stage1_avg, o.stage1_median)}
                 ${stageCard(2, 'من سحب العينة الى استقبال المختبر', '≤ 10 دقائق', o.stage2_compliance, o.stage2_avg, o.stage2_median)}
                 ${stageCard(3, 'من استقبال المختبر الى ظهور النتيجة', '≤ 40 دقيقة', o.stage3_compliance, o.stage3_avg, o.stage3_median)}
             </div>
@@ -1807,7 +1792,7 @@ async function exportSlide(h) {
             </div>
             <div class="slide-meta">
                 <div class="date-big" style="direction:ltr;">${new Date().toISOString().slice(0,10)}</div>
-                <div>${p.completed.toLocaleString('en')} اختبار مكتمل • ${p.rejected.toLocaleString('en')} مرفوض</div>
+                <div>${p.completed.toLocaleString('en')} اختبار مكتمل</div>
             </div>
         </div>
 
@@ -1822,17 +1807,12 @@ async function exportSlide(h) {
                 <div class="value">${fmt(o.total_avg)}<span style="font-size:18px;color:#6B7388;"> د</span></div>
                 <div class="target">الوسيط: ${fmt(o.total_median)} د</div>
             </div>
-            <div class="slide-kpi info">
-                <div class="label">إجمالي العينات المكتملة</div>
-                <div class="value">${p.completed.toLocaleString('en')}</div>
-                <div class="target">من ${p.total.toLocaleString('en')} عينة ER</div>
-            </div>
         </div>
 
         <div class="slide-stages">
             <div class="slide-stage" style="border-top: 4px solid ${compColor(o.stage1_compliance)};">
                 <div class="name">من الطلب الى سحب العينة</div>
-                <div class="tg">المستهدف ≤ 5 دقائق</div>
+                <div class="tg">المستهدف ≤ 10 دقائق</div>
                 <div class="vrow"><span class="lbl">الالتزام</span><span class="val" style="color:${compColor(o.stage1_compliance)};">${fmt(o.stage1_compliance)}%</span></div>
                 <div class="vrow"><span class="lbl">المتوسط</span><span class="val">${fmt(o.stage1_avg)} د</span></div>
                 <div class="vrow"><span class="lbl">الوسيط</span><span class="val">${fmt(o.stage1_median)} د</span></div>
@@ -1958,7 +1938,7 @@ async function exportComparisonSlide() {
 
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 22px;">
             <div style="background: var(--bg-card-elevated); border-radius: 8px; padding: 22px; border: 1px solid var(--border-subtle);">
-                <h3 style="font-family: 'Cairo'; font-size: 18px; font-weight: 700; margin-bottom: 18px; color: var(--accent-blue);">من الطلب الى سحب العينة ≤ 5 د</h3>
+                <h3 style="font-family: 'Cairo'; font-size: 18px; font-weight: 700; margin-bottom: 18px; color: var(--accent-blue);">من الطلب الى سحب العينة ≤ 10 د</h3>
                 ${sortedTotal.map(([h,p]) => buildRow(h, p, 'stage1_compliance')).join('')}
             </div>
             <div style="background: var(--bg-card-elevated); border-radius: 8px; padding: 22px; border: 1px solid var(--border-subtle);">
