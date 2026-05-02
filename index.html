@@ -1001,9 +1001,10 @@ body {
             </div>
         </div>
         <div class="actions-buttons">
-            <button class="btn" id="btnExportCompare" disabled>سلايد المقارنة</button>
-            <button class="btn" id="btnExportAll" disabled>تصدير الكل (PNG)</button>
-            <button class="btn" id="btnExportPdf" disabled>تصدير PDF</button>
+            <button class="btn" id="btnExportCompare" disabled>مقارنة (صورة)</button>
+            <button class="btn" id="btnExportDashPng" disabled>الداشبورد (صورة)</button>
+            <button class="btn" id="btnExportMobilePdf" disabled>PDF (للجوال)</button>
+            <button class="btn" id="btnExportSlidesPdf" disabled>PDF (للاجتماعات)</button>
             <button class="btn" id="btnReset">إعادة تعيين</button>
             <button class="btn btn-primary" id="btnAnalyze" disabled>تحليل البيانات</button>
         </div>
@@ -1078,8 +1079,11 @@ function init() {
 
     document.getElementById('btnAnalyze').addEventListener('click', analyzeAll);
     document.getElementById('btnReset').addEventListener('click', resetAll);
-    document.getElementById('btnExportAll').addEventListener('click', exportAllDash);
-    document.getElementById('btnExportPdf').addEventListener('click', exportPdf);
+    
+    // ربط أزرار التصدير الجديدة بالدوال
+    document.getElementById('btnExportDashPng').addEventListener('click', exportAllDash);
+    document.getElementById('btnExportMobilePdf').addEventListener('click', exportMobilePdf);
+    document.getElementById('btnExportSlidesPdf').addEventListener('click', exportSlidesPdf);
     document.getElementById('btnExportCompare').addEventListener('click', exportComparisonSlide);
 
     setTimeout(() => {
@@ -1304,7 +1308,7 @@ function isER(pt) { return pt && pt.toString().toUpperCase().includes('ER'); }
 function isRejected(row, schema) {
     if (schema === 'kfh') return false;
     const s = (row.status || '').toLowerCase();
-    // استبعاد العينات المرفوضة، الملغاة، والمعلقة بشكل صريح
+    // استبعاد العينات المرفوضة، الملغاة، والمعلقة
     return s.includes('reject') || s.includes('cancel') || s.includes('pending') || (row.rejectReason && row.rejectReason !== '');
 }
 
@@ -1438,8 +1442,11 @@ async function analyzeAll() {
 
     document.getElementById('emptyState').style.display = 'none';
     document.getElementById('resultsSection').classList.add('active');
-    document.getElementById('btnExportAll').disabled = false;
-    document.getElementById('btnExportPdf').disabled = false;
+    
+    // تفعيل كل الأزرار
+    document.getElementById('btnExportDashPng').disabled = false;
+    document.getElementById('btnExportMobilePdf').disabled = false;
+    document.getElementById('btnExportSlidesPdf').disabled = false;
     document.getElementById('btnExportCompare').disabled = false;
 
     const valid = Object.values(STATE.processed).filter(p => p && !p.empty);
@@ -1650,10 +1657,11 @@ function stageCard(num, name, target, comp, avg, med) {
     `;
 }
 
+// تصدير الداشبورد كامل كصورة
 async function exportAllDash() {
     const overlay = document.getElementById('loadingOverlay');
     overlay.classList.add('active');
-    document.getElementById('loadingText').textContent = 'جاري تجميع الداشبورد...';
+    document.getElementById('loadingText').textContent = 'جاري حفظ الصورة...';
 
     await new Promise(r => setTimeout(r, 100));
 
@@ -1700,13 +1708,67 @@ async function exportAllDash() {
     }
 }
 
-async function exportPdf() {
+// تصدير PDF مخصص للجوال (صفحة واحدة طويلة)
+async function exportMobilePdf() {
     const { jsPDF } = window.jspdf;
     if (!jsPDF) { alert('تعذر تحميل مكتبة PDF'); return; }
 
     const overlay = document.getElementById('loadingOverlay');
     overlay.classList.add('active');
-    document.getElementById('loadingText').textContent = 'جاري إنشاء PDF...';
+    document.getElementById('loadingText').textContent = 'جاري إنشاء PDF متوافق مع الجوال...';
+
+    await new Promise(r => setTimeout(r, 100));
+
+    const dashboardArea = document.getElementById('resultsSection');
+    const buttons = dashboardArea.querySelectorAll('.hospital-actions');
+    buttons.forEach(b => b.style.display = 'none');
+
+    const oldStyle = {
+        width: dashboardArea.style.width,
+        maxWidth: dashboardArea.style.maxWidth,
+        position: dashboardArea.style.position,
+        padding: dashboardArea.style.padding,
+        margin: dashboardArea.style.margin
+    };
+
+    dashboardArea.style.width = '750px';
+    dashboardArea.style.maxWidth = '750px';
+    dashboardArea.style.position = 'relative';
+    dashboardArea.style.padding = '20px';
+    dashboardArea.style.margin = '0 auto';
+
+    window.scrollTo(0, 0);
+
+    try {
+        const canvas = await html2canvas(dashboardArea, {
+            scale: 2, 
+            backgroundColor: '#0A0E1A',
+            useCORS: true, 
+            logging: false,
+            windowWidth: 750 
+        });
+
+        const imgData = canvas.toDataURL('image/jpeg', 0.95);
+        const pdf = new jsPDF({ orientation: 'portrait', unit: 'px', format: [canvas.width, canvas.height] });
+        pdf.addImage(imgData, 'JPEG', 0, 0, canvas.width, canvas.height);
+        pdf.save(`ER_Lab_Mobile_${new Date().toISOString().slice(0,10)}.pdf`);
+    } catch (err) {
+        alert('خطأ في PDF: ' + err.message);
+    } finally {
+        buttons.forEach(b => b.style.display = 'flex');
+        Object.assign(dashboardArea.style, oldStyle);
+        overlay.classList.remove('active');
+    }
+}
+
+// تصدير PDF للاجتماعات (سلايدات A4 بالعرض)
+async function exportSlidesPdf() {
+    const { jsPDF } = window.jspdf;
+    if (!jsPDF) { alert('تعذر تحميل مكتبة PDF'); return; }
+
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.classList.add('active');
+    document.getElementById('loadingText').textContent = 'جاري تجهيز سلايدات الـ PDF...';
 
     await new Promise(r => setTimeout(r, 100));
 
@@ -1734,25 +1796,27 @@ async function exportPdf() {
         });
 
         const imgData = canvas.toDataURL('image/jpeg', 0.95);
-        const pdf = new jsPDF('p', 'mm', 'a4');
+        
+        // استخدام A4 بالعرض (Landscape)
+        const pdf = new jsPDF('l', 'mm', 'a4');
         const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
         const pageHeight = pdf.internal.pageSize.getHeight();
+        const imgHeight = (canvas.height * pdfWidth) / canvas.width;
 
-        let heightLeft = pdfHeight;
+        let heightLeft = imgHeight;
         let position = 0;
 
-        pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, pdfHeight);
+        pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeight);
         heightLeft -= pageHeight;
 
-        while (heightLeft >= 0) {
-            position = heightLeft - pdfHeight;
+        while (heightLeft > 0) {
+            position = heightLeft - imgHeight;
             pdf.addPage();
-            pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, pdfHeight);
+            pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeight);
             heightLeft -= pageHeight;
         }
 
-        pdf.save(`ER_Lab_Dashboard_${new Date().toISOString().slice(0,10)}.pdf`);
+        pdf.save(`ER_Lab_Presentation_${new Date().toISOString().slice(0,10)}.pdf`);
     } catch (err) {
         alert('خطأ في PDF: ' + err.message);
     } finally {
@@ -1988,8 +2052,10 @@ function resetAll() {
     document.getElementById('resultsSection').classList.remove('active');
     document.getElementById('hospitalsSection').innerHTML = '';
     document.getElementById('totalSamples').textContent = '--';
-    document.getElementById('btnExportAll').disabled = true;
-    document.getElementById('btnExportPdf').disabled = true;
+    
+    document.getElementById('btnExportDashPng').disabled = true;
+    document.getElementById('btnExportMobilePdf').disabled = true;
+    document.getElementById('btnExportSlidesPdf').disabled = true;
     document.getElementById('btnExportCompare').disabled = true;
 
     updateUploadStatus();
