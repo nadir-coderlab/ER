@@ -292,7 +292,7 @@ body {
 .results-section { display: none; }
 .results-section.active { display: block; }
 
-/* INDICATOR EXPLAINER (replaces exec summary) */
+/* INDICATOR EXPLAINER */
 .indicator-explainer {
     background: var(--bg-card);
     border: 1px solid var(--border-subtle);
@@ -395,7 +395,7 @@ body {
 .hospital-actions { display: flex; gap: 6px; }
 .hospital-body { padding: 22px; }
 
-/* KPI ROW (without delayed count, without tests/patient) */
+/* KPI ROW */
 .kpi-row {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -507,7 +507,7 @@ body {
     margin-top: 10px;
 }
 
-/* HOURLY (renamed → "المؤشر حسب ساعات العمل") */
+/* HOURLY */
 .hourly-section { margin-top: 24px; }
 .hourly-header {
     display: flex; justify-content: space-between;
@@ -1027,7 +1027,6 @@ body {
     </div>
 
     <section class="results-section" id="resultsSection">
-        <!-- Indicator explainer (replaces exec summary) -->
         <div class="indicator-explainer">
             <h2>تعريف المؤشر</h2>
             <p class="indicator-text">
@@ -1041,7 +1040,7 @@ body {
                 </div>
                 <div class="indicator-stage-box">
                     <span class="num">٢</span>
-                    <div class="nm">من سحب العينة إلى استقبالها في المختبر</div>
+                    <div class="nm">من سحب العينة إلى استقبال المختبر</div>
                     <div class="tg">المستهدف ≤ 10 دقائق</div>
                 </div>
                 <div class="indicator-stage-box">
@@ -1067,7 +1066,7 @@ body {
 
 <script>
 const HOSPITALS = {
-    kfh:    { ar: 'مستشفى الملك فهد',           en: 'King Fahad Hospital - Madina',         schema: 'kfh' },
+    kfh:    { ar: 'مستشفى الملك فهد',          en: 'King Fahad Hospital - Madina',         schema: 'kfh' },
     kgh:    { ar: 'مستشفى المدينة العام',        en: 'Madinah General Hospital',             schema: 'std' },
     ohud:   { ar: 'مستشفى أحد',                  en: 'Ohud Hospital',                        schema: 'std' },
     miqat:  { ar: 'مستشفى الميقات',              en: 'Al-Miqat Hospital',                    schema: 'std' },
@@ -1378,8 +1377,7 @@ function processHospital(key) {
     };
     const compPct = (arr, k) => arr.length ? arr.filter(x => x[k]).length / arr.length * 100 : 0;
 
-    // Build delayed sample IDs list (deduped, sorted by worst delay first)
-    const delayedTimings = timings.filter(t => !t.compTotal && t.tot <= 4 * 60); // exclude data-entry errors > 4h
+    const delayedTimings = timings.filter(t => !t.compTotal && t.tot <= 4 * 60); 
     const delayedMap = new Map();
     delayedTimings.forEach(t => {
         const id = t.sampleId || `بدون رقم (${Math.random().toString(36).slice(2,7)})`;
@@ -1532,7 +1530,7 @@ function createHospitalCard(h, p) {
 
             <div class="kpi-row">
                 <div class="kpi-tile flagship">
-                    <div class="kpi-label">الالتزام الكلي (الطلب → النتيجة)</div>
+                    <div class="kpi-label">الالتزام الكلي (من الطلب الى ظهور النتيجة)</div>
                     <div class="kpi-value">${fmt(o.total_compliance)}<span style="font-size:13px;color:var(--text-tertiary);">%</span></div>
                     <div class="kpi-target">الهدف ≤ 60 دقيقة</div>
                     <div class="kpi-bar"><div class="kpi-bar-fill ${compClass(o.total_compliance)}" style="width: ${Math.min(100, o.total_compliance)}%"></div></div>
@@ -1553,9 +1551,9 @@ function createHospitalCard(h, p) {
                 <h2 style="font-size: 15px;">تحليل المراحل الثلاث — تحديد نقطة التأخير</h2>
             </div>
             <div class="stages-strip">
-                ${stageCard(1, 'الطلب → سحب العينة', '≤ 5 دقائق', o.stage1_compliance, o.stage1_avg, o.stage1_median)}
-                ${stageCard(2, 'السحب → استقبال المختبر', '≤ 10 دقائق', o.stage2_compliance, o.stage2_avg, o.stage2_median)}
-                ${stageCard(3, 'الاستقبال → ظهور النتيجة', '≤ 40 دقيقة', o.stage3_compliance, o.stage3_avg, o.stage3_median)}
+                ${stageCard(1, 'من الطلب الى سحب العينة', '≤ 5 دقائق', o.stage1_compliance, o.stage1_avg, o.stage1_median)}
+                ${stageCard(2, 'من سحب العينة الى استقبال المختبر', '≤ 10 دقائق', o.stage2_compliance, o.stage2_avg, o.stage2_median)}
+                ${stageCard(3, 'من استقبال المختبر الى ظهور النتيجة', '≤ 40 دقيقة', o.stage3_compliance, o.stage3_avg, o.stage3_median)}
             </div>
 
             <div class="hourly-section">
@@ -1599,24 +1597,21 @@ function createHospitalCard(h, p) {
                         <div class="shift-card">
                             <div class="shift-name">${lbl.ar}</div>
                             <div class="shift-time">${lbl.time}</div>
-                            <div class="shift-metric">
-                                <span class="m-label">عدد الاختبارات</span>
-                                <span class="m-value">${sd.count.toLocaleString('en')}</span>
-                            </div>
+                            
                             <div class="shift-metric">
                                 <span class="m-label">الالتزام الكلي</span>
                                 <span class="m-value" style="color: ${compColor(sd.comp_total)}">${fmt(sd.comp_total)}%</span>
                             </div>
                             <div class="shift-metric">
-                                <span class="m-label">المرحلة 1</span>
+                                <span class="m-label">من الطلب الى السحب</span>
                                 <span class="m-value" style="color: ${compColor(sd.comp_stage1)}">${fmt(sd.comp_stage1)}%</span>
                             </div>
                             <div class="shift-metric">
-                                <span class="m-label">المرحلة 2</span>
+                                <span class="m-label">من السحب للاستقبال</span>
                                 <span class="m-value" style="color: ${compColor(sd.comp_stage2)}">${fmt(sd.comp_stage2)}%</span>
                             </div>
                             <div class="shift-metric">
-                                <span class="m-label">المرحلة 3</span>
+                                <span class="m-label">من الاستقبال للنتيجة</span>
                                 <span class="m-value" style="color: ${compColor(sd.comp_stage3)}">${fmt(sd.comp_stage3)}%</span>
                             </div>
                         </div>
@@ -1624,14 +1619,13 @@ function createHospitalCard(h, p) {
                 }).join('')}
             </div>
 
-            <!-- DELAYED SAMPLE IDs -->
             <div class="delayed-section">
                 <div class="delayed-header">
-                    <h3>أرقام العينات المتأخرة (تجاوزت 60 دقيقة)</h3>
-                    <span class="delayed-count-pill">${delayedCount.toLocaleString('en')} عينة</span>
+                    <h3>أرقام الملفات اللي تأخرت (تجاوزت 60 دقيقة)</h3>
+                    <span class="delayed-count-pill">${delayedCount.toLocaleString('en')} ملف</span>
                 </div>
                 ${delayedCount === 0 ? `
-                    <div class="delayed-empty">لا توجد عينات متأخرة — جميع العينات ضمن المستهدف</div>
+                    <div class="delayed-empty">لا توجد ملفات متأخرة — جميع العينات ضمن المستهدف</div>
                 ` : `
                     <div class="delayed-ids-grid">
                         ${p.delayedIds.map(d => `
@@ -1819,7 +1813,7 @@ async function exportSlide(h) {
 
         <div class="slide-kpi-row">
             <div class="slide-kpi flagship" style="border-top-color: ${compColor(o.total_compliance)}">
-                <div class="label">الالتزام الكلي (الطلب → النتيجة)</div>
+                <div class="label">الالتزام الكلي (من الطلب الى ظهور النتيجة)</div>
                 <div class="value" style="color: ${compColor(o.total_compliance)}">${fmt(o.total_compliance)}<span style="font-size:21px;color:#6B7388;">%</span></div>
                 <div class="target">الهدف ≤ 60 دقيقة</div>
             </div>
@@ -1837,21 +1831,21 @@ async function exportSlide(h) {
 
         <div class="slide-stages">
             <div class="slide-stage" style="border-top: 4px solid ${compColor(o.stage1_compliance)};">
-                <div class="name">المرحلة 1: الطلب → سحب العينة</div>
+                <div class="name">من الطلب الى سحب العينة</div>
                 <div class="tg">المستهدف ≤ 5 دقائق</div>
                 <div class="vrow"><span class="lbl">الالتزام</span><span class="val" style="color:${compColor(o.stage1_compliance)};">${fmt(o.stage1_compliance)}%</span></div>
                 <div class="vrow"><span class="lbl">المتوسط</span><span class="val">${fmt(o.stage1_avg)} د</span></div>
                 <div class="vrow"><span class="lbl">الوسيط</span><span class="val">${fmt(o.stage1_median)} د</span></div>
             </div>
             <div class="slide-stage" style="border-top: 4px solid ${compColor(o.stage2_compliance)};">
-                <div class="name">المرحلة 2: السحب → استقبال المختبر</div>
+                <div class="name">من سحب العينة الى استقبال المختبر</div>
                 <div class="tg">المستهدف ≤ 10 دقائق</div>
                 <div class="vrow"><span class="lbl">الالتزام</span><span class="val" style="color:${compColor(o.stage2_compliance)};">${fmt(o.stage2_compliance)}%</span></div>
                 <div class="vrow"><span class="lbl">المتوسط</span><span class="val">${fmt(o.stage2_avg)} د</span></div>
                 <div class="vrow"><span class="lbl">الوسيط</span><span class="val">${fmt(o.stage2_median)} د</span></div>
             </div>
             <div class="slide-stage" style="border-top: 4px solid ${compColor(o.stage3_compliance)};">
-                <div class="name">المرحلة 3: الاستقبال → ظهور النتيجة</div>
+                <div class="name">من استقبال المختبر الى ظهور النتيجة</div>
                 <div class="tg">المستهدف ≤ 40 دقيقة</div>
                 <div class="vrow"><span class="lbl">الالتزام</span><span class="val" style="color:${compColor(o.stage3_compliance)};">${fmt(o.stage3_compliance)}%</span></div>
                 <div class="vrow"><span class="lbl">المتوسط</span><span class="val">${fmt(o.stage3_avg)} د</span></div>
@@ -1953,22 +1947,22 @@ async function exportComparisonSlide() {
 
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px;">
             <div style="background: var(--bg-card-elevated); border-radius: 8px; padding: 22px; border: 1px solid var(--border-subtle);">
-                <h3 style="font-family: 'Cairo'; font-size: 18px; font-weight: 700; margin-bottom: 18px; color: var(--accent-emerald);">الالتزام الكلي (الطلب → النتيجة) ≤ 60 د</h3>
+                <h3 style="font-family: 'Cairo'; font-size: 18px; font-weight: 700; margin-bottom: 18px; color: var(--accent-emerald);">الالتزام الكلي (من الطلب الى ظهور النتيجة) ≤ 60 د</h3>
                 ${sortedTotal.map(([h,p]) => buildRow(h, p, 'total_compliance')).join('')}
             </div>
             <div style="background: var(--bg-card-elevated); border-radius: 8px; padding: 22px; border: 1px solid var(--border-subtle);">
-                <h3 style="font-family: 'Cairo'; font-size: 18px; font-weight: 700; margin-bottom: 18px; color: var(--accent-cyan);">المرحلة 3 (الاستقبال → النتيجة) ≤ 40 د</h3>
+                <h3 style="font-family: 'Cairo'; font-size: 18px; font-weight: 700; margin-bottom: 18px; color: var(--accent-cyan);">من استقبال المختبر الى ظهور النتيجة ≤ 40 د</h3>
                 ${sortedTotal.map(([h,p]) => buildRow(h, p, 'stage3_compliance')).join('')}
             </div>
         </div>
 
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 22px;">
             <div style="background: var(--bg-card-elevated); border-radius: 8px; padding: 22px; border: 1px solid var(--border-subtle);">
-                <h3 style="font-family: 'Cairo'; font-size: 18px; font-weight: 700; margin-bottom: 18px; color: var(--accent-blue);">المرحلة 1 (الطلب → السحب) ≤ 5 د</h3>
+                <h3 style="font-family: 'Cairo'; font-size: 18px; font-weight: 700; margin-bottom: 18px; color: var(--accent-blue);">من الطلب الى سحب العينة ≤ 5 د</h3>
                 ${sortedTotal.map(([h,p]) => buildRow(h, p, 'stage1_compliance')).join('')}
             </div>
             <div style="background: var(--bg-card-elevated); border-radius: 8px; padding: 22px; border: 1px solid var(--border-subtle);">
-                <h3 style="font-family: 'Cairo'; font-size: 18px; font-weight: 700; margin-bottom: 18px; color: var(--accent-violet);">المرحلة 2 (السحب → الاستقبال) ≤ 10 د</h3>
+                <h3 style="font-family: 'Cairo'; font-size: 18px; font-weight: 700; margin-bottom: 18px; color: var(--accent-violet);">من سحب العينة الى استقبال المختبر ≤ 10 د</h3>
                 ${sortedTotal.map(([h,p]) => buildRow(h, p, 'stage2_compliance')).join('')}
             </div>
         </div>
