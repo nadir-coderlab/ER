@@ -6,7 +6,6 @@
 <meta name="theme-color" content="#0A0E1A">
 <title>الخدمات الصحية المساندة | مؤشرات مختبرات الطوارئ</title>
 
-<!-- Pre-paint background to avoid white flash -->
 <style id="pre-paint">
   html, body { background: #0A0E1A !important; color: #F4F6FB; }
 </style>
@@ -50,7 +49,6 @@ if (typeof XLSX === 'undefined') {
     --radius-sm: 4px;
     --radius-md: 6px;
     --radius-lg: 8px;
-    --radius-xl: 12px;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -66,7 +64,6 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
-/* ================ INITIAL LOADING SHIELD ================ */
 #initShield {
     position: fixed;
     inset: 0;
@@ -94,7 +91,7 @@ body {
     font-weight: 600;
 }
 
-/* ================ HEADER ================ */
+/* HEADER */
 .cmd-header {
     background: var(--bg-card);
     border-bottom: 1px solid var(--border-medium);
@@ -104,7 +101,6 @@ body {
     z-index: 100;
     backdrop-filter: blur(8px);
 }
-
 .cmd-header-inner {
     display: flex;
     justify-content: space-between;
@@ -113,7 +109,6 @@ body {
     margin: 0 auto;
     gap: 24px;
 }
-
 .cmd-titles .super {
     font-family: 'Cairo', sans-serif;
     font-size: 11px;
@@ -135,7 +130,6 @@ body {
     color: var(--text-tertiary);
     margin-top: 4px;
 }
-
 .cmd-status { display: flex; gap: 10px; align-items: center; }
 .cmd-pill {
     display: flex; align-items: center; gap: 8px;
@@ -147,14 +141,13 @@ body {
     color: var(--text-secondary);
 }
 
-/* ================ MAIN ================ */
 .cmd-main {
     max-width: 1900px;
     margin: 0 auto;
     padding: 28px 32px 80px;
 }
 
-/* ================ UPLOAD GRID (8 hospitals → 4 cols) ================ */
+/* UPLOAD */
 .upload-section { margin-bottom: 28px; }
 .section-title {
     display: flex; align-items: center; gap: 12px;
@@ -178,7 +171,6 @@ body {
     grid-template-columns: repeat(4, 1fr);
     gap: 14px;
 }
-
 .upload-card {
     background: var(--bg-card);
     border: 1px dashed var(--border-strong);
@@ -191,7 +183,6 @@ body {
     border-color: var(--accent-emerald);
     background: linear-gradient(180deg, var(--bg-card) 0%, rgba(16,185,129,0.03) 100%);
 }
-
 .upload-card-header { margin-bottom: 12px; }
 .hospital-info h3 {
     font-family: 'Cairo', sans-serif;
@@ -206,7 +197,6 @@ body {
     direction: ltr;
     text-align: right;
 }
-
 .upload-input-wrap { position: relative; }
 .upload-input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
 .upload-label {
@@ -224,7 +214,6 @@ body {
     background: var(--bg-card-elevated);
     color: var(--text-primary);
 }
-
 .upload-status {
     margin-top: 8px;
     padding: 7px 9px;
@@ -240,7 +229,7 @@ body {
 .upload-status.success { color: var(--accent-emerald); }
 .upload-status.error { color: var(--accent-rose); }
 
-/* ================ ACTIONS BAR ================ */
+/* ACTIONS */
 .actions-bar {
     display: flex; justify-content: space-between; align-items: center;
     padding: 14px 18px;
@@ -262,7 +251,6 @@ body {
     color: var(--text-primary);
     font-family: 'JetBrains Mono', monospace;
 }
-
 .actions-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
 .btn {
     display: inline-flex; align-items: center; justify-content: center;
@@ -286,7 +274,6 @@ body {
 }
 .btn-primary:hover:not(:disabled) { background: #2563EB; }
 
-/* ================ EMPTY STATE ================ */
 .empty-state {
     padding: 70px 30px;
     text-align: center;
@@ -300,76 +287,88 @@ body {
     color: var(--text-secondary);
     margin-bottom: 8px;
 }
-.empty-state p {
-    color: var(--text-tertiary);
-    font-size: 13px;
-}
+.empty-state p { color: var(--text-tertiary); font-size: 13px; }
 
-/* ================ RESULTS ================ */
 .results-section { display: none; }
 .results-section.active { display: block; }
 
-/* ================ EXEC SUMMARY ================ */
-.exec-summary {
+/* INDICATOR EXPLAINER (replaces exec summary) */
+.indicator-explainer {
     background: var(--bg-card);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-md);
-    padding: 22px;
+    padding: 24px 26px;
     margin-bottom: 22px;
 }
-.exec-header {
-    display: flex; justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 18px;
-    gap: 16px; flex-wrap: wrap;
-}
-.exec-header h2 {
+.indicator-explainer h2 {
     font-family: 'Cairo', sans-serif;
-    font-size: 19px; font-weight: 700;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
-.exec-header .meta {
-    font-size: 12px;
-    color: var(--text-tertiary);
-    font-family: 'JetBrains Mono', monospace;
-    text-align: left; direction: ltr;
+.indicator-explainer h2::before {
+    content: '';
+    width: 4px;
+    height: 22px;
+    background: var(--accent-emerald);
+    border-radius: 2px;
 }
-
-.exec-grid {
+.indicator-text {
+    color: var(--text-secondary);
+    font-size: 14px;
+    line-height: 1.85;
+    margin-bottom: 18px;
+}
+.indicator-text strong {
+    color: var(--text-primary);
+    font-weight: 700;
+}
+.indicator-stages-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 12px;
+    margin-top: 16px;
 }
-.exec-card {
+.indicator-stage-box {
     background: var(--bg-input);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-sm);
     padding: 14px;
+    border-right: 3px solid var(--accent-cyan);
 }
-.exec-card.flagship { border-top: 3px solid var(--accent-emerald); }
-.exec-card.alert { border-top: 3px solid var(--accent-rose); }
-.exec-card.info { border-top: 3px solid var(--accent-blue); }
-.exec-card .label {
-    font-size: 11.5px; color: var(--text-tertiary);
-    font-weight: 600; margin-bottom: 6px;
-}
-.exec-card .value {
-    font-size: 26px; font-weight: 700;
-    font-family: 'Cairo', sans-serif;
-    color: var(--text-primary); line-height: 1;
-}
-.exec-card .unit {
-    font-size: 12px; color: var(--text-tertiary);
-    font-weight: 500; margin-right: 4px;
-}
-.exec-card .target {
-    font-size: 10.5px; color: var(--text-muted);
-    margin-top: 4px;
+.indicator-stage-box .num {
+    display: inline-block;
+    background: var(--bg-card-elevated);
+    color: var(--text-secondary);
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 22px;
+    font-size: 11px;
+    font-weight: 700;
     font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 8px;
+}
+.indicator-stage-box .nm {
+    font-family: 'Cairo', sans-serif;
+    font-weight: 700;
+    font-size: 13.5px;
+    margin-bottom: 4px;
+}
+.indicator-stage-box .tg {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    font-family: 'JetBrains Mono', monospace;
+    direction: ltr;
+    text-align: right;
 }
 
-/* ================ HOSPITAL CARDS ================ */
+/* HOSPITAL CARDS */
 .hospitals-section { margin-top: 28px; }
-
 .hospital-card {
     background: var(--bg-card);
     border: 1px solid var(--border-subtle);
@@ -377,7 +376,6 @@ body {
     margin-bottom: 22px;
     overflow: hidden;
 }
-
 .hospital-header {
     padding: 18px 22px;
     background: var(--bg-card-elevated);
@@ -395,13 +393,12 @@ body {
     direction: ltr; text-align: right;
 }
 .hospital-actions { display: flex; gap: 6px; }
-
 .hospital-body { padding: 22px; }
 
-/* ================ KPI ROW ================ */
+/* KPI ROW (without delayed count, without tests/patient) */
 .kpi-row {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 12px;
     margin-bottom: 24px;
 }
@@ -412,8 +409,7 @@ body {
     padding: 14px;
 }
 .kpi-tile.flagship { border-top: 3px solid var(--accent-emerald); }
-.kpi-tile.stage { border-top: 3px solid var(--accent-cyan); }
-.kpi-tile.alert { border-top: 3px solid var(--accent-rose); }
+.kpi-tile.info { border-top: 3px solid var(--accent-blue); }
 .kpi-tile .kpi-label {
     font-size: 11.5px; color: var(--text-secondary);
     font-weight: 600; margin-bottom: 8px;
@@ -441,7 +437,7 @@ body {
 .kpi-bar-fill.amber { background: var(--accent-amber); }
 .kpi-bar-fill.red { background: var(--accent-rose); }
 
-/* ================ STAGE BREAKDOWN ================ */
+/* STAGES */
 .stages-strip {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -453,7 +449,6 @@ body {
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-sm);
     padding: 16px;
-    position: relative;
 }
 .stage-card .stage-header {
     display: flex; justify-content: space-between;
@@ -512,7 +507,7 @@ body {
     margin-top: 10px;
 }
 
-/* ================ HOURLY HEATMAP (24 cards) ================ */
+/* HOURLY (renamed → "المؤشر حسب ساعات العمل") */
 .hourly-section { margin-top: 24px; }
 .hourly-header {
     display: flex; justify-content: space-between;
@@ -534,7 +529,6 @@ body {
     width: 10px; height: 10px;
     border-radius: 2px;
 }
-
 .hourly-grid {
     display: grid;
     grid-template-columns: repeat(12, 1fr);
@@ -578,7 +572,7 @@ body {
     pointer-events: none;
 }
 
-/* ================ SHIFTS ================ */
+/* SHIFTS */
 .shifts-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -613,7 +607,81 @@ body {
     font-weight: 700;
 }
 
-/* ================ SLIDE EXPORT ================ */
+/* DELAYED SAMPLES IDS LIST */
+.delayed-section { margin-top: 26px; }
+.delayed-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 12px; gap: 12px; flex-wrap: wrap;
+}
+.delayed-header h3 {
+    font-family: 'Cairo', sans-serif;
+    font-size: 15px; font-weight: 700;
+    display: flex; align-items: center; gap: 8px;
+}
+.delayed-header h3::before {
+    content: '';
+    width: 4px;
+    height: 18px;
+    background: var(--accent-rose);
+    border-radius: 2px;
+}
+.delayed-count-pill {
+    padding: 4px 11px;
+    background: rgba(239, 68, 68, 0.12);
+    color: var(--accent-rose);
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+.delayed-ids-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+    gap: 8px;
+    background: var(--bg-input);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    max-height: 380px;
+    overflow-y: auto;
+}
+.delayed-id-chip {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-right: 3px solid var(--accent-rose);
+    border-radius: var(--radius-sm);
+    padding: 9px 11px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+.delayed-id-chip .sid {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-primary);
+    direction: ltr;
+    text-align: right;
+}
+.delayed-id-chip .sval {
+    font-size: 10.5px;
+    color: var(--accent-rose);
+    font-family: 'JetBrains Mono', monospace;
+    direction: ltr;
+    text-align: right;
+}
+.delayed-empty {
+    padding: 30px;
+    text-align: center;
+    color: var(--accent-emerald);
+    font-size: 13px;
+    background: var(--bg-input);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+}
+
+/* SLIDE EXPORT */
 .slide-export {
     position: fixed;
     left: -99999px;
@@ -629,7 +697,6 @@ body {
     overflow: hidden;
 }
 .slide-export.active { left: 0; top: 0; z-index: -1; }
-
 .slide-header {
     display: flex; justify-content: space-between;
     align-items: center; margin-bottom: 32px;
@@ -665,21 +732,19 @@ body {
     font-size: 21px; font-weight: 700;
     margin-bottom: 6px;
 }
-
 .slide-kpi-row {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 16px;
     margin-bottom: 22px;
 }
 .slide-kpi {
     background: var(--bg-card-elevated);
     border-radius: 8px;
-    padding: 20px;
+    padding: 22px;
     border: 1px solid var(--border-subtle);
 }
 .slide-kpi.flagship { border-top: 4px solid var(--accent-emerald); }
-.slide-kpi.alert { border-top: 4px solid var(--accent-rose); }
 .slide-kpi.info { border-top: 4px solid var(--accent-blue); }
 .slide-kpi .label {
     font-size: 14px; color: var(--text-secondary);
@@ -687,7 +752,7 @@ body {
 }
 .slide-kpi .value {
     font-family: 'Cairo', sans-serif;
-    font-size: 36px; font-weight: 700; line-height: 1;
+    font-size: 38px; font-weight: 700; line-height: 1;
 }
 .slide-kpi .target {
     font-size: 12px; color: var(--text-tertiary);
@@ -695,7 +760,6 @@ body {
     margin-top: 7px;
     direction: ltr; text-align: right;
 }
-
 .slide-stages {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -732,7 +796,6 @@ body {
     font-weight: 700;
     font-family: 'JetBrains Mono', monospace;
 }
-
 .slide-hourly-section {
     background: var(--bg-card-elevated);
     border-radius: 8px;
@@ -777,7 +840,6 @@ body {
     position: absolute; inset: 0;
     opacity: 0.12;
 }
-
 .slide-footer {
     position: absolute;
     bottom: 24px;
@@ -795,7 +857,7 @@ body {
     direction: ltr;
 }
 
-/* Comparison slide */
+/* COMPARE */
 .compare-row {
     display: grid;
     grid-template-columns: 220px 1fr;
@@ -831,7 +893,7 @@ body {
     font-family: 'JetBrains Mono', monospace;
 }
 
-/* ================ LOADING ================ */
+/* LOADING */
 .loading-overlay {
     position: fixed; inset: 0;
     background: rgba(10,14,26,0.92);
@@ -856,19 +918,20 @@ body {
     color: var(--text-primary);
 }
 
-/* ================ RESPONSIVE ================ */
+/* RESPONSIVE */
 @media (max-width: 1500px) {
     .upload-grid { grid-template-columns: repeat(3, 1fr); }
-    .exec-grid { grid-template-columns: repeat(3, 1fr); }
-    .kpi-row { grid-template-columns: repeat(2, 1fr); }
+    .indicator-stages-grid { grid-template-columns: repeat(3, 1fr); }
+    .kpi-row { grid-template-columns: repeat(3, 1fr); }
 }
 @media (max-width: 1100px) {
     .cmd-main { padding: 24px 22px 60px; }
     .cmd-header { padding: 18px 22px; }
     .upload-grid { grid-template-columns: repeat(2, 1fr); }
-    .exec-grid { grid-template-columns: repeat(2, 1fr); }
+    .indicator-stages-grid { grid-template-columns: 1fr; }
     .stages-strip { grid-template-columns: 1fr; }
     .hourly-grid { grid-template-columns: repeat(8, 1fr); }
+    .kpi-row { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 768px) {
     .cmd-header { padding: 14px 16px; }
@@ -878,8 +941,8 @@ body {
     .cmd-titles .subtitle { font-size: 11px; }
     .cmd-status { display: none; }
     .upload-grid { grid-template-columns: 1fr; }
-    .exec-grid { grid-template-columns: 1fr; }
-    .kpi-row { grid-template-columns: 1fr 1fr; }
+    .indicator-text { font-size: 13px; line-height: 1.7; }
+    .kpi-row { grid-template-columns: 1fr; }
     .hourly-grid { grid-template-columns: repeat(6, 1fr); gap: 5px; }
     .hour-tile { padding: 8px 4px; }
     .hour-tile .h-pct { font-size: 12px; }
@@ -891,15 +954,13 @@ body {
     .actions-buttons .btn { flex: 1; min-width: 130px; }
     .hospital-header { padding: 14px 16px; }
     .hospital-body { padding: 16px; }
-    .stage-card .stage-metrics { grid-template-columns: 1fr 1fr; }
+    .delayed-ids-grid { grid-template-columns: repeat(auto-fill, minmax(125px, 1fr)); }
 }
 @media (max-width: 420px) {
-    .kpi-row { grid-template-columns: 1fr; }
     .hourly-grid { grid-template-columns: repeat(4, 1fr); }
 }
 
 .hidden { display: none !important; }
-
 ::-webkit-scrollbar { width: 7px; height: 7px; }
 ::-webkit-scrollbar-track { background: var(--bg-primary); }
 ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 4px; }
@@ -908,19 +969,17 @@ body {
 </head>
 <body>
 
-<!-- INITIAL DARK SHIELD -->
 <div id="initShield">
     <div class="ring"></div>
     <div class="label">جاري التحميل</div>
 </div>
 
-<!-- HEADER -->
 <header class="cmd-header">
     <div class="cmd-header-inner">
         <div class="cmd-titles">
             <div class="super">الخدمات الصحية المساندة</div>
             <h1>مؤشرات أداء مختبرات الطوارئ — تحليل زمن الإنجاز TAT</h1>
-            <div class="subtitle">تحليل مفصل للمراحل الثلاث مع التوزيع الساعي على ٢٤ ساعة</div>
+            <div class="subtitle">تحليل مفصل للمراحل الثلاث مع المؤشر حسب ساعات العمل</div>
         </div>
         <div class="cmd-status">
             <div class="cmd-pill" id="datePill" style="font-family: 'JetBrains Mono', monospace; direction: ltr;">--</div>
@@ -928,20 +987,16 @@ body {
     </div>
 </header>
 
-<!-- MAIN -->
 <main class="cmd-main">
 
-    <!-- UPLOAD SECTION -->
     <section class="upload-section">
         <div class="section-title">
             <h2>رفع ملفات المستشفيات</h2>
             <span class="badge">٨ مستشفيات مستهدفة</span>
         </div>
-
         <div class="upload-grid" id="uploadGrid"></div>
     </section>
 
-    <!-- ACTIONS BAR -->
     <div class="actions-bar">
         <div class="actions-info">
             <div class="info-stat">
@@ -966,38 +1021,51 @@ body {
         </div>
     </div>
 
-    <!-- EMPTY STATE -->
     <div class="empty-state" id="emptyState">
         <h3>ارفع ملف واحد على الأقل لبدء التحليل</h3>
         <p>الداشبورد يحلل عينات الطوارئ ER ويستثني العينات المرفوضة والمعلقة</p>
     </div>
 
-    <!-- RESULTS -->
     <section class="results-section" id="resultsSection">
-        <div class="exec-summary" id="execSummary">
-            <div class="exec-header">
-                <h2>الملخص التنفيذي العام</h2>
-                <div class="meta" id="execMeta">--</div>
+        <!-- Indicator explainer (replaces exec summary) -->
+        <div class="indicator-explainer">
+            <h2>تعريف المؤشر</h2>
+            <p class="indicator-text">
+                مؤشر <strong>زمن إنجاز عينات الطوارئ (TAT)</strong> يقيس الزمن الكلي بين <strong>طلب الفحص من قسم الطوارئ</strong> وحتى <strong>ظهور النتيجة معتمدة في النظام</strong>. المستهدف العام هو <strong>٦٠ دقيقة فأقل</strong> ولكل عينة طوارئ. لتحديد نقطة التأخير بدقة وتحويل المعالجة من تشخيص عام إلى تدخل موجّه على المرحلة المسببة، تم تقسيم رحلة العينة إلى ثلاث مراحل تشغيلية مستقلة، يخضع كل منها لمستهدف زمني خاص ويمكن قياسه ومتابعته بمعزل عن البقية.
+            </p>
+            <div class="indicator-stages-grid">
+                <div class="indicator-stage-box">
+                    <span class="num">١</span>
+                    <div class="nm">من الطلب إلى سحب العينة</div>
+                    <div class="tg">المستهدف ≤ 5 دقائق</div>
+                </div>
+                <div class="indicator-stage-box">
+                    <span class="num">٢</span>
+                    <div class="nm">من سحب العينة إلى استقبالها في المختبر</div>
+                    <div class="tg">المستهدف ≤ 10 دقائق</div>
+                </div>
+                <div class="indicator-stage-box">
+                    <span class="num">٣</span>
+                    <div class="nm">من استقبال المختبر إلى ظهور النتيجة</div>
+                    <div class="tg">المستهدف ≤ 40 دقيقة</div>
+                </div>
             </div>
-            <div class="exec-grid" id="execGrid"></div>
         </div>
+
         <div class="hospitals-section" id="hospitalsSection"></div>
     </section>
 
 </main>
 
-<!-- LOADING -->
 <div class="loading-overlay" id="loadingOverlay">
     <div class="loader"></div>
     <div class="loading-text" id="loadingText">جاري المعالجة...</div>
 </div>
 
-<!-- HIDDEN SLIDES -->
 <div class="slide-export" id="slideExport"></div>
 <div class="slide-export" id="compareExport"></div>
 
 <script>
-// ================ HOSPITAL CONFIG ================
 const HOSPITALS = {
     kfh:    { ar: 'مستشفى الملك فهد',           en: 'King Fahad Hospital - Madina',         schema: 'kfh' },
     kgh:    { ar: 'مستشفى المدينة العام',        en: 'Madinah General Hospital',             schema: 'std' },
@@ -1009,17 +1077,14 @@ const HOSPITALS = {
     hamna:  { ar: 'مستشفى الحمنة',               en: 'Al-Hamna Hospital',                    schema: 'std' }
 };
 
-// ================ STATE ================
 const STATE = { files: {}, rawData: {}, processed: {} };
 Object.keys(HOSPITALS).forEach(k => { STATE.files[k] = null; STATE.rawData[k] = null; STATE.processed[k] = null; });
 
-// ================ TARGETS ================
-const TARGET_TOTAL = 60;          // الطلب → النتيجة
-const TARGET_ORDER_COLLECT = 5;   // الطلب → السحب
-const TARGET_COLLECT_RECEIVE = 10; // السحب → الاستقبال
-const TARGET_RECEIVE_RESULT = 40;  // الاستقبال → النتيجة
+const TARGET_TOTAL = 60;
+const TARGET_ORDER_COLLECT = 5;
+const TARGET_COLLECT_RECEIVE = 10;
+const TARGET_RECEIVE_RESULT = 40;
 
-// ================ INIT ================
 function init() {
     document.getElementById('datePill').textContent = new Date().toISOString().slice(0, 10);
     renderUploadCards();
@@ -1030,7 +1095,6 @@ function init() {
     document.getElementById('btnExportPdf').addEventListener('click', exportPdf);
     document.getElementById('btnExportCompare').addEventListener('click', exportComparisonSlide);
 
-    // Hide init shield once everything is set up
     setTimeout(() => {
         const shield = document.getElementById('initShield');
         shield.classList.add('hidden');
@@ -1061,7 +1125,6 @@ function renderUploadCards() {
     });
 }
 
-// ================ FILE UPLOAD ================
 function handleUpload(e) {
     const file = e.target.files[0];
     const hospital = e.target.dataset.hospital;
@@ -1086,7 +1149,6 @@ function handleUpload(e) {
             const wb = XLSX.read(data, { type: 'array', cellDates: true, cellNF: false, cellText: false });
             const ws = wb.Sheets[wb.SheetNames[0]];
 
-            // Fix range
             if (ws['!ref']) {
                 let maxRow = 0, maxCol = 0;
                 Object.keys(ws).forEach(key => {
@@ -1118,11 +1180,8 @@ function handleUpload(e) {
 
             if (json.length === 0) throw new Error('لم يتم قراءة أي بيانات');
 
-            // Auto-detect schema
             const detectedSchema = detectSchema(json[0]);
-            if (detectedSchema) {
-                HOSPITALS[hospital].schema = detectedSchema;
-            }
+            if (detectedSchema) HOSPITALS[hospital].schema = detectedSchema;
 
             STATE.files[hospital] = file;
             STATE.rawData[hospital] = json;
@@ -1145,7 +1204,6 @@ function handleUpload(e) {
     reader.readAsArrayBuffer(file);
 }
 
-// Auto-detect schema from columns
 function detectSchema(sampleRow) {
     if (!sampleRow) return null;
     const keys = Object.keys(sampleRow);
@@ -1165,7 +1223,6 @@ function updateUploadStatus() {
     document.getElementById('btnAnalyze').disabled = count === 0;
 }
 
-// ================ DATE PARSING ================
 function parseDate(val) {
     if (val === null || val === undefined || val === '') return null;
     if (val instanceof Date) return isNaN(val.getTime()) ? null : val;
@@ -1207,7 +1264,6 @@ function diffMinutes(d1, d2) {
     return (d2.getTime() - d1.getTime()) / 60000;
 }
 
-// ================ SHIFT ================
 function getShift(date) {
     if (!date) return null;
     const tm = date.getHours() * 60 + date.getMinutes();
@@ -1222,7 +1278,6 @@ const SHIFT_LABELS = {
     night:     { ar: 'الليل',  time: '23:30 - 07:30' }
 };
 
-// ================ ROW NORMALIZATION ================
 function normalizeRow(row, schema) {
     const sId = row['Sample ID'] || row['SampleID'] || row['رقم العينة'] || '';
     const pId = row['MRN'] || row['Patient ID'] || row['PatientID'] || row['MRN No'] || '';
@@ -1257,17 +1312,13 @@ function normalizeRow(row, schema) {
     }
 }
 
-function isER(pt) {
-    return pt && pt.toString().toUpperCase().includes('ER');
-}
-
+function isER(pt) { return pt && pt.toString().toUpperCase().includes('ER'); }
 function isRejected(row, schema) {
     if (schema === 'kfh') return false;
     const s = (row.status || '').toLowerCase();
     return s.includes('reject') || (row.rejectReason && row.rejectReason !== '');
 }
 
-// ================ PROCESSING ================
 function processHospital(key) {
     const raw = STATE.rawData[key];
     if (!raw || raw.length === 0) return null;
@@ -1289,7 +1340,6 @@ function processHospital(key) {
         return { key, total: erAll.length, completed: 0, rejected: rejectedCount, empty: true };
     }
 
-    // Compute timings
     const timings = completed.map(r => {
         const tot = diffMinutes(r.orderDate, r.completeDate);
         const ord_col = diffMinutes(r.orderDate, r.collectDate);
@@ -1328,26 +1378,25 @@ function processHospital(key) {
     };
     const compPct = (arr, k) => arr.length ? arr.filter(x => x[k]).length / arr.length * 100 : 0;
 
-    // Unique sample counters
-    const uniqueDelayedTotal = (() => {
-        const set = new Set();
-        let unidCount = 0;
-        timings.filter(t => !t.compTotal).forEach(t => {
-            if (t.sampleId) set.add(t.sampleId); else unidCount++;
-        });
-        return set.size + unidCount;
-    })();
-
-    const uniquePatients = new Set(erAll.map(r => r.patientId).filter(id => id !== '')).size;
-    const testsPerPatient = uniquePatients ? erAll.length / uniquePatients : 0;
+    // Build delayed sample IDs list (deduped, sorted by worst delay first)
+    const delayedTimings = timings.filter(t => !t.compTotal && t.tot <= 4 * 60); // exclude data-entry errors > 4h
+    const delayedMap = new Map();
+    delayedTimings.forEach(t => {
+        const id = t.sampleId || `بدون رقم (${Math.random().toString(36).slice(2,7)})`;
+        const displayId = t.sampleId || 'بدون رقم';
+        if (!delayedMap.has(id)) {
+            delayedMap.set(id, { id: displayId, val: t.tot });
+        } else {
+            const existing = delayedMap.get(id);
+            if (t.tot > existing.val) existing.val = t.tot;
+        }
+    });
+    const delayedIds = Array.from(delayedMap.values()).sort((a,b) => b.val - a.val);
 
     const overall = {
-        // Totals
         total_compliance: compPct(timings, 'compTotal'),
         total_avg: avg(timings, 'tot'),
         total_median: median(timings, 'tot'),
-        delayed_total: uniqueDelayedTotal,
-        // Stages
         stage1_compliance: compPct(timings.filter(t => t.ord_col !== null), 'compOrdCol'),
         stage1_avg: avg(timings, 'ord_col'),
         stage1_median: median(timings, 'ord_col'),
@@ -1356,13 +1405,9 @@ function processHospital(key) {
         stage2_median: median(timings, 'col_rec'),
         stage3_compliance: compPct(timings.filter(t => t.rec_res !== null), 'compRecRes'),
         stage3_avg: avg(timings, 'rec_res'),
-        stage3_median: median(timings, 'rec_res'),
-        // Volumes
-        tests_per_patient: testsPerPatient,
-        total_patients: uniquePatients
+        stage3_median: median(timings, 'rec_res')
     };
 
-    // By shift
     const byShift = {};
     ['morning','afternoon','night'].forEach(s => {
         const subset = timings.filter(t => t.shift === s);
@@ -1375,7 +1420,6 @@ function processHospital(key) {
         };
     });
 
-    // Hourly (24h) — compliance % only
     const byHour = {};
     for (let h = 0; h < 24; h++) {
         const subset = timings.filter(t => t.hour === h);
@@ -1393,11 +1437,11 @@ function processHospital(key) {
         overall,
         byShift,
         byHour,
+        delayedIds,
         empty: false
     };
 }
 
-// ================ ANALYZE ================
 async function analyzeAll() {
     const overlay = document.getElementById('loadingOverlay');
     overlay.classList.add('active');
@@ -1415,13 +1459,15 @@ async function analyzeAll() {
     document.getElementById('btnExportPdf').disabled = false;
     document.getElementById('btnExportCompare').disabled = false;
 
-    renderExecSummary();
+    const valid = Object.values(STATE.processed).filter(p => p && !p.empty);
+    const totalCompleted = valid.reduce((s, p) => s + p.completed, 0);
+    document.getElementById('totalSamples').textContent = totalCompleted.toLocaleString('en');
+
     renderHospitals();
 
     overlay.classList.remove('active');
 }
 
-// ================ COMPLIANCE COLOR ================
 function compColor(val) {
     if (val === null || val === undefined) return '#F59E0B';
     if (val >= 90) return '#10B981';
@@ -1435,101 +1481,6 @@ function compClass(val) {
     return 'red';
 }
 
-// ================ EXEC SUMMARY ================
-function renderExecSummary() {
-    const valid = Object.values(STATE.processed).filter(p => p && !p.empty);
-    if (valid.length === 0) {
-        document.getElementById('execGrid').innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-tertiary);">لا توجد بيانات صالحة للتحليل</div>';
-        return;
-    }
-
-    const totalCompleted = valid.reduce((s, p) => s + p.completed, 0);
-    const totalRejected = valid.reduce((s, p) => s + p.rejected, 0);
-    const totalDelayed = valid.reduce((s, p) => s + p.overall.delayed_total, 0);
-
-    document.getElementById('totalSamples').textContent = totalCompleted.toLocaleString('en');
-
-    const wAvg = (key) => {
-        let sum = 0, cnt = 0;
-        valid.forEach(p => {
-            if (p.overall[key] !== null) {
-                sum += p.overall[key] * p.completed;
-                cnt += p.completed;
-            }
-        });
-        return cnt ? sum / cnt : null;
-    };
-
-    const totalComp = wAvg('total_compliance');
-    const s1Comp = wAvg('stage1_compliance');
-    const s2Comp = wAvg('stage2_compliance');
-    const s3Comp = wAvg('stage3_compliance');
-
-    const fmt = v => v === null ? '--' : v.toFixed(1);
-
-    document.getElementById('execMeta').textContent = `${valid.length} مستشفى • ${totalCompleted.toLocaleString('en')} اختبار مكتمل`;
-
-    const cards = [
-        {
-            cls: 'flagship',
-            label: 'الالتزام الكلي (الطلب → النتيجة)',
-            value: fmt(totalComp), unit: '%',
-            target: 'المستهدف ≤ 60 دقيقة'
-        },
-        {
-            cls: '',
-            label: 'المرحلة ١ (الطلب → السحب)',
-            value: fmt(s1Comp), unit: '%',
-            target: 'المستهدف ≤ 5 دقائق'
-        },
-        {
-            cls: '',
-            label: 'المرحلة ٢ (السحب → الاستقبال)',
-            value: fmt(s2Comp), unit: '%',
-            target: 'المستهدف ≤ 10 دقائق'
-        },
-        {
-            cls: '',
-            label: 'المرحلة ٣ (الاستقبال → النتيجة)',
-            value: fmt(s3Comp), unit: '%',
-            target: 'المستهدف ≤ 40 دقيقة'
-        },
-        {
-            cls: 'alert',
-            label: 'العينات المتأخرة',
-            value: totalDelayed.toLocaleString('en'), unit: 'عينة',
-            target: 'تجاوزت 60 دقيقة'
-        },
-        {
-            cls: 'info',
-            label: 'العينات المرفوضة',
-            value: totalRejected.toLocaleString('en'), unit: 'عينة',
-            target: 'مرفوضة أو معلقة'
-        },
-        {
-            cls: 'info',
-            label: 'إجمالي العينات المكتملة',
-            value: totalCompleted.toLocaleString('en'), unit: 'عينة',
-            target: 'بعد الاستثناء'
-        },
-        {
-            cls: 'info',
-            label: 'عدد المستشفيات',
-            value: valid.length, unit: 'مستشفى',
-            target: 'تم تحليلها'
-        }
-    ];
-
-    document.getElementById('execGrid').innerHTML = cards.map(c => `
-        <div class="exec-card ${c.cls}">
-            <div class="label">${c.label}</div>
-            <div class="value">${c.value}<span class="unit">${c.unit}</span></div>
-            <div class="target">${c.target}</div>
-        </div>
-    `).join('');
-}
-
-// ================ HOSPITAL CARDS ================
 function renderHospitals() {
     const container = document.getElementById('hospitalsSection');
     container.innerHTML = '';
@@ -1565,6 +1516,7 @@ function createHospitalCard(h, p) {
 
     const fmt = v => v === null ? '--' : v.toFixed(1);
     const o = p.overall;
+    const delayedCount = p.delayedIds.length;
 
     div.innerHTML = `
         <div class="hospital-header">
@@ -1578,7 +1530,6 @@ function createHospitalCard(h, p) {
         </div>
         <div class="hospital-body">
 
-            <!-- Top KPI Row -->
             <div class="kpi-row">
                 <div class="kpi-tile flagship">
                     <div class="kpi-label">الالتزام الكلي (الطلب → النتيجة)</div>
@@ -1591,19 +1542,13 @@ function createHospitalCard(h, p) {
                     <div class="kpi-value">${fmt(o.total_avg)}<span style="font-size:13px;color:var(--text-tertiary);"> د</span></div>
                     <div class="kpi-target">الوسيط: ${fmt(o.total_median)} دقيقة</div>
                 </div>
-                <div class="kpi-tile alert">
-                    <div class="kpi-label">العينات المتأخرة</div>
-                    <div class="kpi-value" style="color: var(--accent-rose);">${o.delayed_total.toLocaleString('en')}</div>
-                    <div class="kpi-target">تجاوزت 60 دقيقة</div>
-                </div>
-                <div class="kpi-tile">
-                    <div class="kpi-label">معدل الفحوصات للمريض</div>
-                    <div class="kpi-value">${fmt(o.tests_per_patient)}<span style="font-size:13px;color:var(--text-tertiary);"> فحص</span></div>
-                    <div class="kpi-target">${o.total_patients.toLocaleString('en')} مريض</div>
+                <div class="kpi-tile info">
+                    <div class="kpi-label">العينات المرفوضة / المعلقة</div>
+                    <div class="kpi-value">${p.rejected.toLocaleString('en')}</div>
+                    <div class="kpi-target">من إجمالي ${p.total.toLocaleString('en')} عينة ER</div>
                 </div>
             </div>
 
-            <!-- Stage Breakdown -->
             <div class="section-title" style="margin: 0 0 14px 0;">
                 <h2 style="font-size: 15px;">تحليل المراحل الثلاث — تحديد نقطة التأخير</h2>
             </div>
@@ -1613,10 +1558,9 @@ function createHospitalCard(h, p) {
                 ${stageCard(3, 'الاستقبال → ظهور النتيجة', '≤ 40 دقيقة', o.stage3_compliance, o.stage3_avg, o.stage3_median)}
             </div>
 
-            <!-- Hourly Heatmap -->
             <div class="hourly-section">
                 <div class="hourly-header">
-                    <h3>التوزيع الساعي للالتزام (24 ساعة)</h3>
+                    <h3>المؤشر حسب ساعات العمل (24 ساعة)</h3>
                     <div class="hourly-legend">
                         <div class="lg-item"><div class="lg-dot" style="background:#10B981;"></div><span>≥ 90%</span></div>
                         <div class="lg-item"><div class="lg-dot" style="background:#F59E0B;"></div><span>70–89%</span></div>
@@ -1644,7 +1588,6 @@ function createHospitalCard(h, p) {
                 </div>
             </div>
 
-            <!-- Shifts -->
             <div class="section-title" style="margin: 24px 0 12px 0;">
                 <h2 style="font-size: 15px;">الأداء حسب الوردية</h2>
             </div>
@@ -1681,6 +1624,26 @@ function createHospitalCard(h, p) {
                 }).join('')}
             </div>
 
+            <!-- DELAYED SAMPLE IDs -->
+            <div class="delayed-section">
+                <div class="delayed-header">
+                    <h3>أرقام العينات المتأخرة (تجاوزت 60 دقيقة)</h3>
+                    <span class="delayed-count-pill">${delayedCount.toLocaleString('en')} عينة</span>
+                </div>
+                ${delayedCount === 0 ? `
+                    <div class="delayed-empty">لا توجد عينات متأخرة — جميع العينات ضمن المستهدف</div>
+                ` : `
+                    <div class="delayed-ids-grid">
+                        ${p.delayedIds.map(d => `
+                            <div class="delayed-id-chip">
+                                <span class="sid">${d.id}</span>
+                                <span class="sval">${d.val.toFixed(0)} د (+${(d.val - 60).toFixed(0)})</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `}
+            </div>
+
         </div>
     `;
     return div;
@@ -1715,7 +1678,6 @@ function stageCard(num, name, target, comp, avg, med) {
     `;
 }
 
-// ================ EXPORT FULL DASH (PNG) ================
 async function exportAllDash() {
     const overlay = document.getElementById('loadingOverlay');
     overlay.classList.add('active');
@@ -1766,7 +1728,6 @@ async function exportAllDash() {
     }
 }
 
-// ================ EXPORT PDF ================
 async function exportPdf() {
     const { jsPDF } = window.jspdf;
     if (!jsPDF) { alert('تعذر تحميل مكتبة PDF'); return; }
@@ -1829,7 +1790,6 @@ async function exportPdf() {
     }
 }
 
-// ================ EXPORT SINGLE SLIDE ================
 async function exportSlide(h) {
     const p = STATE.processed[h];
     if (!p || p.empty) { alert('لا توجد بيانات'); return; }
@@ -1868,15 +1828,10 @@ async function exportSlide(h) {
                 <div class="value">${fmt(o.total_avg)}<span style="font-size:18px;color:#6B7388;"> د</span></div>
                 <div class="target">الوسيط: ${fmt(o.total_median)} د</div>
             </div>
-            <div class="slide-kpi alert">
-                <div class="label">العينات المتأخرة</div>
-                <div class="value" style="color: var(--accent-rose);">${o.delayed_total.toLocaleString('en')}</div>
-                <div class="target">تجاوزت 60 دقيقة</div>
-            </div>
             <div class="slide-kpi info">
-                <div class="label">معدل الفحوصات للمريض</div>
-                <div class="value">${fmt(o.tests_per_patient)}<span style="font-size:18px;color:#6B7388;"> فحص</span></div>
-                <div class="target">${o.total_patients.toLocaleString('en')} مريض</div>
+                <div class="label">إجمالي العينات المكتملة</div>
+                <div class="value">${p.completed.toLocaleString('en')}</div>
+                <div class="target">من ${p.total.toLocaleString('en')} عينة ER</div>
             </div>
         </div>
 
@@ -1905,7 +1860,7 @@ async function exportSlide(h) {
         </div>
 
         <div class="slide-hourly-section">
-            <h3>التوزيع الساعي لنسبة الالتزام (24 ساعة)</h3>
+            <h3>المؤشر حسب ساعات العمل (24 ساعة)</h3>
             <div class="slide-hourly-grid">
                 ${[...Array(24).keys()].map(hr => {
                     const hd = p.byHour[hr];
@@ -1955,7 +1910,6 @@ async function exportSlide(h) {
     }
 }
 
-// ================ EXPORT COMPARISON ================
 async function exportComparisonSlide() {
     const valid = Object.entries(STATE.processed).filter(([h, p]) => p && !p.empty);
     if (valid.length === 0) { alert('لا توجد بيانات'); return; }
@@ -2049,7 +2003,6 @@ async function exportComparisonSlide() {
     }
 }
 
-// ================ RESET ================
 function resetAll() {
     if (!confirm('متأكد من مسح جميع الملفات؟')) return;
     Object.keys(STATE.files).forEach(h => {
@@ -2077,7 +2030,6 @@ function resetAll() {
 
 window.exportSlide = exportSlide;
 
-// Wait for resources to be ready
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
 } else {
