@@ -1060,6 +1060,23 @@ body {
 <div class="slide-export" id="compareExport"></div>
 
 <script>
+// === ضمان إخفاء شاشة التحميل حتى لو حدث خطأ ===
+window.addEventListener('load', function() {
+    setTimeout(function() {
+        var shield = document.getElementById('initShield');
+        if (shield && !shield.classList.contains('hidden')) {
+            shield.classList.add('hidden');
+            setTimeout(function() { if (shield.parentNode) shield.remove(); }, 500);
+        }
+    }, 1500);
+});
+// إضافي: لو في خطأ JavaScript، نخفي الشيلد ونخلي الواجهة تظهر
+window.addEventListener('error', function(e) {
+    console.error('خطأ:', e.message);
+    var shield = document.getElementById('initShield');
+    if (shield) shield.classList.add('hidden');
+});
+
 const HOSPITALS = {
     kfh:    { ar: 'مستشفى الملك فهد',          en: 'King Fahad Hospital - Madina',         schema: 'kfh' },
     kgh:    { ar: 'مستشفى المدينة العام',        en: 'Madinah General Hospital',             schema: 'std' },
