@@ -426,7 +426,7 @@ body {
 }
 .kpi-tile.flagship { border-top: 3px solid var(--accent-emerald); }
 .kpi-tile .kpi-label {
-    font-size: 11.5px; color: var(--text-secondary);
+    font-size: 12px; color: #FFFFFF;
     font-weight: 600; margin-bottom: 8px;
 }
 .kpi-tile .kpi-value {
@@ -436,7 +436,7 @@ body {
     line-height: 1; margin-bottom: 4px;
 }
 .kpi-tile .kpi-target {
-    font-size: 10.5px; color: var(--text-tertiary);
+    font-size: 11px; color: #B8C0D0;
     font-family: 'JetBrains Mono', monospace;
     direction: ltr; text-align: right;
 }
@@ -475,8 +475,8 @@ body {
     color: var(--text-primary);
 }
 .stage-card .stage-target {
-    font-size: 10.5px;
-    color: var(--text-tertiary);
+    font-size: 11px;
+    color: #B8C0D0;
     font-family: 'JetBrains Mono', monospace;
     margin-top: 3px;
     direction: ltr; text-align: right;
@@ -503,8 +503,8 @@ body {
     border: 1px solid var(--border-subtle);
 }
 .stage-card .metric-mini .ml {
-    font-size: 9.5px;
-    color: var(--text-tertiary);
+    font-size: 10.5px;
+    color: #B8C0D0;
     font-weight: 600;
     margin-bottom: 3px;
 }
@@ -535,7 +535,8 @@ body {
 }
 .hourly-legend {
     display: flex; gap: 12px;
-    font-size: 11px; color: var(--text-tertiary);
+    font-size: 12px; color: #FFFFFF;
+    font-weight: 500;
 }
 .hourly-legend .lg-item {
     display: flex; align-items: center; gap: 5px;
@@ -562,11 +563,12 @@ body {
 .hour-tile.no-data { opacity: 0.35; }
 .hour-tile:not(.no-data):hover { transform: translateY(-2px); }
 .hour-tile .h-time {
-    font-size: 9.5px;
-    color: var(--text-tertiary);
+    font-size: 10.5px;
+    color: #FFFFFF;
     font-family: 'JetBrains Mono', monospace;
     margin-bottom: 3px;
     direction: ltr;
+    font-weight: 600;
 }
 .hour-tile .h-pct {
     font-size: 14px;
@@ -600,17 +602,17 @@ body {
     margin-bottom: 3px;
 }
 .shift-card .shift-time {
-    font-size: 10px; color: var(--text-tertiary);
+    font-size: 11px; color: #B8C0D0;
     font-family: 'JetBrains Mono', monospace;
     margin-bottom: 12px;
     direction: ltr; text-align: right;
 }
 .shift-metric {
     display: flex; justify-content: space-between;
-    align-items: center; font-size: 11.5px;
+    align-items: center; font-size: 12px;
     margin-bottom: 6px;
 }
-.shift-metric .m-label { color: var(--text-secondary); }
+.shift-metric .m-label { color: #FFFFFF; font-weight: 500; }
 .shift-metric .m-value {
     font-family: 'JetBrains Mono', monospace;
     font-weight: 700;
@@ -984,6 +986,53 @@ body {
     direction: ltr;
 }
 
+/* Executive Promise (يظهر في الواجهة فقط، يخفى عند التصدير) */
+.exec-promise-card {
+    background: linear-gradient(135deg, var(--bg-card-elevated), var(--bg-card));
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-md);
+    padding: 26px 28px;
+    margin-bottom: 22px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+.exec-promise-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 0%, rgba(16,185,129,0.08), transparent 60%);
+    pointer-events: none;
+}
+.exec-promise-label {
+    font-family: 'Cairo', sans-serif;
+    font-size: 13px;
+    color: var(--accent-emerald);
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    position: relative;
+}
+.exec-promise-value {
+    font-family: 'Cairo', sans-serif;
+    font-size: 56px;
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 8px;
+    position: relative;
+}
+.exec-promise-value .denominator {
+    color: var(--text-tertiary);
+    font-size: 36px;
+}
+.exec-promise-sub {
+    font-size: 14px;
+    color: #FFFFFF;
+    position: relative;
+    font-weight: 500;
+}
+
 /* Heatmap - Hours x Hospitals */
 .exec-heatmap-section {
     background: var(--bg-card);
@@ -1009,8 +1058,8 @@ body {
     border-radius: 2px;
 }
 .exec-heatmap-sub {
-    font-size: 12px;
-    color: var(--text-tertiary);
+    font-size: 12.5px;
+    color: #B8C0D0;
     margin-bottom: 16px;
 }
 
@@ -1022,17 +1071,17 @@ body {
 }
 .heatmap-table th {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 9.5px;
+    font-size: 10.5px;
     font-weight: 700;
-    color: var(--text-tertiary);
+    color: #FFFFFF;
     padding: 4px 2px;
     text-align: center;
     direction: ltr;
 }
 .heatmap-table th.hospital-col {
     font-family: 'Cairo', sans-serif;
-    font-size: 11px;
-    color: var(--text-secondary);
+    font-size: 12px;
+    color: #FFFFFF;
     text-align: right;
     padding: 4px 8px 4px 6px;
     min-width: 130px;
@@ -1108,9 +1157,9 @@ body {
 .stages-data-table th {
     background: var(--bg-input);
     font-family: 'Cairo', sans-serif;
-    font-size: 12px;
+    font-size: 12.5px;
     font-weight: 700;
-    color: var(--text-secondary);
+    color: #FFFFFF;
     padding: 10px 12px;
     text-align: center;
     border-bottom: 1px solid var(--border-medium);
@@ -1318,7 +1367,7 @@ body {
 <section class="upload-section">
     <div class="section-title">
         <h2>رفع ملفات المستشفيات</h2>
-        <span class="badge">٨ مستشفيات مستهدفة</span>
+        <span class="badge">١٣ مستشفى مستهدف</span>
     </div>
     <div class="upload-grid" id="uploadGrid"></div>
 </section>
@@ -1327,7 +1376,7 @@ body {
     <div class="actions-info">
         <div class="info-stat">
             <span class="label">الملفات المرفوعة</span>
-            <span class="value" id="filesCount">٠ / ٨</span>
+            <span class="value" id="filesCount">٠ / ١٣</span>
         </div>
         <div class="info-stat">
             <span class="label">إجمالي العينات المكتملة</span>
@@ -1411,14 +1460,19 @@ body {
 
 <script>
 const HOSPITALS = {
-    kfh:    { ar: 'مستشفى الملك فهد',          en: 'King Fahad Hospital - Madina',         schema: 'kfh' },
-    kgh:    { ar: 'مستشفى المدينة العام',        en: 'Madinah General Hospital',             schema: 'std' },
-    ohud:   { ar: 'مستشفى أحد',                  en: 'Ohud Hospital',                        schema: 'std' },
-    miqat:  { ar: 'مستشفى الميقات',              en: 'Al-Miqat Hospital',                    schema: 'std' },
-    salam:  { ar: 'مستشفى السلام',               en: 'Al-Salam Hospital',                    schema: 'std' },
-    haram:  { ar: 'مستشفى الحرم',                en: 'Al-Haram Hospital',                    schema: 'std' },
-    khaybar:{ ar: 'مستشفى خيبر',                 en: 'Khaybar Hospital',                     schema: 'std' },
-    hamna:  { ar: 'مستشفى الحمنة',               en: 'Al-Hamna Hospital',                    schema: 'std' }
+    kfh:        { ar: 'مستشفى الملك فهد',          en: 'King Fahad Hospital - Madina',         schema: 'kfh' },
+    kgh:        { ar: 'مستشفى المدينة العام',        en: 'Madinah General Hospital',             schema: 'std' },
+    maternity:  { ar: 'مستشفى النساء والولادة',     en: 'Maternity & Children Hospital',        schema: 'std' },
+    ohud:       { ar: 'مستشفى أحد',                  en: 'Ohud Hospital',                        schema: 'std' },
+    miqat:      { ar: 'مستشفى الميقات',              en: 'Al-Miqat Hospital',                    schema: 'std' },
+    salam:      { ar: 'مستشفى السلام',               en: 'Al-Salam Hospital',                    schema: 'std' },
+    haram:      { ar: 'مستشفى الحرم',                en: 'Al-Haram Hospital',                    schema: 'std' },
+    abdulmohsen:{ ar: 'مستشفى الأمير عبدالمحسن',     en: 'Prince Abdulmohsen Hospital',          schema: 'std' },
+    mahd:       { ar: 'مستشفى المهد',                en: 'Al-Mahd Hospital',                     schema: 'std' },
+    hamna:      { ar: 'مستشفى الحمنة',               en: 'Al-Hamna Hospital',                    schema: 'std' },
+    wadi_fara:  { ar: 'مستشفى وادي الفرع',           en: 'Wadi Al-Fara Hospital',                schema: 'std' },
+    yanbu:      { ar: 'مستشفى ينبع العام',           en: 'Yanbu General Hospital',               schema: 'std' },
+    hanakiyah:  { ar: 'مستشفى الحناكية',             en: 'Al-Hanakiyah Hospital',                schema: 'std' }
 };
 
 const STATE = { files: {}, rawData: {}, processed: {} };
@@ -1571,7 +1625,7 @@ function detectSchema(sampleRow) {
 function updateUploadStatus() {
     const count = Object.values(STATE.files).filter(f => f !== null).length;
     const arabicNum = n => n.toString().replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
-    document.getElementById('filesCount').textContent = `${arabicNum(count)} / ٨`;
+    document.getElementById('filesCount').textContent = `${arabicNum(count)} / ١٣`;
     document.getElementById('btnAnalyze').disabled = count === 0;
 }
 
@@ -2029,54 +2083,12 @@ function buildExecSummary() {
     }
 
     const totalSamples = valid.reduce((s, [_, p]) => s + p.completed, 0);
-    const avgCompliance = valid.reduce((s, [_, p]) => s + p.overall.total_compliance, 0) / valid.length;
-
-    let statusLevel, statusText;
-    if (avgCompliance >= 90) {
-        statusLevel = 'green';
-        statusText = 'الأداء العام مستقر ضمن المستهدف';
-    } else if (avgCompliance >= 70) {
-        statusLevel = 'amber';
-        statusText = 'الأداء العام يحتاج متابعة';
-    } else {
-        statusLevel = 'red';
-        statusText = 'الأداء العام يتطلب تدخلاً عاجلاً';
-    }
-
-    const stageAvgs = {
-        s1: valid.reduce((s, [_, p]) => s + p.overall.stage1_compliance, 0) / valid.length,
-        s2: valid.reduce((s, [_, p]) => s + p.overall.stage2_compliance, 0) / valid.length,
-        s3: valid.reduce((s, [_, p]) => s + p.overall.stage3_compliance, 0) / valid.length
-    };
-    const stageNames = {
-        s1: { name: 'من الطلب الى سحب العينة', target: '≤ 10 د' },
-        s2: { name: 'من السحب الى الاستقبال', target: '≤ 10 د' },
-        s3: { name: 'من الاستقبال الى النتيجة', target: '≤ 40 د' }
-    };
-    const worstStageKey = Object.entries(stageAvgs).sort((a, b) => a[1] - b[1])[0][0];
-    const worstStage = { ...stageNames[worstStageKey], val: stageAvgs[worstStageKey] };
-
-    const sortedByCompliance = [...valid].sort((a, b) => a[1].overall.total_compliance - b[1].overall.total_compliance);
-    const worstHospital = sortedByCompliance[0];
-
-    const hourAggregates = {};
-    for (let h = 0; h < 24; h++) {
-        const hourData = valid.map(([_, p]) => p.byHour[h]).filter(hd => hd && hd.count > 0);
-        if (hourData.length > 0) {
-            hourAggregates[h] = hourData.reduce((s, hd) => s + hd.comp, 0) / hourData.length;
-        }
-    }
-    const worstHourEntry = Object.entries(hourAggregates).sort((a, b) => a[1] - b[1])[0];
+    const promiseCount = valid.filter(([_, p]) => p.overall.total_compliance >= 90).length;
 
     return {
         valid,
         totalSamples,
-        avgCompliance,
-        statusLevel,
-        statusText,
-        worstStage,
-        worstHospital,
-        worstHour: worstHourEntry ? { hour: parseInt(worstHourEntry[0]), val: worstHourEntry[1] } : null
+        promiseCount
     };
 }
 
@@ -2123,7 +2135,7 @@ function buildHeatmap(valid) {
     });
 
     html += `</tbody></table></div>
-        <div style="display:flex; gap:14px; margin-top:14px; font-size:10.5px; color:var(--text-tertiary); flex-wrap:wrap; justify-content:center;">
+        <div style="display:flex; gap:14px; margin-top:14px; font-size:11.5px; color:#FFFFFF; flex-wrap:wrap; justify-content:center; font-weight:500;">
             <span style="display:flex; align-items:center; gap:5px;"><span style="width:14px; height:14px; background:#10B981; border-radius:2px;"></span>≥ 90%</span>
             <span style="display:flex; align-items:center; gap:5px;"><span style="width:14px; height:14px; background:#34D399; border-radius:2px;"></span>80-89%</span>
             <span style="display:flex; align-items:center; gap:5px;"><span style="width:14px; height:14px; background:#F59E0B; border-radius:2px;"></span>70-79%</span>
@@ -2153,11 +2165,11 @@ function buildStagesTable(valid) {
                     <thead>
                         <tr>
                             <th>المستشفى</th>
-                            <th>من الطلب الى سحب العينة<br><span style="font-weight:400; font-size:10px; color:var(--text-tertiary);">(≤ 10 د)</span></th>
-                            <th>من سحب العينة الى استقبال المختبر<br><span style="font-weight:400; font-size:10px; color:var(--text-tertiary);">(≤ 10 د)</span></th>
-                            <th>من استقبال المختبر الى ظهور النتيجة<br><span style="font-weight:400; font-size:10px; color:var(--text-tertiary);">(≤ 40 د)</span></th>
-                            <th>الالتزام الكلي<br><span style="font-weight:400; font-size:10px; color:var(--text-tertiary);">(≤ 60 د)</span></th>
-                            <th>المتوسط<br><span style="font-weight:400; font-size:10px; color:var(--text-tertiary);">دقيقة</span></th>
+                            <th>من الطلب الى سحب العينة<br><span style="font-weight:500; font-size:10.5px; color:#B8C0D0;">(≤ 10 د)</span></th>
+                            <th>من سحب العينة الى استقبال المختبر<br><span style="font-weight:500; font-size:10.5px; color:#B8C0D0;">(≤ 10 د)</span></th>
+                            <th>من استقبال المختبر الى ظهور النتيجة<br><span style="font-weight:500; font-size:10.5px; color:#B8C0D0;">(≤ 40 د)</span></th>
+                            <th>الالتزام الكلي<br><span style="font-weight:500; font-size:10.5px; color:#B8C0D0;">(≤ 60 د)</span></th>
+                            <th>المتوسط<br><span style="font-weight:500; font-size:10.5px; color:#B8C0D0;">دقيقة</span></th>
                             <th>عدد العينات</th>
                         </tr>
                     </thead>
@@ -2193,6 +2205,10 @@ function renderExecSummary() {
     const dateStr = now.toISOString().slice(0, 10);
     const timeStr = now.toTimeString().slice(0, 5);
 
+    const promiseColor = data.promiseCount === data.valid.length ? 'var(--accent-emerald)' :
+                         data.promiseCount >= data.valid.length / 2 ? 'var(--accent-amber)' :
+                         'var(--accent-rose)';
+
     page.innerHTML = `
         <div class="exec-summary-header">
             <div class="brand">
@@ -2202,6 +2218,14 @@ function renderExecSummary() {
                 <div class="date">${dateStr}</div>
                 <div class="time">${timeStr}</div>
             </div>
+        </div>
+
+        <div class="exec-promise-card no-export">
+            <div class="exec-promise-label">الوعد التنفيذي — الالتزام بالمستهدف ٦٠ دقيقة</div>
+            <div class="exec-promise-value" style="color: ${promiseColor};">
+                ${data.promiseCount}<span class="denominator"> / ${data.valid.length}</span>
+            </div>
+            <div class="exec-promise-sub">مستشفى ضمن مستهدف الالتزام (≥ 90%)</div>
         </div>
 
         ${buildStagesTable(data.valid)}
@@ -2233,6 +2257,10 @@ async function exportExecSummaryPng() {
     const oldStyle = { width: page.style.width };
     page.style.width = '1400px';
 
+    // إخفاء عناصر no-export
+    const hiddenEls = page.querySelectorAll('.no-export');
+    hiddenEls.forEach(el => el.style.display = 'none');
+
     try {
         const canvas = await html2canvas(page, {
             scale: 2,
@@ -2252,6 +2280,7 @@ async function exportExecSummaryPng() {
     } catch (err) {
         alert('خطأ: ' + err.message);
     } finally {
+        hiddenEls.forEach(el => el.style.display = '');
         Object.assign(page.style, oldStyle);
         overlay.classList.remove('active');
     }
@@ -2269,6 +2298,10 @@ async function exportExecSummaryPdf() {
     const page = document.getElementById('execSummaryPage');
     const oldStyle = { width: page.style.width };
     page.style.width = '1400px';
+
+    // إخفاء عناصر no-export
+    const hiddenEls = page.querySelectorAll('.no-export');
+    hiddenEls.forEach(el => el.style.display = 'none');
 
     try {
         const canvas = await html2canvas(page, {
@@ -2298,6 +2331,7 @@ async function exportExecSummaryPdf() {
     } catch (err) {
         alert('خطأ: ' + err.message);
     } finally {
+        hiddenEls.forEach(el => el.style.display = '');
         Object.assign(page.style, oldStyle);
         overlay.classList.remove('active');
     }
@@ -2386,22 +2420,47 @@ async function exportMobilePdf() {
     dashboardArea.style.margin = '0 auto';
 
     window.scrollTo(0, 0);
+    await new Promise(r => setTimeout(r, 300)); // ننتظر إعادة الرسم
 
     try {
+        const fullHeight = dashboardArea.scrollHeight;
+        
         const canvas = await html2canvas(dashboardArea, {
             scale: 2, 
             backgroundColor: '#0A0E1A',
             useCORS: true, 
             logging: false,
-            windowWidth: 750 
+            windowWidth: 750,
+            windowHeight: fullHeight,
+            height: fullHeight,
+            scrollY: -window.scrollY
         });
 
-        const imgData = canvas.toDataURL('image/jpeg', 0.95);
-        const pdf = new jsPDF({ orientation: 'portrait', unit: 'px', format: [canvas.width, canvas.height] });
-        pdf.addImage(imgData, 'JPEG', 0, 0, canvas.width, canvas.height);
+        const imgData = canvas.toDataURL('image/jpeg', 0.92);
+        
+        // PDF بصفحات A4 طولية متعددة (للجوال) لتجنب صفحة واحدة ضخمة
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfPageHeight = pdf.internal.pageSize.getHeight();
+        const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+
+        let heightLeft = imgHeight;
+        let position = 0;
+        
+        pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeight);
+        heightLeft -= pdfPageHeight;
+        
+        while (heightLeft > 0) {
+            position = heightLeft - imgHeight;
+            pdf.addPage();
+            pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeight);
+            heightLeft -= pdfPageHeight;
+        }
+        
         pdf.save(`ER_Lab_Mobile_${new Date().toISOString().slice(0,10)}.pdf`);
     } catch (err) {
         alert('خطأ في PDF: ' + err.message);
+        console.error(err);
     } finally {
         buttons.forEach(b => b.style.display = 'flex');
         Object.assign(dashboardArea.style, oldStyle);
