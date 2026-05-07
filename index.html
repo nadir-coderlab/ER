@@ -1188,24 +1188,11 @@ body {
     gap: 16px;
     flex-wrap: wrap;
 }
-.exec-summary-header .brand .super {
-    font-family: 'Cairo', sans-serif;
-    font-size: 11px;
-    color: var(--accent-emerald);
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    margin-bottom: 4px;
-}
 .exec-summary-header .brand h1 {
     font-family: 'Cairo', sans-serif;
     font-size: 22px;
     font-weight: 800;
-    margin-bottom: 4px;
-}
-.exec-summary-header .brand .sub {
-    font-size: 12px;
-    color: var(--text-tertiary);
+    color: var(--text-primary);
 }
 .exec-summary-header .meta {
     text-align: left;
@@ -2166,12 +2153,12 @@ function buildStagesTable(valid) {
                     <thead>
                         <tr>
                             <th>المستشفى</th>
-                            <th>المرحلة ١<br><span style="font-weight:400; font-size:10px; color:var(--text-tertiary);">الطلب → السحب (≤10د)</span></th>
-                            <th>المرحلة ٢<br><span style="font-weight:400; font-size:10px; color:var(--text-tertiary);">السحب → الاستقبال (≤10د)</span></th>
-                            <th>المرحلة ٣<br><span style="font-weight:400; font-size:10px; color:var(--text-tertiary);">الاستقبال → النتيجة (≤40د)</span></th>
-                            <th>الالتزام الكلي<br><span style="font-weight:400; font-size:10px; color:var(--text-tertiary);">(≤60د)</span></th>
+                            <th>من الطلب الى سحب العينة<br><span style="font-weight:400; font-size:10px; color:var(--text-tertiary);">(≤ 10 د)</span></th>
+                            <th>من سحب العينة الى استقبال المختبر<br><span style="font-weight:400; font-size:10px; color:var(--text-tertiary);">(≤ 10 د)</span></th>
+                            <th>من استقبال المختبر الى ظهور النتيجة<br><span style="font-weight:400; font-size:10px; color:var(--text-tertiary);">(≤ 40 د)</span></th>
+                            <th>الالتزام الكلي<br><span style="font-weight:400; font-size:10px; color:var(--text-tertiary);">(≤ 60 د)</span></th>
                             <th>المتوسط<br><span style="font-weight:400; font-size:10px; color:var(--text-tertiary);">دقيقة</span></th>
-                            <th>العينات</th>
+                            <th>عدد العينات</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -2202,7 +2189,6 @@ function renderExecSummary() {
     if (!data) return;
 
     const page = document.getElementById('execSummaryPage');
-    const fmt = v => v === null ? '--' : v.toFixed(1);
     const now = new Date();
     const dateStr = now.toISOString().slice(0, 10);
     const timeStr = now.toTimeString().slice(0, 5);
@@ -2210,36 +2196,11 @@ function renderExecSummary() {
     page.innerHTML = `
         <div class="exec-summary-header">
             <div class="brand">
-                <div class="super">الخدمات الصحية المساندة</div>
-                <h1>الملخص التنفيذي — مختبرات الطوارئ</h1>
-                <div class="sub">تجمع المدينة المنورة الصحي • ${data.valid.length} مستشفى • ${data.totalSamples.toLocaleString('en')} عينة مكتملة</div>
+                <h1>الملخص التنفيذي — مؤشرات أداء مختبرات الطوارئ</h1>
             </div>
             <div class="meta">
                 <div class="date">${dateStr}</div>
                 <div class="time">${timeStr}</div>
-            </div>
-        </div>
-
-        <div class="exec-status-banner ${data.statusLevel}">
-            <div class="status-text">${data.statusText}</div>
-            <div class="status-meta">متوسط الالتزام الكلي: ${fmt(data.avgCompliance)}%</div>
-        </div>
-
-        <div class="exec-top-issues">
-            <div class="top-issue-card">
-                <div class="issue-label">المرحلة الأكثر تعثراً</div>
-                <div class="issue-value">${data.worstStage.name}</div>
-                <div class="issue-detail">${fmt(data.worstStage.val)}% • ${data.worstStage.target}</div>
-            </div>
-            <div class="top-issue-card">
-                <div class="issue-label">المستشفى الأكثر تعثراً</div>
-                <div class="issue-value">${HOSPITALS[data.worstHospital[0]].ar}</div>
-                <div class="issue-detail">${fmt(data.worstHospital[1].overall.total_compliance)}% التزام كلي</div>
-            </div>
-            <div class="top-issue-card">
-                <div class="issue-label">أضعف ساعة في اليوم</div>
-                <div class="issue-value">${data.worstHour ? String(data.worstHour.hour).padStart(2,'0') + ':00 - ' + String((data.worstHour.hour + 1) % 24).padStart(2,'0') + ':00' : '--'}</div>
-                <div class="issue-detail">${data.worstHour ? fmt(data.worstHour.val) + '% متوسط الالتزام' : '--'}</div>
             </div>
         </div>
 
