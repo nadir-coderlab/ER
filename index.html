@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
@@ -10,20 +11,21 @@
   html, body { background: #0A0E1A !important; color: #F4F6FB; }
 </style>
 
-<link rel="preconnect" href="[https://fonts.googleapis.com](https://fonts.googleapis.com)">
-<link rel="preconnect" href="[https://fonts.gstatic.com](https://fonts.gstatic.com)" crossorigin>
-<link href="[https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Cairo:wght@600;700;900&family=JetBrains+Mono:wght@400;700&display=swap](https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Cairo:wght@600;700;900&family=JetBrains+Mono:wght@400;700&display=swap)" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Cairo:wght@600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 
-<script src="[https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js](https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js)"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <script>
 if (typeof XLSX === 'undefined') {
-    document.write('<script src="[https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js](https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js)"><\/script>');
+    document.write('<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"><\/script>');
 }
 </script>
 
-<script src="[https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js](https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js)"></script>
-<script src="[https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js](https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js)"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
 :root {
@@ -273,6 +275,7 @@ body {
 }
 .btn-primary:hover:not(:disabled) { background: #2563EB; }
 
+/* الزر الجديد - حفظ كموقع */
 .btn-share {
     background: linear-gradient(135deg, #10B981, #06B6D4) !important;
     border-color: transparent !important;
@@ -348,4 +351,1850 @@ body {
     display: inline-block;
     background: var(--bg-card-elevated);
     color: var(--text-secondary);
-    width: 22
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 22px;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 8px;
+}
+.indicator-stage-box .nm {
+    font-family: 'Cairo', sans-serif;
+    font-weight: 700;
+    font-size: 13.5px;
+    margin-bottom: 4px;
+}
+.indicator-stage-box .tg {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    font-family: 'JetBrains Mono', monospace;
+    direction: ltr;
+    text-align: right;
+}
+
+.hospitals-section { margin-top: 28px; }
+.hospital-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    margin-bottom: 22px;
+    overflow: hidden;
+}
+.hospital-header {
+    padding: 18px 22px;
+    background: var(--bg-card-elevated);
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex; justify-content: space-between;
+    align-items: center; gap: 12px; flex-wrap: wrap;
+}
+.hospital-title h2 {
+    font-family: 'Cairo', sans-serif;
+    font-size: 17px; font-weight: 700;
+}
+.hospital-title .lab-tag {
+    font-size: 11px; color: var(--text-tertiary);
+    margin-top: 3px; font-weight: 500;
+    direction: ltr; text-align: right;
+}
+.hospital-actions { display: flex; gap: 6px; }
+.hospital-body { padding: 22px; }
+
+.kpi-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+}
+.kpi-tile {
+    background: var(--bg-input);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+}
+.kpi-tile.flagship { border-top: 3px solid var(--accent-emerald); }
+.kpi-tile .kpi-label {
+    font-size: 11.5px; color: var(--text-secondary);
+    font-weight: 600; margin-bottom: 8px;
+}
+.kpi-tile .kpi-value {
+    font-size: 22px; font-weight: 700;
+    font-family: 'Cairo', sans-serif;
+    color: var(--text-primary);
+    line-height: 1; margin-bottom: 4px;
+}
+.kpi-tile .kpi-target {
+    font-size: 10.5px; color: var(--text-tertiary);
+    font-family: 'JetBrains Mono', monospace;
+    direction: ltr; text-align: right;
+}
+.kpi-bar {
+    margin-top: 10px;
+    height: 4px;
+    background: var(--bg-card-elevated);
+    border-radius: 4px;
+    overflow: hidden;
+}
+.kpi-bar-fill { height: 100%; border-radius: 4px; transition: width 0.4s; }
+.kpi-bar-fill.green { background: var(--accent-emerald); }
+.kpi-bar-fill.amber { background: var(--accent-amber); }
+.kpi-bar-fill.red { background: var(--accent-rose); }
+
+.stages-strip {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+}
+.stage-card {
+    background: var(--bg-input);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+}
+.stage-card .stage-header {
+    display: flex; justify-content: space-between;
+    align-items: flex-start; margin-bottom: 10px;
+}
+.stage-card .stage-name {
+    font-family: 'Cairo', sans-serif;
+    font-size: 13px; font-weight: 700;
+    color: var(--text-primary);
+}
+.stage-card .stage-target {
+    font-size: 10.5px;
+    color: var(--text-tertiary);
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 3px;
+    direction: ltr; text-align: right;
+}
+.stage-card .stage-num {
+    width: 22px; height: 22px;
+    background: var(--bg-card-elevated);
+    color: var(--text-secondary);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+}
+.stage-card .stage-metrics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 10px;
+}
+.stage-card .metric-mini {
+    background: var(--bg-card);
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-subtle);
+}
+.stage-card .metric-mini .ml {
+    font-size: 9.5px;
+    color: var(--text-tertiary);
+    font-weight: 600;
+    margin-bottom: 3px;
+}
+.stage-card .metric-mini .mv {
+    font-size: 16px;
+    font-weight: 700;
+    font-family: 'Cairo', sans-serif;
+    line-height: 1;
+}
+.stage-card .stage-bar {
+    height: 6px;
+    background: var(--bg-card);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+.hourly-section { margin-top: 24px; }
+.hourly-header {
+    display: flex; justify-content: space-between;
+    align-items: center; margin-bottom: 12px;
+    gap: 12px; flex-wrap: wrap;
+}
+.hourly-header h3 {
+    font-family: 'Cairo', sans-serif;
+    font-size: 15px; font-weight: 700;
+}
+.hourly-legend {
+    display: flex; gap: 12px;
+    font-size: 11px; color: var(--text-tertiary);
+}
+.hourly-legend .lg-item {
+    display: flex; align-items: center; gap: 5px;
+}
+.hourly-legend .lg-dot {
+    width: 10px; height: 10px;
+    border-radius: 2px;
+}
+.hourly-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 6px;
+}
+.hour-tile {
+    background: var(--bg-input);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    padding: 10px 6px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s;
+}
+.hour-tile.no-data { opacity: 0.35; }
+.hour-tile:not(.no-data):hover { transform: translateY(-2px); }
+.hour-tile .h-time {
+    font-size: 9.5px;
+    color: var(--text-tertiary);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 3px;
+    direction: ltr;
+}
+.hour-tile .h-pct {
+    font-size: 14px;
+    font-weight: 700;
+    font-family: 'Cairo', sans-serif;
+    line-height: 1;
+}
+.hour-tile .h-bg {
+    position: absolute;
+    inset: 0;
+    opacity: 0.08;
+    pointer-events: none;
+}
+
+.shifts-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 20px;
+}
+.shift-card {
+    background: var(--bg-input);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+}
+.shift-card .shift-name {
+    font-family: 'Cairo', sans-serif;
+    font-size: 13px; font-weight: 700;
+    margin-bottom: 3px;
+}
+.shift-card .shift-time {
+    font-size: 10px; color: var(--text-tertiary);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 12px;
+    direction: ltr; text-align: right;
+}
+.shift-metric {
+    display: flex; justify-content: space-between;
+    align-items: center; font-size: 11.5px;
+    margin-bottom: 6px;
+}
+.shift-metric .m-label { color: var(--text-secondary); }
+.shift-metric .m-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+}
+
+.delayed-section { margin-top: 26px; }
+.delayed-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 12px; gap: 12px; flex-wrap: wrap;
+}
+.delayed-header h3 {
+    font-family: 'Cairo', sans-serif;
+    font-size: 15px; font-weight: 700;
+    display: flex; align-items: center; gap: 8px;
+}
+.delayed-header h3::before {
+    content: '';
+    width: 4px;
+    height: 18px;
+    background: var(--accent-rose);
+    border-radius: 2px;
+}
+.delayed-count-pill {
+    padding: 4px 11px;
+    background: rgba(239, 68, 68, 0.12);
+    color: var(--accent-rose);
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+.delayed-ids-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 8px;
+    background: var(--bg-input);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    max-height: 380px;
+    overflow-y: auto;
+}
+.delayed-id-chip {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-right: 3px solid var(--accent-rose);
+    border-radius: var(--radius-sm);
+    padding: 9px 11px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+.delayed-id-chip .sid {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-primary);
+    direction: ltr;
+    text-align: right;
+}
+.delayed-id-chip .sval {
+    font-size: 10.5px;
+    color: var(--accent-rose);
+    font-family: 'JetBrains Mono', monospace;
+    direction: ltr;
+    text-align: right;
+}
+.delayed-empty {
+    padding: 30px;
+    text-align: center;
+    color: var(--accent-emerald);
+    font-size: 13px;
+    background: var(--bg-input);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+}
+
+.slide-export {
+    position: fixed;
+    left: -99999px;
+    top: 0;
+    width: 1920px;
+    height: 1080px;
+    background: var(--bg-primary);
+    padding: 60px;
+    color: var(--text-primary);
+    font-family: 'Tajawal', sans-serif;
+    direction: rtl;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+.slide-export.active { left: 0; top: 0; z-index: -1; }
+.slide-header {
+    display: flex; justify-content: space-between;
+    align-items: center; margin-bottom: 32px;
+    padding-bottom: 22px;
+    border-bottom: 2px solid var(--border-subtle);
+}
+.slide-brand .super {
+    font-family: 'Cairo', sans-serif;
+    font-size: 16px;
+    color: var(--accent-emerald);
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+}
+.slide-brand h1 {
+    font-family: 'Cairo', sans-serif;
+    font-size: 36px; font-weight: 900;
+    line-height: 1.2;
+}
+.slide-brand .subtitle {
+    font-size: 18px;
+    color: var(--text-tertiary);
+    margin-top: 6px;
+    direction: ltr; text-align: right;
+}
+.slide-meta {
+    text-align: left; font-size: 17px;
+    color: var(--text-tertiary);
+    font-family: 'JetBrains Mono', monospace;
+}
+.slide-meta .date-big {
+    color: var(--text-primary);
+    font-size: 21px; font-weight: 700;
+    margin-bottom: 6px;
+}
+.slide-kpi-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 22px;
+}
+.slide-kpi {
+    background: var(--bg-card-elevated);
+    border-radius: 8px;
+    padding: 22px;
+    border: 1px solid var(--border-subtle);
+}
+.slide-kpi.flagship { border-top: 4px solid var(--accent-emerald); }
+.slide-kpi .label {
+    font-size: 14px; color: var(--text-secondary);
+    font-weight: 600; margin-bottom: 8px;
+}
+.slide-kpi .value {
+    font-family: 'Cairo', sans-serif;
+    font-size: 38px; font-weight: 700; line-height: 1;
+}
+.slide-kpi .target {
+    font-size: 12px; color: var(--text-tertiary);
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 7px;
+    direction: ltr; text-align: right;
+}
+.slide-stages {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 22px;
+}
+.slide-stage {
+    background: var(--bg-card-elevated);
+    border-radius: 8px;
+    padding: 20px;
+    border: 1px solid var(--border-subtle);
+}
+.slide-stage .name {
+    font-family: 'Cairo', sans-serif;
+    font-size: 16px; font-weight: 700;
+    margin-bottom: 4px;
+}
+.slide-stage .tg {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 14px;
+    direction: ltr; text-align: right;
+}
+.slide-stage .vrow {
+    display: flex; justify-content: space-between;
+    align-items: center; padding: 6px 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 14px;
+}
+.slide-stage .vrow:last-child { border: none; }
+.slide-stage .vrow .lbl { color: var(--text-secondary); font-size: 12.5px; }
+.slide-stage .vrow .val {
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+}
+.slide-hourly-section {
+    background: var(--bg-card-elevated);
+    border-radius: 8px;
+    padding: 20px;
+    border: 1px solid var(--border-subtle);
+}
+.slide-hourly-section h3 {
+    font-family: 'Cairo', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 14px;
+}
+.slide-hourly-grid {
+    display: grid;
+    grid-template-columns: repeat(24, 1fr);
+    gap: 4px;
+}
+.slide-hour-tile {
+    background: var(--bg-input);
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    padding: 10px 4px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+.slide-hour-tile.no-data { opacity: 0.35; }
+.slide-hour-tile .ht {
+    font-size: 9px;
+    color: var(--text-tertiary);
+    font-family: 'JetBrains Mono', monospace;
+    direction: ltr;
+}
+.slide-hour-tile .hp {
+    font-size: 13px;
+    font-weight: 700;
+    font-family: 'Cairo', sans-serif;
+    margin-top: 4px;
+    line-height: 1;
+}
+.slide-hour-tile .hbg {
+    position: absolute; inset: 0;
+    opacity: 0.12;
+}
+.slide-footer {
+    position: absolute;
+    bottom: 24px;
+    left: 60px;
+    right: 60px;
+    display: flex; justify-content: space-between;
+    align-items: center;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-subtle);
+    font-size: 13px;
+    color: var(--text-muted);
+}
+.slide-footer .left {
+    font-family: 'JetBrains Mono', monospace;
+    direction: ltr;
+}
+
+.compare-row {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 24px;
+    align-items: center;
+    margin-bottom: 18px;
+}
+.compare-label {
+    font-family: 'Cairo', sans-serif;
+    font-weight: 700;
+    font-size: 17px;
+}
+.compare-bar-wrap {
+    height: 38px;
+    background: var(--bg-input);
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+    display: flex; align-items: center;
+}
+.compare-bar-fill {
+    height: 100%;
+    position: absolute;
+    inset: 0 auto 0 0;
+    border-radius: 4px;
+}
+.compare-bar-text {
+    position: relative;
+    z-index: 10;
+    padding: 0 14px;
+    font-weight: 700;
+    font-size: 16px;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.loading-overlay {
+    position: fixed; inset: 0;
+    background: rgba(10,14,26,0.92);
+    backdrop-filter: blur(8px);
+    z-index: 1000;
+    display: none;
+    align-items: center; justify-content: center;
+    flex-direction: column; gap: 16px;
+}
+.loading-overlay.active { display: flex; }
+.loader {
+    width: 44px; height: 44px;
+    border: 3px solid var(--border-medium);
+    border-top-color: var(--accent-emerald);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text {
+    font-family: 'Cairo', sans-serif;
+    font-size: 14.5px;
+    color: var(--text-primary);
+}
+
+@media (max-width: 1500px) {
+    .upload-grid { grid-template-columns: repeat(3, 1fr); }
+    .indicator-stages-grid { grid-template-columns: repeat(3, 1fr); }
+    .kpi-row { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 1100px) {
+    .cmd-main { padding: 24px 22px 60px; }
+    .cmd-header { padding: 18px 22px; }
+    .upload-grid { grid-template-columns: repeat(2, 1fr); }
+    .indicator-stages-grid { grid-template-columns: 1fr; }
+    .stages-strip { grid-template-columns: 1fr; }
+    .hourly-grid { grid-template-columns: repeat(8, 1fr); }
+    .kpi-row { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 768px) {
+    .cmd-header { padding: 14px 16px; }
+    .cmd-main { padding: 18px 16px 50px; }
+    .cmd-titles h1 { font-size: 16px; }
+    .cmd-titles .super { font-size: 10px; }
+    .cmd-titles .subtitle { font-size: 11px; }
+    .cmd-status { display: none; }
+    .upload-grid { grid-template-columns: 1fr; }
+    .indicator-text { font-size: 13px; line-height: 1.7; }
+    .kpi-row { grid-template-columns: 1fr; }
+    .hourly-grid { grid-template-columns: repeat(6, 1fr); gap: 5px; }
+    .hour-tile { padding: 8px 4px; }
+    .hour-tile .h-pct { font-size: 12px; }
+    .hour-tile .h-time { font-size: 8.5px; }
+    .shifts-grid { grid-template-columns: 1fr; }
+    .actions-bar { flex-direction: column; align-items: stretch; }
+    .actions-info { gap: 14px; }
+    .actions-buttons { justify-content: stretch; }
+    .actions-buttons .btn { flex: 1; min-width: 130px; }
+    .hospital-header { padding: 14px 16px; }
+    .hospital-body { padding: 16px; }
+    .delayed-ids-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
+}
+@media (max-width: 420px) {
+    .hourly-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+.hidden { display: none !important; }
+::-webkit-scrollbar { width: 7px; height: 7px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-tertiary); }
+</style>
+
+</head>
+<body>
+
+<div id="initShield">
+    <div class="ring"></div>
+    <div class="label">جاري التحميل</div>
+</div>
+
+<header class="cmd-header">
+    <div class="cmd-header-inner">
+        <div class="cmd-titles">
+            <div class="super">الخدمات الصحية المساندة</div>
+            <h1>مؤشرات أداء مختبرات الطوارئ — تحليل زمن الإنجاز TAT</h1>
+            <div class="subtitle">تحليل مفصل للمراحل الثلاث مع المؤشر حسب ساعات العمل</div>
+        </div>
+        <div class="cmd-status">
+            <div class="cmd-pill" id="datePill" style="font-family: 'JetBrains Mono', monospace; direction: ltr;">--</div>
+        </div>
+    </div>
+</header>
+
+<main class="cmd-main">
+
+```
+<section class="upload-section">
+    <div class="section-title">
+        <h2>رفع ملفات المستشفيات</h2>
+        <span class="badge">٨ مستشفيات مستهدفة</span>
+    </div>
+    <div class="upload-grid" id="uploadGrid"></div>
+</section>
+
+<div class="actions-bar">
+    <div class="actions-info">
+        <div class="info-stat">
+            <span class="label">الملفات المرفوعة</span>
+            <span class="value" id="filesCount">٠ / ٨</span>
+        </div>
+        <div class="info-stat">
+            <span class="label">إجمالي العينات المكتملة</span>
+            <span class="value" id="totalSamples">--</span>
+        </div>
+        <div class="info-stat">
+            <span class="label">المستهدف الكلي</span>
+            <span class="value" style="color: var(--accent-emerald);">٦٠ دقيقة</span>
+        </div>
+    </div>
+    <div class="actions-buttons">
+        <button class="btn btn-share" id="btnShareReport" disabled>📲 حفظ ومشاركة التقرير</button>
+        <button class="btn" id="btnExportCompare" disabled>مقارنة (صورة)</button>
+        <button class="btn" id="btnExportDashPng" disabled>الداشبورد (صورة)</button>
+        <button class="btn" id="btnExportMobilePdf" disabled>PDF (للجوال)</button>
+        <button class="btn" id="btnExportSlidesPdf" disabled>PDF (للاجتماعات)</button>
+        <button class="btn" id="btnReset">إعادة تعيين</button>
+        <button class="btn btn-primary" id="btnAnalyze" disabled>تحليل البيانات</button>
+    </div>
+</div>
+
+<div class="empty-state" id="emptyState">
+    <h3>ارفع ملف واحد على الأقل لبدء التحليل</h3>
+    <p>الداشبورد يحلل عينات الطوارئ ER ويستثني العينات المرفوضة والملغاة والمعلقة</p>
+</div>
+
+<section class="results-section" id="resultsSection">
+    <div class="indicator-explainer">
+        <h2>تعريف المؤشر</h2>
+        <p class="indicator-text">
+            مؤشر زمن إنجاز عينات الطوارئ (TAT) يقيس الزمن الكلي بين طلب الفحص من قسم الطوارئ وحتى ظهور النتيجة معتمدة في النظام. المستهدف العام هو ٦٠ دقيقة فأقل. لتحديد نقطة التأخير بدقة، تم تقسيم رحلة العينة إلى ثلاث مراحل تشغيلية مستقلة، يخضع كل منها لمستهدف زمني خاص.
+        </p>
+        <div class="indicator-stages-grid">
+            <div class="indicator-stage-box">
+                <span class="num">١</span>
+                <div class="nm">من الطلب إلى سحب العينة</div>
+                <div class="tg">المستهدف ≤ 10 دقائق</div>
+            </div>
+            <div class="indicator-stage-box">
+                <span class="num">٢</span>
+                <div class="nm">من سحب العينة إلى استقبال المختبر</div>
+                <div class="tg">المستهدف ≤ 10 دقائق</div>
+            </div>
+            <div class="indicator-stage-box">
+                <span class="num">٣</span>
+                <div class="nm">من استقبال المختبر إلى ظهور النتيجة</div>
+                <div class="tg">المستهدف ≤ 40 دقيقة</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="hospitals-section" id="hospitalsSection"></div>
+</section>
+```
+
+</main>
+
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loader"></div>
+    <div class="loading-text" id="loadingText">جاري المعالجة...</div>
+</div>
+
+<div class="slide-export" id="slideExport"></div>
+<div class="slide-export" id="compareExport"></div>
+
+<script>
+const HOSPITALS = {
+    kfh:    { ar: 'مستشفى الملك فهد',          en: 'King Fahad Hospital - Madina',         schema: 'kfh' },
+    kgh:    { ar: 'مستشفى المدينة العام',        en: 'Madinah General Hospital',             schema: 'std' },
+    ohud:   { ar: 'مستشفى أحد',                  en: 'Ohud Hospital',                        schema: 'std' },
+    miqat:  { ar: 'مستشفى الميقات',              en: 'Al-Miqat Hospital',                    schema: 'std' },
+    salam:  { ar: 'مستشفى السلام',               en: 'Al-Salam Hospital',                    schema: 'std' },
+    haram:  { ar: 'مستشفى الحرم',                en: 'Al-Haram Hospital',                    schema: 'std' },
+    khaybar:{ ar: 'مستشفى خيبر',                 en: 'Khaybar Hospital',                     schema: 'std' },
+    hamna:  { ar: 'مستشفى الحمنة',               en: 'Al-Hamna Hospital',                    schema: 'std' }
+};
+
+const STATE = { files: {}, rawData: {}, processed: {} };
+Object.keys(HOSPITALS).forEach(k => { STATE.files[k] = null; STATE.rawData[k] = null; STATE.processed[k] = null; });
+
+const TARGET_TOTAL = 60;
+const TARGET_ORDER_COLLECT = 10;
+const TARGET_COLLECT_RECEIVE = 10;
+const TARGET_RECEIVE_RESULT = 40;
+
+function init() {
+    document.getElementById('datePill').textContent = new Date().toISOString().slice(0, 10);
+    renderUploadCards();
+
+    document.getElementById('btnAnalyze').addEventListener('click', analyzeAll);
+    document.getElementById('btnReset').addEventListener('click', resetAll);
+    document.getElementById('btnExportDashPng').addEventListener('click', exportAllDash);
+    document.getElementById('btnExportMobilePdf').addEventListener('click', exportMobilePdf);
+    document.getElementById('btnExportSlidesPdf').addEventListener('click', exportSlidesPdf);
+    document.getElementById('btnExportCompare').addEventListener('click', exportComparisonSlide);
+    document.getElementById('btnShareReport').addEventListener('click', exportStandaloneHTML);
+
+    setTimeout(() => {
+        const shield = document.getElementById('initShield');
+        shield.classList.add('hidden');
+        setTimeout(() => shield.remove(), 500);
+    }, 250);
+}
+
+function renderUploadCards() {
+    const grid = document.getElementById('uploadGrid');
+    grid.innerHTML = Object.entries(HOSPITALS).map(([key, info]) => `
+        <div class="upload-card" data-hospital="${key}">
+            <div class="upload-card-header">
+                <div class="hospital-info">
+                    <h3>${info.ar}</h3>
+                    <div class="lab-name">${info.en}</div>
+                </div>
+            </div>
+            <div class="upload-input-wrap">
+                <input type="file" class="upload-input" data-hospital="${key}" accept=".xlsx,.xls">
+                <div class="upload-label">اختر ملف اكسل</div>
+            </div>
+            <div class="upload-status" data-status="${key}">لم يتم الرفع</div>
+        </div>
+    `).join('');
+
+    document.querySelectorAll('.upload-input').forEach(input => {
+        input.addEventListener('change', handleUpload);
+    });
+}
+
+function handleUpload(e) {
+    const file = e.target.files[0];
+    const hospital = e.target.dataset.hospital;
+    if (!file) return;
+
+    const card = document.querySelector(`.upload-card[data-hospital="${hospital}"]`);
+    const statusEl = document.querySelector(`.upload-status[data-status="${hospital}"]`);
+
+    if (typeof XLSX === 'undefined') {
+        statusEl.textContent = 'خطأ: مكتبة Excel لم تحمل';
+        statusEl.className = 'upload-status error';
+        return;
+    }
+
+    statusEl.textContent = 'جاري القراءة...';
+    statusEl.className = 'upload-status';
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+        try {
+            const data = new Uint8Array(event.target.result);
+            const wb = XLSX.read(data, { type: 'array', cellDates: true, cellNF: false, cellText: false });
+            const ws = wb.Sheets[wb.SheetNames[0]];
+
+            if (ws['!ref']) {
+                let maxRow = 0, maxCol = 0;
+                Object.keys(ws).forEach(key => {
+                    if (key[0] === '!') return;
+                    const m = key.match(/^([A-Z]+)(\d+)$/);
+                    if (m) {
+                        const col = m[1].split('').reduce((acc, c) => acc * 26 + c.charCodeAt(0) - 64, 0) - 1;
+                        const row = parseInt(m[2]) - 1;
+                        if (row > maxRow) maxRow = row;
+                        if (col > maxCol) maxCol = col;
+                    }
+                });
+                ws['!ref'] = XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: maxRow, c: maxCol } });
+            }
+
+            let json = XLSX.utils.sheet_to_json(ws, { defval: null, raw: false, dateNF: 'yyyy-mm-dd hh:mm:ss', blankrows: false });
+
+            if (json.length === 0) {
+                const aoa = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null, raw: false, dateNF: 'yyyy-mm-dd hh:mm:ss' });
+                if (aoa.length > 1) {
+                    const headers = aoa[0].map(h => h ? String(h).trim() : '');
+                    json = aoa.slice(1).map(row => {
+                        const obj = {};
+                        headers.forEach((h, i) => { if (h) obj[h] = row[i] !== undefined ? row[i] : null; });
+                        return obj;
+                    }).filter(o => Object.values(o).some(v => v !== null && v !== ''));
+                }
+            }
+
+            if (json.length === 0) throw new Error('لم يتم قراءة أي بيانات');
+
+            const detectedSchema = detectSchema(json[0]);
+            if (detectedSchema) HOSPITALS[hospital].schema = detectedSchema;
+
+            STATE.files[hospital] = file;
+            STATE.rawData[hospital] = json;
+
+            card.classList.add('has-file');
+            statusEl.textContent = `${json.length.toLocaleString('en')} صف • صيغة: ${HOSPITALS[hospital].schema === 'kfh' ? 'KFH' : 'STD'}`;
+            statusEl.className = 'upload-status success';
+
+            updateUploadStatus();
+        } catch (err) {
+            statusEl.textContent = `خطأ: ${err.message}`;
+            statusEl.className = 'upload-status error';
+            console.error(`[${hospital}]`, err);
+        }
+    };
+    reader.onerror = () => {
+        statusEl.textContent = 'خطأ في قراءة الملف';
+        statusEl.className = 'upload-status error';
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+function detectSchema(sampleRow) {
+    if (!sampleRow) return null;
+    const keys = Object.keys(sampleRow);
+    if (keys.includes('Order Date and Time') || keys.includes('Date and Time Of Receiving in lab') || keys.includes('Date and time result sent back to reauester')) {
+        return 'std';
+    }
+    if (keys.includes('Order Date') && keys.includes('Complete Date') && keys.includes('Receive Date')) {
+        return 'kfh';
+    }
+    return null;
+}
+
+function updateUploadStatus() {
+    const count = Object.values(STATE.files).filter(f => f !== null).length;
+    const arabicNum = n => n.toString().replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+    document.getElementById('filesCount').textContent = `${arabicNum(count)} / ٨`;
+    document.getElementById('btnAnalyze').disabled = count === 0;
+}
+
+function parseDate(val) {
+    if (val === null || val === undefined || val === '') return null;
+    if (val instanceof Date) return isNaN(val.getTime()) ? null : val;
+    if (typeof val === 'number') {
+        const d = new Date((val - 25569) * 86400 * 1000);
+        return isNaN(d.getTime()) ? null : d;
+    }
+    if (typeof val !== 'string') return null;
+    const s = val.trim();
+    if (!s) return null;
+
+    let d = new Date(s);
+    if (!isNaN(d.getTime())) return d;
+
+    const m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM|am|pm)?$/);
+    if (m) {
+        let [_, day, month, year, hour, minute, second, ampm] = m;
+        day = parseInt(day, 10); month = parseInt(month, 10) - 1; year = parseInt(year, 10);
+        hour = parseInt(hour, 10); minute = parseInt(minute, 10); second = second ? parseInt(second, 10) : 0;
+        if (ampm) {
+            const isPM = ampm.toUpperCase() === 'PM';
+            if (isPM && hour < 12) hour += 12;
+            if (!isPM && hour === 12) hour = 0;
+        }
+        const date = new Date(year, month, day, hour, minute, second);
+        return isNaN(date.getTime()) ? null : date;
+    }
+
+    const m2 = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (m2) {
+        const date = new Date(parseInt(m2[3]), parseInt(m2[2]) - 1, parseInt(m2[1]));
+        return isNaN(date.getTime()) ? null : date;
+    }
+    return null;
+}
+
+function diffMinutes(d1, d2) {
+    if (!d1 || !d2) return null;
+    return (d2.getTime() - d1.getTime()) / 60000;
+}
+
+function getShift(date) {
+    if (!date) return null;
+    const tm = date.getHours() * 60 + date.getMinutes();
+    if (tm >= 7*60+30 && tm < 15*60+30) return 'morning';
+    if (tm >= 15*60+30 && tm < 23*60+30) return 'afternoon';
+    return 'night';
+}
+
+const SHIFT_LABELS = {
+    morning:   { ar: 'الصباح', time: '07:30 - 15:30' },
+    afternoon: { ar: 'العصر',  time: '15:30 - 23:30' },
+    night:     { ar: 'الليل',  time: '23:30 - 07:30' }
+};
+
+function normalizeRow(row, schema) {
+    const sId = row['Sample ID'] || row['SampleID'] || row['رقم العينة'] || '';
+    const pId = row['MRN'] || row['Patient ID'] || row['PatientID'] || row['MRN No'] || '';
+
+    if (schema === 'kfh') {
+        return {
+            orderDate: parseDate(row['Order Date']),
+            collectDate: parseDate(row['Collect Date']),
+            receiveDate: parseDate(row['Receive Date']),
+            completeDate: parseDate(row['Complete Date']),
+            patientType: (row['Patient Type'] || '').toString().trim(),
+            sampleId: sId.toString().trim(),
+            patientId: pId.toString().trim(),
+            testName: row['ExamName'] || row['Test Name'] || '',
+            status: row['Complete Date'] ? 'Released' : 'Pending',
+            rejectReason: null
+        };
+    } else {
+        const status = (row['Sample Status'] || '').toString().trim();
+        return {
+            orderDate: parseDate(row['Order Date and Time']),
+            collectDate: parseDate(row['Collect Date and Time']),
+            receiveDate: parseDate(row['Date and Time Of Receiving in lab']),
+            completeDate: parseDate(row['Date and time result sent back to reauester'] || row['Date and time result sent back to requester']),
+            patientType: (row['Patient Type'] || '').toString().trim(),
+            sampleId: sId.toString().trim(),
+            patientId: pId.toString().trim(),
+            testName: row['Test Name'] || '',
+            status: status,
+            rejectReason: row['Reject Reasons']
+        };
+    }
+}
+
+function isER(pt) { return pt && pt.toString().toUpperCase().includes('ER'); }
+
+function isRejected(row, schema) {
+    if (schema === 'kfh') return false;
+    const s = (row.status || '').toLowerCase();
+    return s.includes('reject') || s.includes('cancel') || s.includes('pending') || (row.rejectReason && row.rejectReason !== '');
+}
+
+function processHospital(key) {
+    const raw = STATE.rawData[key];
+    if (!raw || raw.length === 0) return null;
+    const schema = HOSPITALS[key].schema;
+
+    const all = raw.map(r => normalizeRow(r, schema));
+    const erAll = all.filter(r => isER(r.patientType));
+
+    const completed = erAll.filter(r =>
+        r.orderDate && r.collectDate && r.receiveDate && r.completeDate &&
+        !isRejected(r, schema)
+    );
+
+    if (completed.length === 0) {
+        return { key, total: erAll.length, completed: 0, empty: true };
+    }
+
+    const timings = completed.map(r => {
+        const tot = diffMinutes(r.orderDate, r.completeDate);
+        const ord_col = diffMinutes(r.orderDate, r.collectDate);
+        const col_rec = diffMinutes(r.collectDate, r.receiveDate);
+        const rec_res = diffMinutes(r.receiveDate, r.completeDate);
+        const shift = getShift(r.orderDate);
+        const hour = r.orderDate ? r.orderDate.getHours() : null;
+
+        return {
+            ...r,
+            tot: tot !== null && tot >= 0 ? tot : null,
+            ord_col: ord_col !== null && ord_col >= 0 ? ord_col : null,
+            col_rec: col_rec !== null && col_rec >= 0 ? col_rec : null,
+            rec_res: rec_res !== null && rec_res >= 0 ? rec_res : null,
+            shift, hour,
+            compTotal:    tot !== null && tot <= TARGET_TOTAL,
+            compOrdCol:   ord_col !== null && ord_col <= TARGET_ORDER_COLLECT,
+            compColRec:   col_rec !== null && col_rec <= TARGET_COLLECT_RECEIVE,
+            compRecRes:   rec_res !== null && rec_res <= TARGET_RECEIVE_RESULT
+        };
+    }).filter(r => r.tot !== null);
+
+    if (timings.length === 0) {
+        return { key, total: erAll.length, completed: 0, empty: true };
+    }
+
+    const avg = (arr, k) => {
+        const v = arr.filter(x => x[k] !== null && !isNaN(x[k]));
+        return v.length ? v.reduce((s, x) => s + x[k], 0) / v.length : null;
+    };
+    const median = (arr, k) => {
+        const v = arr.map(x => x[k]).filter(x => x !== null && !isNaN(x)).sort((a,b)=>a-b);
+        if (!v.length) return null;
+        const m = Math.floor(v.length / 2);
+        return v.length % 2 ? v[m] : (v[m-1] + v[m]) / 2;
+    };
+    const compPct = (arr, k) => arr.length ? arr.filter(x => x[k]).length / arr.length * 100 : 0;
+
+    const delayedTimings = timings.filter(t => !t.compTotal && t.tot <= 4 * 60);
+    const delayedMap = new Map();
+    delayedTimings.forEach(t => {
+        const id = t.patientId || `بدون رقم ملف (${Math.random().toString(36).slice(2,7)})`;
+        const displayId = t.patientId || 'بدون رقم ملف';
+        if (!delayedMap.has(id)) {
+            delayedMap.set(id, { id: displayId, val: t.tot });
+        } else {
+            const existing = delayedMap.get(id);
+            if (t.tot > existing.val) existing.val = t.tot;
+        }
+    });
+    const delayedIds = Array.from(delayedMap.values()).sort((a,b) => b.val - a.val);
+
+    const overall = {
+        total_compliance: compPct(timings, 'compTotal'),
+        total_avg: avg(timings, 'tot'),
+        total_median: median(timings, 'tot'),
+        stage1_compliance: compPct(timings.filter(t => t.ord_col !== null), 'compOrdCol'),
+        stage1_avg: avg(timings, 'ord_col'),
+        stage1_median: median(timings, 'ord_col'),
+        stage2_compliance: compPct(timings.filter(t => t.col_rec !== null), 'compColRec'),
+        stage2_avg: avg(timings, 'col_rec'),
+        stage2_median: median(timings, 'col_rec'),
+        stage3_compliance: compPct(timings.filter(t => t.rec_res !== null), 'compRecRes'),
+        stage3_avg: avg(timings, 'rec_res'),
+        stage3_median: median(timings, 'rec_res')
+    };
+
+    const byShift = {};
+    ['morning','afternoon','night'].forEach(s => {
+        const subset = timings.filter(t => t.shift === s);
+        byShift[s] = {
+            count: subset.length,
+            comp_total: compPct(subset, 'compTotal'),
+            comp_stage1: compPct(subset, 'compOrdCol'),
+            comp_stage2: compPct(subset, 'compColRec'),
+            comp_stage3: compPct(subset, 'compRecRes')
+        };
+    });
+
+    const byHour = {};
+    for (let h = 0; h < 24; h++) {
+        const subset = timings.filter(t => t.hour === h);
+        byHour[h] = {
+            count: subset.length,
+            comp: subset.length ? compPct(subset, 'compTotal') : null
+        };
+    }
+
+    return {
+        key,
+        total: erAll.length,
+        completed: timings.length,
+        overall,
+        byShift,
+        byHour,
+        delayedIds,
+        empty: false
+    };
+}
+
+async function analyzeAll() {
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.classList.add('active');
+    document.getElementById('loadingText').textContent = 'جاري تحليل البيانات...';
+
+    await new Promise(r => setTimeout(r, 50));
+
+    Object.keys(STATE.rawData).forEach(h => {
+        if (STATE.rawData[h]) STATE.processed[h] = processHospital(h);
+    });
+
+    document.getElementById('emptyState').style.display = 'none';
+    document.getElementById('resultsSection').classList.add('active');
+
+    document.getElementById('btnExportDashPng').disabled = false;
+    document.getElementById('btnExportMobilePdf').disabled = false;
+    document.getElementById('btnExportSlidesPdf').disabled = false;
+    document.getElementById('btnExportCompare').disabled = false;
+    document.getElementById('btnShareReport').disabled = false;
+
+    const valid = Object.values(STATE.processed).filter(p => p && !p.empty);
+    const totalCompleted = valid.reduce((s, p) => s + p.completed, 0);
+    document.getElementById('totalSamples').textContent = totalCompleted.toLocaleString('en');
+
+    renderHospitals();
+
+    overlay.classList.remove('active');
+}
+
+function compColor(val) {
+    if (val === null || val === undefined) return '#F59E0B';
+    if (val >= 90) return '#10B981';
+    if (val >= 70) return '#F59E0B';
+    return '#EF4444';
+}
+function compClass(val) {
+    if (val === null || val === undefined) return 'amber';
+    if (val >= 90) return 'green';
+    if (val >= 70) return 'amber';
+    return 'red';
+}
+
+function renderHospitals() {
+    const container = document.getElementById('hospitalsSection');
+    container.innerHTML = '';
+    Object.entries(STATE.processed).forEach(([h, p]) => {
+        if (!p) return;
+        container.appendChild(createHospitalCard(h, p));
+    });
+}
+
+function createHospitalCard(h, p) {
+    const div = document.createElement('div');
+    div.className = 'hospital-card';
+    div.dataset.h = h;
+    div.id = `hospital-${h}`;
+
+    if (p.empty) {
+        div.innerHTML = `
+            <div class="hospital-header">
+                <div class="hospital-title">
+                    <h2>${HOSPITALS[h].ar}</h2>
+                    <div class="lab-tag">${HOSPITALS[h].en}</div>
+                </div>
+            </div>
+            <div class="hospital-body">
+                <div style="text-align:center; padding: 50px 20px; color: var(--text-tertiary);">
+                    <h3 style="margin-bottom:6px;">لا توجد عينات مكتملة بمواصفات التحليل</h3>
+                    <p style="font-size: 12px;">إجمالي عينات ER: ${p.total}</p>
+                </div>
+            </div>
+        `;
+        return div;
+    }
+
+    const fmt = v => v === null ? '--' : v.toFixed(1);
+    const o = p.overall;
+    const delayedCount = p.delayedIds.length;
+
+    div.innerHTML = `
+        <div class="hospital-header">
+            <div class="hospital-title">
+                <h2>${HOSPITALS[h].ar}</h2>
+                <div class="lab-tag">${HOSPITALS[h].en} • ${p.completed.toLocaleString('en')} اختبار مكتمل</div>
+            </div>
+            <div class="hospital-actions">
+                <button class="btn" onclick="exportSlide('${h}')">تصدير سلايد</button>
+            </div>
+        </div>
+        <div class="hospital-body">
+
+            <div class="kpi-row">
+                <div class="kpi-tile flagship">
+                    <div class="kpi-label">الالتزام الكلي (من الطلب الى ظهور النتيجة)</div>
+                    <div class="kpi-value">${fmt(o.total_compliance)}<span style="font-size:13px;color:var(--text-tertiary);">%</span></div>
+                    <div class="kpi-target">الهدف ≤ 60 دقيقة</div>
+                    <div class="kpi-bar"><div class="kpi-bar-fill ${compClass(o.total_compliance)}" style="width: ${Math.min(100, o.total_compliance)}%"></div></div>
+                </div>
+                <div class="kpi-tile">
+                    <div class="kpi-label">متوسط الزمن الكلي</div>
+                    <div class="kpi-value">${fmt(o.total_avg)}<span style="font-size:13px;color:var(--text-tertiary);"> د</span></div>
+                    <div class="kpi-target">الوسيط: ${fmt(o.total_median)} دقيقة</div>
+                </div>
+            </div>
+
+            <div class="section-title" style="margin: 0 0 14px 0;">
+                <h2 style="font-size: 15px;">تحليل المراحل الثلاث — تحديد نقطة التأخير</h2>
+            </div>
+            <div class="stages-strip">
+                ${stageCard(1, 'من الطلب الى سحب العينة', '≤ 10 دقائق', o.stage1_compliance, o.stage1_avg, o.stage1_median)}
+                ${stageCard(2, 'من سحب العينة الى استقبال المختبر', '≤ 10 دقائق', o.stage2_compliance, o.stage2_avg, o.stage2_median)}
+                ${stageCard(3, 'من استقبال المختبر الى ظهور النتيجة', '≤ 40 دقيقة', o.stage3_compliance, o.stage3_avg, o.stage3_median)}
+            </div>
+
+            <div class="hourly-section">
+                <div class="hourly-header">
+                    <h3>المؤشر حسب ساعات العمل (24 ساعة)</h3>
+                    <div class="hourly-legend">
+                        <div class="lg-item"><div class="lg-dot" style="background:#10B981;"></div><span>≥ 90%</span></div>
+                        <div class="lg-item"><div class="lg-dot" style="background:#F59E0B;"></div><span>70–89%</span></div>
+                        <div class="lg-item"><div class="lg-dot" style="background:#EF4444;"></div><span>&lt; 70%</span></div>
+                    </div>
+                </div>
+                <div class="hourly-grid">
+                    ${[...Array(24).keys()].map(hr => {
+                        const hd = p.byHour[hr];
+                        if (!hd || hd.count === 0) {
+                            return `<div class="hour-tile no-data">
+                                <div class="h-time">${String(hr).padStart(2,'0')}:00</div>
+                                <div class="h-pct" style="color:var(--text-tertiary);">--</div>
+                            </div>`;
+                        }
+                        const color = compColor(hd.comp);
+                        return `<div class="hour-tile">
+                            <div class="h-bg" style="background: ${color};"></div>
+                            <div class="h-time">${String(hr).padStart(2,'0')}:00</div>
+                            <div class="h-pct" style="color: ${color};">${hd.comp.toFixed(0)}%</div>
+                        </div>`;
+                    }).join('')}
+                </div>
+            </div>
+
+            <div class="section-title" style="margin: 24px 0 12px 0;">
+                <h2 style="font-size: 15px;">الأداء حسب الوردية</h2>
+            </div>
+            <div class="shifts-grid">
+                ${['morning','afternoon','night'].map(s => {
+                    const sd = p.byShift[s];
+                    const lbl = SHIFT_LABELS[s];
+                    return `
+                        <div class="shift-card">
+                            <div class="shift-name">${lbl.ar}</div>
+                            <div class="shift-time">${lbl.time}</div>
+
+                            <div class="shift-metric">
+                                <span class="m-label">الالتزام الكلي</span>
+                                <span class="m-value" style="color: ${compColor(sd.comp_total)}">${fmt(sd.comp_total)}%</span>
+                            </div>
+                            <div class="shift-metric">
+                                <span class="m-label">من الطلب الى السحب</span>
+                                <span class="m-value" style="color: ${compColor(sd.comp_stage1)}">${fmt(sd.comp_stage1)}%</span>
+                            </div>
+                            <div class="shift-metric">
+                                <span class="m-label">من السحب للاستقبال</span>
+                                <span class="m-value" style="color: ${compColor(sd.comp_stage2)}">${fmt(sd.comp_stage2)}%</span>
+                            </div>
+                            <div class="shift-metric">
+                                <span class="m-label">من الاستقبال للنتيجة</span>
+                                <span class="m-value" style="color: ${compColor(sd.comp_stage3)}">${fmt(sd.comp_stage3)}%</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+
+            <div class="delayed-section">
+                <div class="delayed-header">
+                    <h3>أرقام الملفات اللي تأخرت (تجاوزت 60 دقيقة)</h3>
+                    <span class="delayed-count-pill">${delayedCount.toLocaleString('en')} ملف</span>
+                </div>
+                ${delayedCount === 0 ? `
+                    <div class="delayed-empty">لا توجد ملفات متأخرة — جميع العينات ضمن المستهدف</div>
+                ` : `
+                    <div class="delayed-ids-grid">
+                        ${p.delayedIds.map(d => `
+                            <div class="delayed-id-chip">
+                                <span class="sid">${d.id}</span>
+                                <span class="sval">${d.val.toFixed(0)} دقيقة</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `}
+            </div>
+
+        </div>
+    `;
+    return div;
+}
+
+function stageCard(num, name, target, comp, avg, med) {
+    const fmt = v => v === null ? '--' : v.toFixed(1);
+    const color = compColor(comp);
+    return `
+        <div class="stage-card" style="border-top: 3px solid ${color};">
+            <div class="stage-header">
+                <div>
+                    <div class="stage-name">${name}</div>
+                    <div class="stage-target">${target}</div>
+                </div>
+                <div class="stage-num">${num}</div>
+            </div>
+            <div class="stage-metrics">
+                <div class="metric-mini">
+                    <div class="ml">الالتزام</div>
+                    <div class="mv" style="color: ${color};">${fmt(comp)}%</div>
+                </div>
+                <div class="metric-mini">
+                    <div class="ml">المتوسط</div>
+                    <div class="mv">${fmt(avg)}<span style="font-size:10px;color:var(--text-tertiary);"> د</span></div>
+                </div>
+            </div>
+            <div class="stage-bar">
+                <div style="height: 100%; width: ${Math.min(100, comp)}%; background: ${color};"></div>
+            </div>
+        </div>
+    `;
+}
+
+// =====================================================================
+// 🆕 الميزة الجديدة: حفظ التقرير كموقع HTML قابل للمشاركة في الواتساب
+// =====================================================================
+async function exportStandaloneHTML() {
+    const valid = Object.values(STATE.processed).filter(p => p && !p.empty);
+    if (valid.length === 0) { alert('ما فيه بيانات للحفظ'); return; }
+
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.classList.add('active');
+    document.getElementById('loadingText').textContent = 'جاري تجهيز التقرير للمشاركة...';
+
+    await new Promise(r => setTimeout(r, 100));
+
+    try {
+        // 1) جمع كل الستايلات من الصفحة
+        let allStyles = '';
+        document.querySelectorAll('style').forEach(s => {
+            allStyles += s.textContent + '\n';
+        });
+
+        // 2) أخذ نسخة من الـ header وقسم النتائج
+        const headerHTML = document.querySelector('.cmd-header').outerHTML;
+        const resultsHTML = document.getElementById('resultsSection').outerHTML;
+
+        // 3) معلومات التقرير
+        const totalSamples = document.getElementById('totalSamples').textContent;
+        const filesUploaded = Object.values(STATE.files).filter(f => f).length;
+        const exportDateISO = new Date().toISOString().slice(0,10);
+        const exportDateAr = new Date().toLocaleDateString('ar-SA-u-ca-gregory', {
+            year: 'numeric', month: 'long', day: 'numeric'
+        });
+        const exportTime = new Date().toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
+
+        // 4) بناء HTML قائم بذاته
+        const htmlContent = '<!DOCTYPE html>\n' +
+'<html lang="ar" dir="rtl">\n' +
+'<head>\n' +
+'<meta charset="UTF-8">\n' +
+'<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">\n' +
+'<meta name="theme-color" content="#0A0E1A">\n' +
+'<title>تقرير مؤشرات مختبرات الطوارئ — ' + exportDateISO + '</title>\n' +
+'<meta property="og:title" content="تقرير مؤشرات مختبرات الطوارئ">\n' +
+'<meta property="og:description" content="' + filesUploaded + ' مستشفى • ' + totalSamples + ' عينة • ' + exportDateISO + '">\n' +
+'<style id="pre-paint">html,body{background:#0A0E1A!important;color:#F4F6FB;}</style>\n' +
+
+‘<link rel="preconnect" href="https://fonts.googleapis.com">\n’ +
+‘<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n’ +
+‘<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Cairo:wght@600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">\n’ +
+‘<style>\n’ + allStyles + ‘\n’ +
+‘.export-banner{background:linear-gradient(135deg,rgba(16,185,129,0.18),rgba(6,182,212,0.10));border-bottom:1px solid var(–border-medium);padding:16px 32px;text-align:center;font-family:“Cairo”,sans-serif;}\n’ +
+‘.export-banner .title{font-size:14px;color:var(–accent-emerald);font-weight:800;margin-bottom:8px;}\n’ +
+‘.export-banner .meta{display:inline-flex;gap:20px;font-size:12px;color:var(–text-secondary);font-family:“JetBrains Mono”,monospace;direction:ltr;flex-wrap:wrap;justify-content:center;}\n’ +
+‘.export-banner .meta span{display:inline-flex;align-items:center;gap:5px;}\n’ +
+‘.upload-section,.actions-bar,.empty-state,.hospital-actions,.loading-overlay,.slide-export,#initShield{display:none!important;}\n’ +
+‘.results-section{display:block!important;}\n’ +
+‘.report-footer{margin-top:40px;padding:24px 32px;border-top:1px solid var(–border-medium);background:var(–bg-card);text-align:center;}\n’ +
+‘.report-footer .brand{font-family:“Cairo”,sans-serif;font-weight:700;color:var(–text-secondary);margin-bottom:6px;font-size:14px;}\n’ +
+‘.report-footer .meta{color:var(–text-tertiary);font-size:11.5px;font-family:“JetBrains Mono”,monospace;direction:ltr;}\n’ +
+‘@media(max-width:768px){.export-banner{padding:12px 16px;}.export-banner .meta{gap:12px;font-size:11px;}}\n’ +
+‘</style>\n’ +
+‘</head>\n’ +
+‘<body>\n’ +
+headerHTML + ‘\n’ +
+‘<div class="export-banner">\n’ +
+‘<div class="title">📋 تقرير محفوظ — مؤشرات أداء مختبرات الطوارئ</div>\n’ +
+‘<div class="meta">\n’ +
+’<span>📅 ’ + exportDateISO + ‘</span>\n’ +
+‘<span>🏥 ’ + filesUploaded + ’ مستشفى</span>\n’ +
+‘<span>🧪 ’ + totalSamples + ’ عينة</span>\n’ +
+‘</div>\n’ +
+‘</div>\n’ +
+‘<main class="cmd-main">\n’ + resultsHTML + ‘\n</main>\n’ +
+‘<div class="report-footer">\n’ +
+‘<div class="brand">الخدمات الصحية المساندة — تجمع المدينة المنورة الصحي</div>\n’ +
+’<div class="meta">Generated: ’ + exportDateISO + ’ ’ + exportTime + ‘</div>\n’ +
+‘</div>\n’ +
+‘<script>\n’ +
+‘document.querySelectorAll(”.hospital-actions”).forEach(el=>el.remove());\n’ +
+‘var s=document.getElementById(“initShield”);if(s)s.remove();\n’ +
+‘</script>\n’ +
+‘</body>\n’ +
+‘</html>’;
+
+```
+    // 5) تنزيل الملف
+    const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'ER_Lab_Report_' + exportDateISO + '.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 200);
+
+    document.getElementById('loadingText').textContent = '✓ تم الحفظ بنجاح! شارك الملف في الواتساب';
+    await new Promise(r => setTimeout(r, 1500));
+
+} catch (err) {
+    alert('خطأ في الحفظ: ' + err.message);
+    console.error(err);
+} finally {
+    overlay.classList.remove('active');
+}
+```
+
+}
+
+async function exportAllDash() {
+const overlay = document.getElementById(‘loadingOverlay’);
+overlay.classList.add(‘active’);
+document.getElementById(‘loadingText’).textContent = ‘جاري حفظ الصورة…’;
+
+```
+await new Promise(r => setTimeout(r, 100));
+
+const dashboardArea = document.getElementById('resultsSection');
+const buttons = dashboardArea.querySelectorAll('.hospital-actions');
+buttons.forEach(b => b.style.display = 'none');
+
+const oldStyle = {
+    width: dashboardArea.style.width,
+    maxWidth: dashboardArea.style.maxWidth,
+    position: dashboardArea.style.position
+};
+dashboardArea.style.width = '1900px';
+dashboardArea.style.maxWidth = '1900px';
+dashboardArea.style.position = 'relative';
+
+window.scrollTo(0, 0);
+
+try {
+    const canvas = await html2canvas(dashboardArea, {
+        scale: 1.5,
+        backgroundColor: '#0A0E1A',
+        useCORS: true,
+        logging: false,
+        scrollY: -window.scrollY,
+        windowWidth: 1900,
+        windowHeight: dashboardArea.scrollHeight
+    });
+
+    canvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `ER_Lab_Dashboard_${new Date().toISOString().slice(0,10)}.png`;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 100);
+    });
+} catch (err) {
+    alert('خطأ في التصدير: ' + err.message);
+} finally {
+    buttons.forEach(b => b.style.display = 'flex');
+    Object.assign(dashboardArea.style, oldStyle);
+    overlay.classList.remove('active');
+}
+```
+
+}
+
+async function exportMobilePdf() {
+const { jsPDF } = window.jspdf;
+if (!jsPDF) { alert(‘تعذر تحميل مكتبة PDF’); return; }
+
+```
+const overlay = document.getElementById('loadingOverlay');
+overlay.classList.add('active');
+document.getElementById('loadingText').textContent = 'جاري إنشاء PDF متوافق مع الجوال...';
+
+await new Promise(r => setTimeout(r, 100));
+
+const dashboardArea = document.getElementById('resultsSection');
+const buttons = dashboardArea.querySelectorAll('.hospital-actions');
+buttons.forEach(b => b.style.display = 'none');
+
+const oldStyle = {
+    width: dashboardArea.style.width,
+    maxWidth: dashboardArea.style.maxWidth,
+    position: dashboardArea.style.position,
+    padding: dashboardArea.style.padding,
+    margin: dashboardArea.style.margin
+};
+
+dashboardArea.style.width = '750px';
+dashboardArea.style.maxWidth = '750px';
+dashboardArea.style.position = 'relative';
+dashboardArea.style.padding = '20px';
+dashboardArea.style.margin = '0 auto';
+
+window.scrollTo(0, 0);
+
+try {
+    const canvas = await html2canvas(dashboardArea, {
+        scale: 2,
+        backgroundColor: '#0A0E1A',
+        useCORS: true,
+        logging: false,
+        windowWidth: 750
+    });
+
+    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'px', format: [canvas.width, canvas.height] });
+    pdf.addImage(imgData, 'JPEG', 0, 0, canvas.width, canvas.height);
+    pdf.save(`ER_Lab_Mobile_${new Date().toISOString().slice(0,10)}.pdf`);
+} catch (err) {
+    alert('خطأ في PDF: ' + err.message);
+} finally {
+    buttons.forEach(b => b.style.display = 'flex');
+    Object.assign(dashboardArea.style, oldStyle);
+    overlay.classList.remove('active');
+}
+```
+
+}
+
+async function exportSlidesPdf() {
+const { jsPDF } = window.jspdf;
+if (!jsPDF) { alert(‘تعذر تحميل مكتبة PDF’); return; }
+
+```
+const overlay = document.getElementById('loadingOverlay');
+overlay.classList.add('active');
+document.getElementById('loadingText').textContent = 'جاري تجهيز سلايدات الـ PDF...';
+
+await new Promise(r => setTimeout(r, 100));
+
+const dashboardArea = document.getElementById('resultsSection');
+const buttons = dashboardArea.querySelectorAll('.hospital-actions');
+buttons.forEach(b => b.style.display = 'none');
+
+const oldStyle = {
+    width: dashboardArea.style.width,
+    maxWidth: dashboardArea.style.maxWidth,
+    position: dashboardArea.style.position
+};
+dashboardArea.style.width = '1900px';
+dashboardArea.style.maxWidth = '1900px';
+dashboardArea.style.position = 'relative';
+
+window.scrollTo(0, 0);
+
+try {
+    const canvas = await html2canvas(dashboardArea, {
+        scale: 1.5,
+        backgroundColor: '#0A0E1A',
+        useCORS: true, logging: false,
+        windowWidth: 1900
+    });
+
+    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+    const pdf = new jsPDF('l', 'mm', 'a4');
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+
+    let heightLeft = imgHeight;
+    let position = 0;
+
+    pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeight);
+    heightLeft -= pageHeight;
+
+    while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeight);
+        heightLeft -= pageHeight;
+    }
+
+    pdf.save(`ER_Lab_Presentation_${new Date().toISOString().slice(0,10)}.pdf`);
+} catch (err) {
+    alert('خطأ في PDF: ' + err.message);
+} finally {
+    buttons.forEach(b => b.style.display = 'flex');
+    Object.assign(dashboardArea.style, oldStyle);
+    overlay.classList.remove('active');
+}
+```
+
+}
+
+async function exportSlide(h) {
+const p = STATE.processed[h];
+if (!p || p.empty) { alert(‘لا توجد بيانات’); return; }
+
+```
+const overlay = document.getElementById('loadingOverlay');
+overlay.classList.add('active');
+document.getElementById('loadingText').textContent = 'جاري إنشاء السلايد...';
+
+await new Promise(r => setTimeout(r, 100));
+
+const fmt = v => v === null ? '--' : v.toFixed(1);
+const o = p.overall;
+
+const slide = document.getElementById('slideExport');
+slide.innerHTML = `
+    <div class="slide-header">
+        <div class="slide-brand">
+            <div class="super">الخدمات الصحية المساندة</div>
+            <h1>${HOSPITALS[h].ar}</h1>
+            <div class="subtitle">${HOSPITALS[h].en} • مؤشرات أداء مختبر الطوارئ</div>
+        </div>
+        <div class="slide-meta">
+            <div class="date-big" style="direction:ltr;">${new Date().toISOString().slice(0,10)}</div>
+            <div>${p.completed.toLocaleString('en')} اختبار مكتمل</div>
+        </div>
+    </div>
+
+    <div class="slide-kpi-row">
+        <div class="slide-kpi flagship" style="border-top-color: ${compColor(o.total_compliance)}">
+            <div class="label">الالتزام الكلي (من الطلب الى ظهور النتيجة)</div>
+            <div class="value" style="color: ${compColor(o.total_compliance)}">${fmt(o.total_compliance)}<span style="font-size:21px;color:#6B7388;">%</span></div>
+            <div class="target">الهدف ≤ 60 دقيقة</div>
+        </div>
+        <div class="slide-kpi info">
+            <div class="label">متوسط الزمن الكلي</div>
+            <div class="value">${fmt(o.total_avg)}<span style="font-size:18px;color:#6B7388;"> د</span></div>
+            <div class="target">الوسيط: ${fmt(o.total_median)} د</div>
+        </div>
+    </div>
+
+    <div class="slide-stages">
+        <div class="slide-stage" style="border-top: 4px solid ${compColor(o.stage1_compliance)};">
+            <div class="name">من الطلب الى سحب العينة</div>
+            <div class="tg">المستهدف ≤ 10 دقائق</div>
+            <div class="vrow"><span class="lbl">الالتزام</span><span class="val" style="color:${compColor(o.stage1_compliance)};">${fmt(o.stage1_compliance)}%</span></div>
+            <div class="vrow"><span class="lbl">المتوسط</span><span class="val">${fmt(o.stage1_avg)} د</span></div>
+            <div class="vrow"><span class="lbl">الوسيط</span><span class="val">${fmt(o.stage1_median)} د</span></div>
+        </div>
+        <div class="slide-stage" style="border-top: 4px solid ${compColor(o.stage2_compliance)};">
+            <div class="name">من سحب العينة الى استقبال المختبر</div>
+            <div class="tg">المستهدف ≤ 10 دقائق</div>
+            <div class="vrow"><span class="lbl">الالتزام</span><span class="val" style="color:${compColor(o.stage2_compliance)};">${fmt(o.stage2_compliance)}%</span></div>
+            <div class="vrow"><span class="lbl">المتوسط</span><span class="val">${fmt(o.stage2_avg)} د</span></div>
+            <div class="vrow"><span class="lbl">الوسيط</span><span class="val">${fmt(o.stage2_median)} د</span></div>
+        </div>
+        <div class="slide-stage" style="border-top: 4px solid ${compColor(o.stage3_compliance)};">
+            <div class="name">من استقبال المختبر الى ظهور النتيجة</div>
+            <div class="tg">المستهدف ≤ 40 دقيقة</div>
+            <div class="vrow"><span class="lbl">الالتزام</span><span class="val" style="color:${compColor(o.stage3_compliance)};">${fmt(o.stage3_compliance)}%</span></div>
+            <div class="vrow"><span class="lbl">المتوسط</span><span class="val">${fmt(o.stage3_avg)} د</span></div>
+            <div class="vrow"><span class="lbl">الوسيط</span><span class="val">${fmt(o.stage3_median)} د</span></div>
+        </div>
+    </div>
+
+    <div class="slide-hourly-section">
+        <h3>المؤشر حسب ساعات العمل (24 ساعة)</h3>
+        <div class="slide-hourly-grid">
+            ${[...Array(24).keys()].map(hr => {
+                const hd = p.byHour[hr];
+                if (!hd || hd.count === 0) {
+                    return `<div class="slide-hour-tile no-data">
+                        <div class="ht">${String(hr).padStart(2,'0')}</div>
+                        <div class="hp" style="color:#6B7388;">--</div>
+                    </div>`;
+                }
+                const color = compColor(hd.comp);
+                return `<div class="slide-hour-tile">
+                    <div class="hbg" style="background:${color};"></div>
+                    <div class="ht">${String(hr).padStart(2,'0')}</div>
+                    <div class="hp" style="color:${color};">${hd.comp.toFixed(0)}%</div>
+                </div>`;
+            }).join('')}
+        </div>
+    </div>
+
+    <div class="slide-footer">
+        <span class="left">SHS • CCC • ${new Date().toISOString().slice(0,10)}</span>
+        <span>الخدمات الصحية المساندة — تجمع المدينة المنورة الصحي</span>
+    </div>
+`;
+
+slide.classList.add('active');
+
+try {
+    const canvas = await html2canvas(slide, {
+        width: 1920, height: 1080,
+        backgroundColor: '#0A0E1A',
+        scale: 1, logging: false
+    });
+    canvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${HOSPITALS[h].en.replace(/\s+/g,'_')}_TAT_${new Date().toISOString().slice(0,10)}.png`;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 100);
+    });
+} catch (err) {
+    alert('خطأ: ' + err.message);
+} finally {
+    slide.classList.remove('active');
+    overlay.classList.remove('active');
+}
+```
+
+}
+
+async function exportComparisonSlide() {
+const valid = Object.entries(STATE.processed).filter(([h, p]) => p && !p.empty);
+if (valid.length === 0) { alert(‘لا توجد بيانات’); return; }
+
+```
+const overlay = document.getElementById('loadingOverlay');
+overlay.classList.add('active');
+document.getElementById('loadingText').textContent = 'جاري إنشاء شريحة المقارنة...';
+
+await new Promise(r => setTimeout(r, 100));
+
+const fmt = v => v === null ? '--' : v.toFixed(1);
+const slide = document.getElementById('compareExport');
+
+const sortedTotal = [...valid].sort((a,b) => b[1].overall.total_compliance - a[1].overall.total_compliance);
+
+const buildRow = (h, p, key) => {
+    const val = p.overall[key];
+    return `
+        <div class="compare-row">
+            <div class="compare-label">${HOSPITALS[h].ar}</div>
+            <div class="compare-bar-wrap">
+                <div class="compare-bar-fill" style="width: ${Math.min(100, val)}%; background: ${compColor(val)}; opacity: 0.25;"></div>
+                <div class="compare-bar-text" style="color: ${compColor(val)};">${fmt(val)}%</div>
+            </div>
+        </div>
+    `;
+};
+
+slide.innerHTML = `
+    <div class="slide-header">
+        <div class="slide-brand">
+            <div class="super">الخدمات الصحية المساندة</div>
+            <h1>مقارنة أداء مختبرات الطوارئ</h1>
+            <div class="subtitle">${valid.length} مستشفى مستهدف • تجمع المدينة المنورة الصحي</div>
+        </div>
+        <div class="slide-meta">
+            <div class="date-big" style="direction:ltr;">${new Date().toISOString().slice(0,10)}</div>
+            <div>${valid.reduce((s,[_,p]) => s + p.completed, 0).toLocaleString('en')} اختبار مكتمل</div>
+        </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px;">
+        <div style="background: var(--bg-card-elevated); border-radius: 8px; padding: 22px; border: 1px solid var(--border-subtle);">
+            <h3 style="font-family: 'Cairo'; font-size: 18px; font-weight: 700; margin-bottom: 18px; color: var(--accent-emerald);">الالتزام الكلي (من الطلب الى ظهور النتيجة) ≤ 60 د</h3>
+            ${sortedTotal.map(([h,p]) => buildRow(h, p, 'total_compliance')).join('')}
+        </div>
+        <div style="background: var(--bg-card-elevated); border-radius: 8px; padding: 22px; border: 1px solid var(--border-subtle);">
+            <h3 style="font-family: 'Cairo'; font-size: 18px; font-weight: 700; margin-bottom: 18px; color: var(--accent-cyan);">من استقبال المختبر الى ظهور النتيجة ≤ 40 د</h3>
+            ${sortedTotal.map(([h,p]) => buildRow(h, p, 'stage3_compliance')).join('')}
+        </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 22px;">
+        <div style="background: var(--bg-card-elevated); border-radius: 8px; padding: 22px; border: 1px solid var(--border-subtle);">
+            <h3 style="font-family: 'Cairo'; font-size: 18px; font-weight: 700; margin-bottom: 18px; color: var(--accent-blue);">من الطلب الى سحب العينة ≤ 10 د</h3>
+            ${sortedTotal.map(([h,p]) => buildRow(h, p, 'stage1_compliance')).join('')}
+        </div>
+        <div style="background: var(--bg-card-elevated); border-radius: 8px; padding: 22px; border: 1px solid var(--border-subtle);">
+            <h3 style="font-family: 'Cairo'; font-size: 18px; font-weight: 700; margin-bottom: 18px; color: var(--accent-violet);">من سحب العينة الى استقبال المختبر ≤ 10 د</h3>
+            ${sortedTotal.map(([h,p]) => buildRow(h, p, 'stage2_compliance')).join('')}
+        </div>
+    </div>
+
+    <div class="slide-footer">
+        <span class="left">SHS • CCC • ${new Date().toISOString().slice(0,10)}</span>
+        <span>الخدمات الصحية المساندة — مقارنة أداء المختبرات</span>
+    </div>
+`;
+
+slide.classList.add('active');
+
+try {
+    const canvas = await html2canvas(slide, {
+        width: 1920, height: 1080,
+        backgroundColor: '#0A0E1A',
+        scale: 1, logging: false
+    });
+    canvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `ER_Lab_Comparison_${new Date().toISOString().slice(0,10)}.png`;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 100);
+    });
+} catch (err) {
+    alert('خطأ: ' + err.message);
+} finally {
+    slide.classList.remove('active');
+    overlay.classList.remove('active');
+}
+```
+
+}
+
+function resetAll() {
+if (!confirm(‘متأكد من مسح جميع الملفات؟’)) return;
+Object.keys(STATE.files).forEach(h => {
+STATE.files[h] = null;
+STATE.rawData[h] = null;
+STATE.processed[h] = null;
+});
+document.querySelectorAll(’.upload-card’).forEach(c => c.classList.remove(‘has-file’));
+document.querySelectorAll(’.upload-status’).forEach(s => {
+s.textContent = ‘لم يتم الرفع’;
+s.className = ‘upload-status’;
+});
+document.querySelectorAll(’.upload-input’).forEach(i => i.value = ‘’);
+
+```
+document.getElementById('emptyState').style.display = 'block';
+document.getElementById('resultsSection').classList.remove('active');
+document.getElementById('hospitalsSection').innerHTML = '';
+document.getElementById('totalSamples').textContent = '--';
+
+document.getElementById('btnExportDashPng').disabled = true;
+document.getElementById('btnExportMobilePdf').disabled = true;
+document.getElementById('btnExportSlidesPdf').disabled = true;
+document.getElementById('btnExportCompare').disabled = true;
+document.getElementById('btnShareReport').disabled = true;
+
+updateUploadStatus();
+```
+
+}
+
+window.exportSlide = exportSlide;
+
+if (document.readyState === ‘loading’) {
+document.addEventListener(‘DOMContentLoaded’, init);
+} else {
+init();
+}
+</script>
+
+</body>
+</html>
