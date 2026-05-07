@@ -1399,7 +1399,7 @@ body {
 <section class="upload-section">
     <div class="section-title">
         <h2>رفع ملفات المستشفيات</h2>
-        <span class="badge">١٣ مستشفى مستهدف</span>
+        <span class="badge">١٥ مستشفى مستهدف</span>
     </div>
     <div class="upload-grid" id="uploadGrid"></div>
 </section>
@@ -1408,7 +1408,7 @@ body {
     <div class="actions-info">
         <div class="info-stat">
             <span class="label">الملفات المرفوعة</span>
-            <span class="value" id="filesCount">٠ / ١٣</span>
+            <span class="value" id="filesCount">٠ / ١٥</span>
         </div>
         <div class="info-stat">
             <span class="label">إجمالي Sample ID المكتمل</span>
@@ -1504,7 +1504,9 @@ const HOSPITALS = {
     hamna:      { ar: 'مستشفى الحمنة',               en: 'Al-Hamna Hospital',                    schema: 'std' },
     wadi_fara:  { ar: 'مستشفى وادي الفرع',           en: 'Wadi Al-Fara Hospital',                schema: 'std' },
     yanbu:      { ar: 'مستشفى ينبع العام',           en: 'Yanbu General Hospital',               schema: 'std' },
-    hanakiyah:  { ar: 'مستشفى الحناكية',             en: 'Al-Hanakiyah Hospital',                schema: 'std' }
+    hanakiyah:  { ar: 'مستشفى الحناكية',             en: 'Al-Hanakiyah Hospital',                schema: 'std' },
+    khaybar:    { ar: 'مستشفى خيبر',                 en: 'Khaybar Hospital',                     schema: 'std' },
+    mental:     { ar: 'مستشفى الصحة النفسية',        en: 'Mental Health Hospital',               schema: 'std' }
 };
 
 const STATE = { files: {}, rawData: {}, processed: {} };
@@ -1657,7 +1659,7 @@ function detectSchema(sampleRow) {
 function updateUploadStatus() {
     const count = Object.values(STATE.files).filter(f => f !== null).length;
     const arabicNum = n => n.toString().replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
-    document.getElementById('filesCount').textContent = `${arabicNum(count)} / ١٣`;
+    document.getElementById('filesCount').textContent = `${arabicNum(count)} / ١٥`;
     document.getElementById('btnAnalyze').disabled = count === 0;
 }
 
