@@ -4790,21 +4790,15 @@ async function exportHospitalComparison(hospitalKey) {
     document.getElementById('loadingText').textContent = 'جاري إعداد تقرير المقارنة...';
     await new Promise(r => setTimeout(r, 100));
 
-    // إنشاء عنصر مؤقت للتصدير
+    // إنشاء عنصر مؤقت للتصدير - نضعه في الـ DOM لكن خارج الشاشة بصرياً (visibility:hidden ولكن position:relative ليُحسب layout-ه)
     const exportEl = document.createElement('div');
     exportEl.className = 'comparison-export-page';
-    exportEl.style.cssText = 'position:absolute; left:-99999px; top:0; width:1500px; background:#0A0E1A; padding:40px; box-sizing:border-box; color:#E5E7EB; font-family:Tajawal,sans-serif; direction:rtl;';
+    exportEl.style.cssText = 'position:fixed; left:0; top:0; width:1500px; background:#0A0E1A; padding:40px; box-sizing:border-box; color:#E5E7EB; font-family:Tajawal,sans-serif; direction:rtl; z-index:-1; opacity:0; pointer-events:none; text-rendering:optimizeLegibility; font-feature-settings:"kern" 1, "liga" 1, "calt" 1;';
     exportEl.innerHTML = buildHospitalComparisonReport(hospitalKey, comparisons, refDate);
     document.body.appendChild(exportEl);
 
     try {
-        const canvas = await html2canvas(exportEl, {
-            scale: 2,
-            backgroundColor: '#0A0E1A',
-            useCORS: true,
-            logging: false,
-            windowWidth: 1500
-        });
+        const canvas = await captureElementWideRaw(exportEl, 1500);
         const link = document.createElement('a');
         const fileName = `مقارنة_${HOSPITALS[hospitalKey].ar.replace(/\s+/g, '_')}_${ymdKey(new Date())}.png`;
         link.download = fileName;
@@ -4892,18 +4886,12 @@ async function exportClusterComparison() {
 
     const exportEl = document.createElement('div');
     exportEl.className = 'comparison-export-page';
-    exportEl.style.cssText = 'position:absolute; left:-99999px; top:0; width:1500px; background:#0A0E1A; padding:40px; box-sizing:border-box; color:#E5E7EB; font-family:Tajawal,sans-serif; direction:rtl;';
+    exportEl.style.cssText = 'position:fixed; left:0; top:0; width:1500px; background:#0A0E1A; padding:40px; box-sizing:border-box; color:#E5E7EB; font-family:Tajawal,sans-serif; direction:rtl; z-index:-1; opacity:0; pointer-events:none; text-rendering:optimizeLegibility; font-feature-settings:"kern" 1, "liga" 1, "calt" 1;';
     exportEl.innerHTML = buildClusterComparisonReport(comparisons, refDate, data);
     document.body.appendChild(exportEl);
 
     try {
-        const canvas = await html2canvas(exportEl, {
-            scale: 2,
-            backgroundColor: '#0A0E1A',
-            useCORS: true,
-            logging: false,
-            windowWidth: 1500
-        });
+        const canvas = await captureElementWideRaw(exportEl, 1500);
         const link = document.createElement('a');
         link.download = `مقارنة_الكلستر_${ymdKey(new Date())}.png`;
         link.href = canvas.toDataURL('image/png');
@@ -5296,7 +5284,6 @@ function buildHospitalPromiseCard(h, idx, clusterDailyDays) {
                     </div>
                 </div>
             ` : `<div class="hp-clean">لا يوجد مرضى تجاوزوا الـ ١٠ اختبارات</div>`}
-            <button class="btn-hp-export" onclick="exportHospitalComparison('${h.key}')">تصدير تقرير المقارنة الزمنية</button>
         </div>
     `;
 }
@@ -5436,8 +5423,8 @@ function avgForDayRange(rows, fromDay, toDay) {
     };
 }
 
-// إضافة n أيام لتاريخ ISO YYYY-MM-DD
-function addDays(dayKey, n) {
+// إضافة n أيام لتاريخ ISO YYYY-MM-DD (نسخة خاصة بمقارنة المستشفى الفردي)
+function addDaysToKey(dayKey, n) {
     const d = new Date(dayKey + 'T00:00:00');
     d.setDate(d.getDate() + n);
     return d.toISOString().slice(0, 10);
@@ -5455,7 +5442,7 @@ function buildHospitalCompare(hospitalKey) {
     const allDays = [...new Set(rows.map(r => r.dayKey))].sort();
     const lastDay = allDays[allDays.length - 1]; // "اليوم" = آخر يوم متاح
 
-    const dayBefore = addDays(lastDay, -1);
+    const dayBefore = addDaysToKey(lastDay, -1);
 
     // الفترات
     const periods = [];
@@ -5475,9 +5462,9 @@ function buildHospitalCompare(hospitalKey) {
     }
 
     // 2. آخر 3 أيام vs الـ 3 السابقة
-    const last3From = addDays(lastDay, -2);
-    const prev3To = addDays(lastDay, -3);
-    const prev3From = addDays(lastDay, -5);
+    const last3From = addDaysToKey(lastDay, -2);
+    const prev3To = addDaysToKey(lastDay, -3);
+    const prev3From = addDaysToKey(lastDay, -5);
     const last3 = avgForDayRange(rows, last3From, lastDay);
     const prev3 = avgForDayRange(rows, prev3From, prev3To);
     if (last3 && prev3 && last3.days >= 2 && prev3.days >= 2) {
@@ -5492,9 +5479,9 @@ function buildHospitalCompare(hospitalKey) {
     }
 
     // 3. آخر 7 أيام vs الـ 7 السابقة
-    const last7From = addDays(lastDay, -6);
-    const prev7To = addDays(lastDay, -7);
-    const prev7From = addDays(lastDay, -13);
+    const last7From = addDaysToKey(lastDay, -6);
+    const prev7To = addDaysToKey(lastDay, -7);
+    const prev7From = addDaysToKey(lastDay, -13);
     const last7 = avgForDayRange(rows, last7From, lastDay);
     const prev7 = avgForDayRange(rows, prev7From, prev7To);
     if (last7 && prev7 && last7.days >= 4 && prev7.days >= 4) {
@@ -5776,6 +5763,11 @@ function closeHospitalCompare() {
 // Helper: ينتظر تحميل الخطوط + ينفذ تغيير العرض + ينتظر إعادة التخطيط بالكامل
 async function captureElementWide(elementId, targetWidth = 1500) {
     const page = document.getElementById(elementId);
+    return await captureElementWideRaw(page, targetWidth);
+}
+
+// نفس الفكرة لكن لعنصر مرّر مباشرة (للعناصر المؤقتة off-screen)
+async function captureElementWideRaw(page, targetWidth = 1500) {
     const oldWidth = page.style.width;
     const oldMaxWidth = page.style.maxWidth;
     const oldMinWidth = page.style.minWidth;
@@ -5790,9 +5782,9 @@ async function captureElementWide(elementId, targetWidth = 1500) {
     page.style.maxWidth = targetWidth + 'px';
     page.style.minWidth = targetWidth + 'px';
 
-    // 3. الانتظار لإعادة التخطيط (frame واحد + تأخير) — مهم للنصوص العربية
+    // 3. الانتظار لإعادة التخطيط (frame مزدوج + تأخير) — مهم للنصوص العربية
     await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-    await new Promise(r => setTimeout(r, 250));
+    await new Promise(r => setTimeout(r, 350));
 
     // 4. التأكد مرة أخرى من الخطوط بعد تغيير العرض
     if (document.fonts && document.fonts.ready) {
