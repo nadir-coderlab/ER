@@ -1401,6 +1401,14 @@ body {
 .promise-page {
     background: var(--bg-primary);
     padding: 32px 36px;
+    /* تثبيت تخطيط النص العربي عند التصدير */
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+.promise-page * {
+    text-rendering: optimizeLegibility;
 }
 
 /* Hero */
@@ -2311,6 +2319,380 @@ body {
     margin-bottom: 14px;
 }
 
+/* ============== المقارنة الزمنية ============== */
+.comp-section-wrap {
+    background: var(--bg-card);
+    border: 1px solid var(--border-medium);
+    border-radius: 6px;
+    padding: 22px;
+    margin-bottom: 28px;
+}
+.comp-section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 18px;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+.comp-section-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+.comp-section-sub {
+    font-size: 12px;
+    color: var(--text-tertiary);
+}
+.btn-cluster-comp {
+    background: linear-gradient(135deg, rgba(16,185,129,0.18), rgba(6,182,212,0.18));
+    color: var(--accent-emerald);
+    border: 1px solid rgba(16,185,129,0.4);
+    padding: 9px 18px;
+    border-radius: 4px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+.btn-cluster-comp:hover {
+    background: linear-gradient(135deg, rgba(16,185,129,0.3), rgba(6,182,212,0.3));
+    border-color: var(--accent-emerald);
+}
+
+/* جدول المقارنة */
+.comp-table-card {
+    background: var(--bg-input);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 18px;
+    margin-top: 16px;
+}
+.comp-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+.comp-sub {
+    font-size: 11.5px;
+    color: var(--text-tertiary);
+    margin-bottom: 14px;
+}
+.comp-table th, .comp-table td {
+    vertical-align: middle;
+}
+.comp-table .comp-range {
+    font-size: 10.5px;
+    color: var(--text-tertiary);
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 2px;
+    direction: ltr;
+}
+.comp-table .comp-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    font-weight: 700;
+}
+.comp-table .comp-meta {
+    font-size: 10.5px;
+    color: var(--text-tertiary);
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 2px;
+    direction: ltr;
+}
+.verdict-pill {
+    padding: 4px 10px;
+    border-radius: 3px;
+    font-size: 11.5px;
+    font-weight: 700;
+    display: inline-block;
+}
+.comp-foot {
+    margin-top: 12px;
+    font-size: 11px;
+    color: var(--text-tertiary);
+    border-top: 1px solid var(--border-subtle);
+    padding-top: 10px;
+}
+
+/* رسم المقارنة البصري */
+.comp-chart-card {
+    background: var(--bg-input);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 20px;
+}
+.comp-chart-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+.comp-chart-sub {
+    font-size: 11.5px;
+    color: var(--text-tertiary);
+    margin-bottom: 18px;
+}
+.comp-chart-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 16px;
+}
+.comp-period {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+.comp-period-bars-wrap {
+    width: 100%;
+    height: 180px;
+    background: var(--bg-input);
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    border-bottom: 2px solid var(--border-medium);
+    position: relative;
+    padding: 8px;
+}
+.comp-period-empty {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--text-tertiary);
+    font-size: 11px;
+}
+.comp-target-line {
+    position: absolute;
+    left: 4px;
+    right: 4px;
+    height: 2px;
+    background: rgba(255,255,255,0.55);
+    z-index: 5;
+    pointer-events: none;
+}
+.comp-target-line::after {
+    content: '١٠';
+    position: absolute;
+    right: -2px;
+    top: -16px;
+    font-size: 9px;
+    color: rgba(255,255,255,0.7);
+    background: rgba(10,14,26,0.85);
+    padding: 0 4px;
+    border-radius: 2px;
+    font-family: 'Tajawal', sans-serif;
+}
+.comp-bars-pair {
+    display: flex;
+    gap: 14px;
+    height: 100%;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 0 12px;
+}
+.comp-bar-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    height: 100%;
+    max-width: 60px;
+    position: relative;
+}
+.comp-bar-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+    background: rgba(10,14,26,0.85);
+    padding: 1px 5px;
+    border-radius: 2px;
+    white-space: nowrap;
+    z-index: 6;
+}
+.comp-bar {
+    width: 100%;
+    border-radius: 3px 3px 0 0;
+    min-height: 3px;
+    margin-top: auto;
+}
+.comp-bar.prev {
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.25);
+}
+.comp-bar.cur { /* color set inline */ }
+.comp-bar-tag {
+    margin-top: 4px;
+    font-size: 9.5px;
+    color: var(--text-tertiary);
+}
+.comp-period-label {
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--text-primary);
+    text-align: center;
+}
+.comp-period-verdict {
+    padding: 4px 10px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    direction: ltr;
+}
+.comp-period-verdict.empty {
+    background: rgba(107,114,128,0.15);
+    color: var(--text-tertiary);
+}
+
+/* زر تصدير لكل مستشفى */
+.btn-hp-export {
+    margin-top: 4px;
+    background: rgba(6,182,212,0.12);
+    color: var(--accent-cyan);
+    border: 1px solid rgba(6,182,212,0.35);
+    padding: 9px 14px;
+    border-radius: 4px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.btn-hp-export:hover {
+    background: rgba(6,182,212,0.22);
+    border-color: var(--accent-cyan);
+}
+
+/* ============== صفحة التصدير (تقرير المقارنة) ============== */
+.cer-header {
+    border-bottom: 2px solid var(--border-medium);
+    padding-bottom: 22px;
+    margin-bottom: 26px;
+}
+.cer-brand {
+    font-size: 13px;
+    color: var(--accent-cyan);
+    font-weight: 700;
+    margin-bottom: 8px;
+    letter-spacing: 0.3px;
+}
+.cer-title {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin: 0 0 14px 0;
+    font-family: 'Cairo', sans-serif;
+}
+.cer-meta {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+}
+.cer-meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.cer-meta-item span {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+.cer-meta-item strong {
+    font-size: 14px;
+    color: var(--text-primary);
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+}
+.cer-overview {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 26px;
+}
+.cer-ov-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-medium);
+    border-radius: 6px;
+    padding: 18px;
+}
+.cer-ov-label {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-bottom: 8px;
+}
+.cer-ov-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1;
+}
+.cer-ov-target {
+    font-size: 11.5px;
+    color: var(--text-tertiary);
+    margin-top: 6px;
+}
+.cer-footer {
+    margin-top: 30px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border-subtle);
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-tertiary);
+}
+
+/* جدول مقارن للكلستر (خانات صغيرة) */
+.cmt-cell {
+    text-align: center;
+    padding: 10px 8px;
+    min-width: 90px;
+}
+.cmt-cell.empty {
+    color: var(--text-tertiary);
+}
+.cmt-row-top {
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+    gap: 5px;
+}
+.cmt-cur {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    font-weight: 700;
+}
+.cmt-arrow {
+    font-size: 16px;
+    font-weight: 800;
+}
+.cmt-prev {
+    font-size: 10.5px;
+    color: var(--text-tertiary);
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 3px;
+}
+.cmt-delta {
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    margin-top: 2px;
+    direction: ltr;
+}
+
 /* تجاوب */
 @media (max-width: 768px) {
     .promise-grid { grid-template-columns: 1fr; }
@@ -2318,6 +2700,261 @@ body {
     .daily-chart-grid { min-height: 220px; }
     .daily-bar-wrap { height: 180px; }
     .hp-avg-value { font-size: 26px; }
+    .comp-section-head { flex-direction: column; }
+    .btn-cluster-comp { width: 100%; }
+    .cer-overview { grid-template-columns: 1fr; }
+    .comp-chart-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* ============== مقارنة المستشفى الفردي ============== */
+.hp-compare-btn {
+    background: linear-gradient(135deg, rgba(6,182,212,0.15), rgba(6,182,212,0.08));
+    border: 1px solid rgba(6,182,212,0.4);
+    color: var(--accent-cyan);
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 11.5px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.18s ease;
+    margin-right: 6px;
+}
+.hp-compare-btn:hover {
+    background: linear-gradient(135deg, rgba(6,182,212,0.25), rgba(6,182,212,0.15));
+    border-color: rgba(6,182,212,0.7);
+    transform: translateY(-1px);
+}
+.hp-compare-btn svg {
+    flex-shrink: 0;
+}
+
+.cmp-hero h1 {
+    font-family: 'Cairo', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin: 4px 0 8px;
+}
+
+.cmp-snapshot {
+    margin-bottom: 24px;
+}
+.cmp-snap-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-medium);
+    border-top: 3px solid var(--accent-emerald);
+    border-radius: 6px;
+    padding: 22px 26px;
+}
+.cmp-snap-label {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+.cmp-snap-row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+.cmp-snap-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 42px;
+    font-weight: 800;
+    line-height: 1;
+}
+.cmp-snap-unit {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    color: var(--text-tertiary);
+}
+.cmp-snap-status {
+    margin-right: auto;
+    font-size: 12px;
+    padding: 5px 12px;
+    border-radius: 4px;
+    font-weight: 700;
+}
+.cmp-snap-meta {
+    font-size: 12.5px;
+    color: var(--text-secondary);
+}
+
+.cmp-no-data {
+    background: rgba(251, 191, 36, 0.08);
+    border: 1px solid rgba(251, 191, 36, 0.3);
+    color: var(--accent-amber);
+    border-radius: 6px;
+    padding: 18px 22px;
+    margin-bottom: 24px;
+    font-size: 13.5px;
+    line-height: 1.6;
+}
+
+.cmp-period-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-medium);
+    border-radius: 6px;
+    padding: 20px 22px;
+    margin-bottom: 22px;
+}
+.cmp-period-head {
+    border-bottom: 1px solid var(--border-subtle);
+    padding-bottom: 14px;
+    margin-bottom: 16px;
+}
+.cmp-period-title {
+    font-family: 'Cairo', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+.cmp-period-sub {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+.cmp-period-tag {
+    padding: 4px 10px;
+    border-radius: 4px;
+    background: var(--bg-input);
+    border: 1px solid var(--border-subtle);
+    font-family: 'JetBrains Mono', monospace;
+}
+.cmp-period-tag strong {
+    font-family: 'Tajawal', sans-serif;
+    color: var(--text-tertiary);
+    margin-left: 6px;
+}
+.cmp-period-tag.current {
+    border-color: rgba(16, 185, 129, 0.4);
+    background: rgba(16, 185, 129, 0.06);
+}
+
+.cmp-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 16px;
+}
+.cmp-table th {
+    background: var(--bg-input);
+    color: var(--text-tertiary);
+    font-size: 11.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    padding: 10px 12px;
+    text-align: right;
+    border-bottom: 1px solid var(--border-medium);
+}
+.cmp-table td {
+    padding: 12px 12px;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 13px;
+    color: var(--text-primary);
+}
+.cmp-table tr.cmp-key-row {
+    background: rgba(6, 182, 212, 0.04);
+}
+.cmp-table tr.cmp-key-row td {
+    border-bottom-color: rgba(6, 182, 212, 0.2);
+}
+.cmp-metric-name {
+    font-weight: 700;
+    color: var(--text-primary);
+}
+.cmp-metric-target {
+    font-size: 10.5px;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+}
+.cmp-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 15px;
+}
+.cmp-judge {
+    display: inline-block;
+    padding: 4px 11px;
+    border-radius: 4px;
+    font-size: 11.5px;
+    font-weight: 700;
+}
+
+.cmp-bars {
+    background: var(--bg-input);
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.cmp-bar-row {
+    display: grid;
+    grid-template-columns: 70px 1fr 60px;
+    gap: 10px;
+    align-items: center;
+}
+.cmp-bar-label {
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+.cmp-bar-track {
+    height: 22px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 3px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--border-subtle);
+}
+.cmp-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.4s ease;
+}
+.cmp-bar-target {
+    position: absolute;
+    top: -2px;
+    bottom: -2px;
+    width: 2px;
+    background: rgba(255, 255, 255, 0.55);
+    z-index: 4;
+}
+.cmp-bar-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: left;
+    direction: ltr;
+}
+
+.cmp-footer-note {
+    margin-top: 24px;
+    padding: 14px 18px;
+    background: var(--bg-input);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    font-size: 12px;
+    color: var(--text-tertiary);
+    line-height: 1.6;
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .cmp-snap-num { font-size: 30px; }
+    .cmp-bar-row { grid-template-columns: 60px 1fr 50px; }
+    .cmp-table th, .cmp-table td { padding: 8px 6px; font-size: 11.5px; }
 }
 
 /* LOADING */
@@ -2560,6 +3197,22 @@ body {
     </div>
 </div>
 
+<!-- Hospital Compare Modal -->
+
+<div class="promise-modal" id="hospCompareModal">
+    <div class="promise-content">
+        <div class="promise-toolbar">
+            <h2 id="hospCompareTitle">مقارنة المستشفى</h2>
+            <div class="exec-toolbar-actions">
+                <button class="btn" id="btnHospCompareExportPng">حفظ صورة PNG</button>
+                <button class="btn" id="btnHospCompareExportPdf">حفظ PDF</button>
+                <button class="btn btn-close" id="btnHospCompareClose">إغلاق</button>
+            </div>
+        </div>
+        <div class="promise-page" id="hospComparePage"></div>
+    </div>
+</div>
+
 <div class="loading-overlay" id="loadingOverlay">
     <div class="loader"></div>
     <div class="loading-text" id="loadingText">جاري المعالجة...</div>
@@ -2630,6 +3283,11 @@ function init() {
     document.getElementById('btnPromiseClose').addEventListener('click', closePromise);
     document.getElementById('btnPromiseExportPng').addEventListener('click', exportPromisePng);
     document.getElementById('btnPromiseExportPdf').addEventListener('click', exportPromisePdf);
+
+    // Hospital Compare buttons
+    document.getElementById('btnHospCompareClose').addEventListener('click', closeHospitalCompare);
+    document.getElementById('btnHospCompareExportPng').addEventListener('click', exportHospitalComparePng);
+    document.getElementById('btnHospCompareExportPdf').addEventListener('click', exportHospitalComparePdf);
 
     // Date filter
     document.getElementById('btnApplyDate').addEventListener('click', applyDateFilter);
@@ -3856,6 +4514,510 @@ function avgStatus(avg) {
     return 'حرج';
 }
 
+// ============================================
+// المقارنات الزمنية - نقارن متوسط الاختبارات/مريض
+// بين فترة حالية وفترة سابقة بنفس الطول
+// ============================================
+
+// إرجاع نطاق التواريخ الفعلي للبيانات (من STATE.dateRange.max لأنه آخر يوم)
+function getDataMaxDate() {
+    if (STATE.dateRange.max) return new Date(STATE.dateRange.max);
+    // fallback: scan all rawProcessed
+    let max = null;
+    Object.values(STATE.rawProcessed).forEach(p => {
+        if (!p || !p.erRowsForTests) return;
+        p.erRowsForTests.forEach(r => {
+            if (r.refDate && (!max || r.refDate > max)) max = r.refDate;
+        });
+    });
+    return max;
+}
+
+// إرجاع تاريخ بصيغة YYYY-MM-DD
+function ymdKey(d) {
+    return d.toISOString().slice(0, 10);
+}
+
+// نسخة من تاريخ مع إضافة عدد أيام (يمكن سالب)
+function addDays(d, n) {
+    const r = new Date(d);
+    r.setDate(r.getDate() + n);
+    return r;
+}
+
+// حساب متوسط الاختبارات/مريض من erRowsForTests خلال نطاق زمني محدد
+// يشتغل على مستوى مستشفى واحد أو الكلستر كاملاً
+function computeAvgInRange(erRows, fromDate, toDate) {
+    const filtered = erRows.filter(r => {
+        if (!r.refDate || !r.patientId || r.patientId.length === 0) return false;
+        if (r.refDate < fromDate) return false;
+        if (r.refDate > toDate) return false;
+        return true;
+    });
+    if (filtered.length === 0) return { tests: 0, patients: 0, avg: 0, exceeding: 0 };
+    const patientMap = new Map();
+    filtered.forEach(r => {
+        if (!patientMap.has(r.patientId)) patientMap.set(r.patientId, 0);
+        patientMap.set(r.patientId, patientMap.get(r.patientId) + 1);
+    });
+    const patients = patientMap.size;
+    const tests = filtered.length;
+    const exceeding = Array.from(patientMap.values()).filter(c => c > 10).length;
+    return { tests, patients, avg: patients > 0 ? tests / patients : 0, exceeding };
+}
+
+// حساب تغيُّر مع حكم: تحسّن (أقل) / تراجع (أكثر) / ثابت
+function deltaJudge(currentAvg, previousAvg) {
+    if (previousAvg === 0 && currentAvg === 0) return { diff: 0, pct: 0, verdict: 'ثابت', color: '#6B7280', sign: '' };
+    if (previousAvg === 0) return { diff: currentAvg, pct: null, verdict: 'بيانات جديدة', color: '#6B7280', sign: '' };
+    const diff = currentAvg - previousAvg;
+    const pct = (diff / previousAvg) * 100;
+    let verdict, color, sign;
+    if (Math.abs(diff) < 0.1) { // فرق طفيف جداً
+        verdict = 'ثابت'; color = '#6B7280'; sign = '';
+    } else if (diff < 0) {
+        // أقل = تحسّن (لأن الهدف ≤ 10)
+        verdict = 'تحسّن'; color = '#10B981'; sign = '−';
+    } else {
+        verdict = 'تراجع'; color = '#EF4444'; sign = '+';
+    }
+    return { diff, pct, verdict, color, sign };
+}
+
+// بناء بيانات المقارنة لمستشفى أو الكلستر
+// erRows: قائمة الصفوف (من erRowsForTests)
+// referenceDate: آخر يوم في البيانات (نعتبره "اليوم" المرجعي)
+function buildComparisonsForRows(erRows, referenceDate) {
+    if (!erRows || erRows.length === 0 || !referenceDate) return null;
+    const ref = new Date(referenceDate);
+    ref.setHours(23, 59, 59, 999);
+
+    // أمس = آخر يوم بالبيانات
+    // اليوم قبل أمس = اليوم اللي قبله
+    const yesterday = new Date(ref);
+    yesterday.setHours(0, 0, 0, 0);
+    const dayBefore = addDays(yesterday, -1);
+    const dayBeforeEnd = new Date(dayBefore);
+    dayBeforeEnd.setHours(23, 59, 59, 999);
+
+    // آخر 3 أيام = من ref إلى ref-2 (شامل)
+    const last3Start = addDays(yesterday, -2);
+    const prev3End = addDays(last3Start, -1);
+    prev3End.setHours(23, 59, 59, 999);
+    const prev3Start = addDays(prev3End, -2);
+
+    // آخر 7 أيام
+    const last7Start = addDays(yesterday, -6);
+    const prev7End = addDays(last7Start, -1);
+    prev7End.setHours(23, 59, 59, 999);
+    const prev7Start = addDays(prev7End, -6);
+
+    // آخر 14 يوم
+    const last14Start = addDays(yesterday, -13);
+    const prev14End = addDays(last14Start, -1);
+    prev14End.setHours(23, 59, 59, 999);
+    const prev14Start = addDays(prev14End, -13);
+
+    const periods = [
+        { label: 'أمس', current: { from: yesterday, to: ref }, previous: { from: dayBefore, to: dayBeforeEnd }, currentLabel: ymdKey(yesterday), previousLabel: ymdKey(dayBefore) },
+        { label: 'آخر 3 أيام', current: { from: last3Start, to: ref }, previous: { from: prev3Start, to: prev3End }, currentLabel: `${ymdKey(last3Start)} → ${ymdKey(yesterday)}`, previousLabel: `${ymdKey(prev3Start)} → ${ymdKey(prev3End)}` },
+        { label: 'آخر 7 أيام', current: { from: last7Start, to: ref }, previous: { from: prev7Start, to: prev7End }, currentLabel: `${ymdKey(last7Start)} → ${ymdKey(yesterday)}`, previousLabel: `${ymdKey(prev7Start)} → ${ymdKey(prev7End)}` },
+        { label: 'آخر 14 يوم', current: { from: last14Start, to: ref }, previous: { from: prev14Start, to: prev14End }, currentLabel: `${ymdKey(last14Start)} → ${ymdKey(yesterday)}`, previousLabel: `${ymdKey(prev14Start)} → ${ymdKey(prev14End)}` }
+    ];
+
+    return periods.map(p => {
+        const cur = computeAvgInRange(erRows, p.current.from, p.current.to);
+        const prev = computeAvgInRange(erRows, p.previous.from, p.previous.to);
+        const judge = deltaJudge(cur.avg, prev.avg);
+        return {
+            label: p.label,
+            currentLabel: p.currentLabel,
+            previousLabel: p.previousLabel,
+            current: cur,
+            previous: prev,
+            judge,
+            // هل نملك بيانات كافية؟
+            hasData: cur.patients > 0 || prev.patients > 0,
+            hasBoth: cur.patients > 0 && prev.patients > 0
+        };
+    });
+}
+
+// جدول المقارنة (HTML)
+function buildComparisonTable(comparisons, title) {
+    if (!comparisons) return '';
+    const fmt = v => v == null ? '--' : v.toFixed(2);
+    const fmtPct = v => v == null ? '--' : `${Math.abs(v).toFixed(1)}%`;
+    return `
+        <div class="comp-table-card">
+            <div class="comp-title">${title}</div>
+            <div class="comp-sub">مقارنة متوسط الاختبارات لكل مريض في الفترة الحالية مع الفترة السابقة بنفس الطول</div>
+            <div style="overflow-x: auto;">
+                <table class="ptable comp-table">
+                    <thead>
+                        <tr>
+                            <th>الفترة</th>
+                            <th>الحالية</th>
+                            <th>السابقة</th>
+                            <th>الفرق</th>
+                            <th>النسبة %</th>
+                            <th>الحكم</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${comparisons.map(c => {
+                            if (!c.hasData) {
+                                return `
+                                    <tr class="comp-empty">
+                                        <td><strong>${c.label}</strong></td>
+                                        <td colspan="5" style="color:var(--text-tertiary); text-align:center;">لا توجد بيانات لهذه الفترة</td>
+                                    </tr>
+                                `;
+                            }
+                            const curColor = avgColor(c.current.avg);
+                            const prevColor = avgColor(c.previous.avg);
+                            return `
+                                <tr>
+                                    <td>
+                                        <strong>${c.label}</strong>
+                                        <div class="comp-range">${c.currentLabel}</div>
+                                    </td>
+                                    <td>
+                                        <span class="comp-val" style="color:${curColor};">${fmt(c.current.avg)}</span>
+                                        <div class="comp-meta">${c.current.tests}/${c.current.patients}</div>
+                                    </td>
+                                    <td>
+                                        <span class="comp-val" style="color:${prevColor};">${fmt(c.previous.avg)}</span>
+                                        <div class="comp-meta">${c.previous.tests}/${c.previous.patients}</div>
+                                    </td>
+                                    <td>
+                                        ${c.hasBoth ? `<span style="color:${c.judge.color}; font-weight:700; font-family:'JetBrains Mono', monospace;">${c.judge.sign}${Math.abs(c.judge.diff).toFixed(2)}</span>` : '--'}
+                                    </td>
+                                    <td>
+                                        ${c.hasBoth && c.judge.pct !== null ? `<span style="color:${c.judge.color}; font-weight:700; font-family:'JetBrains Mono', monospace;">${c.judge.sign}${fmtPct(c.judge.pct)}</span>` : '--'}
+                                    </td>
+                                    <td>
+                                        ${c.hasBoth ? `<span class="verdict-pill" style="background:${c.judge.color}22; color:${c.judge.color};">${c.judge.verdict}</span>` : `<span class="verdict-pill" style="background:rgba(107,114,128,0.2); color:#9CA3AF;">${c.judge.verdict}</span>`}
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            </div>
+            <div class="comp-foot">القيم: متوسط اختبار/مريض • العداد الصغير: عدد الاختبارات / عدد المرضى • الهدف: ≤ ١٠</div>
+        </div>
+    `;
+}
+
+// رسم بياني مقارن (شريطين لكل فترة)
+function buildComparisonChart(comparisons) {
+    if (!comparisons) return '';
+    const validComps = comparisons.filter(c => c.hasData);
+    if (validComps.length === 0) return '';
+    const maxVal = Math.max(PROMISE_TARGET_AVG * 1.5, ...validComps.flatMap(c => [c.current.avg, c.previous.avg]));
+    const targetPct = (PROMISE_TARGET_AVG / maxVal) * 100;
+
+    return `
+        <div class="comp-chart-card">
+            <div class="comp-chart-title">المقارنة البصرية</div>
+            <div class="comp-chart-sub">شريط داكن = الفترة السابقة • شريط ملوّن = الفترة الحالية • الخط الأبيض = الهدف</div>
+            <div class="comp-chart-grid">
+                ${comparisons.map(c => {
+                    if (!c.hasData) {
+                        return `
+                            <div class="comp-period">
+                                <div class="comp-period-bars-wrap">
+                                    <div class="comp-period-empty">لا توجد بيانات</div>
+                                </div>
+                                <div class="comp-period-label">${c.label}</div>
+                            </div>
+                        `;
+                    }
+                    const curColor = avgColor(c.current.avg);
+                    const curHeight = c.current.patients > 0 ? Math.min(100, (c.current.avg / maxVal) * 100) : 0;
+                    const prevHeight = c.previous.patients > 0 ? Math.min(100, (c.previous.avg / maxVal) * 100) : 0;
+                    return `
+                        <div class="comp-period">
+                            <div class="comp-period-bars-wrap">
+                                <div class="comp-target-line" style="bottom: ${targetPct}%;"></div>
+                                <div class="comp-bars-pair">
+                                    <div class="comp-bar-col">
+                                        <div class="comp-bar-val">${c.previous.patients > 0 ? c.previous.avg.toFixed(1) : '–'}</div>
+                                        <div class="comp-bar prev" style="height:${prevHeight}%;"></div>
+                                        <div class="comp-bar-tag">سابق</div>
+                                    </div>
+                                    <div class="comp-bar-col">
+                                        <div class="comp-bar-val" style="color:${curColor};">${c.current.patients > 0 ? c.current.avg.toFixed(1) : '–'}</div>
+                                        <div class="comp-bar cur" style="height:${curHeight}%; background:${curColor};"></div>
+                                        <div class="comp-bar-tag">حالي</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="comp-period-label">${c.label}</div>
+                            ${c.hasBoth ? `<div class="comp-period-verdict" style="background:${c.judge.color}22; color:${c.judge.color};">${c.judge.sign}${Math.abs(c.judge.diff).toFixed(2)} ${c.judge.verdict}</div>` : '<div class="comp-period-verdict empty">--</div>'}
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        </div>
+    `;
+}
+
+// تصدير صفحة مقارنة لمستشفى واحد كصورة (لمشاركتها مع مدير المختبر)
+async function exportHospitalComparison(hospitalKey) {
+    const data = buildPromiseData();
+    if (!data) return;
+
+    const refDate = getDataMaxDate();
+    if (!refDate) {
+        alert('لا توجد تواريخ كافية للمقارنة');
+        return;
+    }
+
+    const hosp = STATE.processed[hospitalKey];
+    if (!hosp || !hosp.erRowsForTests || hosp.erRowsForTests.length === 0) {
+        alert('لا توجد بيانات كافية لهذا المستشفى');
+        return;
+    }
+
+    // نستخدم البيانات الخام (rawProcessed) عشان المقارنة لا تتأثر بفلتر التاريخ الحالي
+    const rawErRows = (STATE.rawProcessed[hospitalKey] || {}).erRowsForTests || [];
+    const comparisons = buildComparisonsForRows(rawErRows, refDate);
+
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.classList.add('active');
+    document.getElementById('loadingText').textContent = 'جاري إعداد تقرير المقارنة...';
+    await new Promise(r => setTimeout(r, 100));
+
+    // إنشاء عنصر مؤقت للتصدير
+    const exportEl = document.createElement('div');
+    exportEl.className = 'comparison-export-page';
+    exportEl.style.cssText = 'position:absolute; left:-99999px; top:0; width:1500px; background:#0A0E1A; padding:40px; box-sizing:border-box; color:#E5E7EB; font-family:Tajawal,sans-serif; direction:rtl;';
+    exportEl.innerHTML = buildHospitalComparisonReport(hospitalKey, comparisons, refDate);
+    document.body.appendChild(exportEl);
+
+    try {
+        const canvas = await html2canvas(exportEl, {
+            scale: 2,
+            backgroundColor: '#0A0E1A',
+            useCORS: true,
+            logging: false,
+            windowWidth: 1500
+        });
+        const link = document.createElement('a');
+        const fileName = `مقارنة_${HOSPITALS[hospitalKey].ar.replace(/\s+/g, '_')}_${ymdKey(new Date())}.png`;
+        link.download = fileName;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    } catch (err) {
+        console.error(err);
+        alert('فشل التصدير: ' + err.message);
+    } finally {
+        document.body.removeChild(exportEl);
+        overlay.classList.remove('active');
+    }
+}
+
+// بناء تقرير مقارنة لمستشفى واحد (للتصدير كصورة)
+function buildHospitalComparisonReport(hospitalKey, comparisons, refDate) {
+    const hospName = HOSPITALS[hospitalKey].ar;
+    const hosp = STATE.processed[hospitalKey];
+    const hospAvg = hosp.avgTestsPerPatient || 0;
+    const color = avgColor(hospAvg);
+    const status = avgStatus(hospAvg);
+    const dateStr = ymdKey(new Date());
+    const refStr = ymdKey(refDate);
+
+    return `
+        <div class="cer-header">
+            <div class="cer-brand">الخدمات الصحية المساندة • مؤشر الوعد التنفيذي</div>
+            <h1 class="cer-title">تقرير المقارنة الزمنية — ${hospName}</h1>
+            <div class="cer-meta">
+                <div class="cer-meta-item"><span>تاريخ التقرير</span><strong>${dateStr}</strong></div>
+                <div class="cer-meta-item"><span>تاريخ المرجع</span><strong>${refStr}</strong></div>
+                <div class="cer-meta-item"><span>الهدف</span><strong>≤ ١٠ اختبار/مريض</strong></div>
+            </div>
+        </div>
+
+        <div class="cer-overview">
+            <div class="cer-ov-card" style="border-top:3px solid ${color};">
+                <div class="cer-ov-label">الوضع الحالي العام (كامل البيانات المتاحة)</div>
+                <div class="cer-ov-value" style="color:${color};">${hospAvg.toFixed(2)}</div>
+                <div class="cer-ov-target">/ ١٠ اختبار/مريض — ${status}</div>
+            </div>
+            <div class="cer-ov-card">
+                <div class="cer-ov-label">إجمالي الاختبارات</div>
+                <div class="cer-ov-value">${(hosp.totalTests || 0).toLocaleString('en')}</div>
+                <div class="cer-ov-target">${(hosp.patientsCount || 0).toLocaleString('en')} مريض</div>
+            </div>
+            <div class="cer-ov-card">
+                <div class="cer-ov-label">المرضى المتجاوزون</div>
+                <div class="cer-ov-value" style="color:${(hosp.patientsExceedingTarget||0) > 0 ? 'var(--accent-rose)' : 'var(--accent-emerald)'};">${(hosp.patientsExceedingTarget || 0).toLocaleString('en')}</div>
+                <div class="cer-ov-target">تجاوزوا الـ ١٠ اختبارات</div>
+            </div>
+        </div>
+
+        ${buildComparisonChart(comparisons)}
+        ${buildComparisonTable(comparisons, 'تفاصيل المقارنة الزمنية')}
+
+        <div class="cer-footer">
+            تم توليد هذا التقرير من لوحة مؤشرات الخدمات الصحية المساندة • ${dateStr}
+        </div>
+    `;
+}
+
+// تصدير ملخص الكلستر للمقارنة
+async function exportClusterComparison() {
+    const data = buildPromiseData();
+    if (!data) return;
+    const refDate = getDataMaxDate();
+    if (!refDate) {
+        alert('لا توجد تواريخ كافية للمقارنة');
+        return;
+    }
+
+    // جمع كل صفوف الكلستر من البيانات الخام
+    const allRows = [];
+    Object.keys(STATE.rawProcessed).forEach(k => {
+        const p = STATE.rawProcessed[k];
+        if (p && p.erRowsForTests) allRows.push(...p.erRowsForTests);
+    });
+    const comparisons = buildComparisonsForRows(allRows, refDate);
+
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.classList.add('active');
+    document.getElementById('loadingText').textContent = 'جاري إعداد تقرير المقارنة...';
+    await new Promise(r => setTimeout(r, 100));
+
+    const exportEl = document.createElement('div');
+    exportEl.className = 'comparison-export-page';
+    exportEl.style.cssText = 'position:absolute; left:-99999px; top:0; width:1500px; background:#0A0E1A; padding:40px; box-sizing:border-box; color:#E5E7EB; font-family:Tajawal,sans-serif; direction:rtl;';
+    exportEl.innerHTML = buildClusterComparisonReport(comparisons, refDate, data);
+    document.body.appendChild(exportEl);
+
+    try {
+        const canvas = await html2canvas(exportEl, {
+            scale: 2,
+            backgroundColor: '#0A0E1A',
+            useCORS: true,
+            logging: false,
+            windowWidth: 1500
+        });
+        const link = document.createElement('a');
+        link.download = `مقارنة_الكلستر_${ymdKey(new Date())}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    } catch (err) {
+        console.error(err);
+        alert('فشل التصدير: ' + err.message);
+    } finally {
+        document.body.removeChild(exportEl);
+        overlay.classList.remove('active');
+    }
+}
+
+function buildClusterComparisonReport(comparisons, refDate, data) {
+    const dateStr = ymdKey(new Date());
+    const refStr = ymdKey(refDate);
+
+    // لكل فترة، نبني صف لكل مستشفى
+    const yesterday = addDays(refDate, 0);
+    yesterday.setHours(23, 59, 59, 999);
+
+    return `
+        <div class="cer-header">
+            <div class="cer-brand">الخدمات الصحية المساندة • مؤشر الوعد التنفيذي</div>
+            <h1 class="cer-title">تقرير المقارنة الزمنية — الكلستر بكامله</h1>
+            <div class="cer-meta">
+                <div class="cer-meta-item"><span>تاريخ التقرير</span><strong>${dateStr}</strong></div>
+                <div class="cer-meta-item"><span>تاريخ المرجع</span><strong>${refStr}</strong></div>
+                <div class="cer-meta-item"><span>عدد المستشفيات</span><strong>${data.hospitalCount}</strong></div>
+                <div class="cer-meta-item"><span>الهدف</span><strong>≤ ١٠ اختبار/مريض</strong></div>
+            </div>
+        </div>
+
+        ${buildComparisonChart(comparisons)}
+        ${buildComparisonTable(comparisons, 'تفاصيل المقارنة الزمنية للكلستر')}
+
+        ${buildClusterComparisonByHospital(refDate)}
+
+        <div class="cer-footer">
+            تم توليد هذا التقرير من لوحة مؤشرات الخدمات الصحية المساندة • ${dateStr}
+        </div>
+    `;
+}
+
+// جدول مقارن لكل المستشفيات (الفترات الأربع للجميع)
+function buildClusterComparisonByHospital(refDate) {
+    const periods = ['أمس', 'آخر 3 أيام', 'آخر 7 أيام', 'آخر 14 يوم'];
+
+    // لكل مستشفى نحسب المقارنات
+    const rows = [];
+    Object.keys(STATE.rawProcessed).forEach(k => {
+        const p = STATE.rawProcessed[k];
+        if (!p || !p.erRowsForTests || p.erRowsForTests.length === 0) return;
+        const comps = buildComparisonsForRows(p.erRowsForTests, refDate);
+        rows.push({ key: k, name: HOSPITALS[k].ar, comps });
+    });
+
+    // نرتب حسب آخر 7 أيام (الأكثر تمثيلاً)
+    rows.sort((a, b) => {
+        const aV = (a.comps[2] && a.comps[2].current.patients > 0) ? a.comps[2].current.avg : 999;
+        const bV = (b.comps[2] && b.comps[2].current.patients > 0) ? b.comps[2].current.avg : 999;
+        return bV - aV;
+    });
+
+    if (rows.length === 0) return '';
+
+    return `
+        <div class="comp-table-card" style="margin-top: 24px;">
+            <div class="comp-title">جدول مقارن — كل مستشفى عبر كل الفترات</div>
+            <div class="comp-sub">لكل خانة: المتوسط الحالي / السابق • السهم يدل على الاتجاه (تحسّن = ↓ أخضر • تراجع = ↑ أحمر)</div>
+            <div style="overflow-x: auto;">
+                <table class="ptable comp-table">
+                    <thead>
+                        <tr>
+                            <th>المستشفى</th>
+                            ${periods.map(p => `<th>${p}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rows.map(row => `
+                            <tr>
+                                <td><strong>${row.name}</strong></td>
+                                ${row.comps.map(c => {
+                                    if (!c.hasData) return `<td class="cmt-cell empty">—</td>`;
+                                    const curColor = avgColor(c.current.avg);
+                                    if (!c.hasBoth) {
+                                        return `
+                                            <td class="cmt-cell">
+                                                <div class="cmt-cur" style="color:${curColor};">${c.current.patients > 0 ? c.current.avg.toFixed(2) : '–'}</div>
+                                                <div class="cmt-prev">سابق: ${c.previous.patients > 0 ? c.previous.avg.toFixed(2) : 'لا يوجد'}</div>
+                                            </td>
+                                        `;
+                                    }
+                                    const arrow = c.judge.diff < 0 ? '↓' : c.judge.diff > 0 ? '↑' : '=';
+                                    return `
+                                        <td class="cmt-cell">
+                                            <div class="cmt-row-top">
+                                                <span class="cmt-cur" style="color:${curColor};">${c.current.avg.toFixed(2)}</span>
+                                                <span class="cmt-arrow" style="color:${c.judge.color};">${arrow}</span>
+                                            </div>
+                                            <div class="cmt-prev">سابق: ${c.previous.avg.toFixed(2)}</div>
+                                            <div class="cmt-delta" style="color:${c.judge.color};">${c.judge.sign}${Math.abs(c.judge.diff).toFixed(2)}</div>
+                                        </td>
+                                    `;
+                                }).join('')}
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    `;
+}
+
 function renderPromisePage() {
     const data = buildPromiseData();
     if (!data) return;
@@ -3941,6 +5103,31 @@ function renderPromisePage() {
             ${buildDailyClusterChart(data)}
         </div>
         ` : ''}
+
+        ${(() => {
+            const refDate = getDataMaxDate();
+            if (!refDate) return '';
+            const allRows = [];
+            Object.keys(STATE.rawProcessed).forEach(k => {
+                const p = STATE.rawProcessed[k];
+                if (p && p.erRowsForTests) allRows.push(...p.erRowsForTests);
+            });
+            const comps = buildComparisonsForRows(allRows, refDate);
+            if (!comps) return '';
+            return `
+                <div class="comp-section-wrap">
+                    <div class="comp-section-head">
+                        <div>
+                            <div class="comp-section-title">المقارنة الزمنية للكلستر</div>
+                            <div class="comp-section-sub">مقارنة كل فترة مع نفس طولها قبلها • تكشف هل المستشفيات تتحسن أم تتراجع</div>
+                        </div>
+                        <button class="btn btn-cluster-comp" onclick="exportClusterComparison()">تصدير تقرير الكلستر</button>
+                    </div>
+                    ${buildComparisonChart(comps)}
+                    ${buildComparisonTable(comps, 'تفاصيل المقارنة الزمنية')}
+                </div>
+            `;
+        })()}
 
         <!-- Hospital Bars Ranking -->
         <div class="promise-bars-card">
@@ -4067,6 +5254,10 @@ function buildHospitalPromiseCard(h, idx, clusterDailyDays) {
                 <div class="hp-rank">#${idx + 1}</div>
                 <div class="hp-name">${h.name}</div>
                 <div class="hp-status" style="background:${color}22; color:${color};">${status}</div>
+                <button class="hp-compare-btn" onclick="openHospitalCompare('${h.key}')" title="حفظ صورة للمقارنة">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 17l6-6 4 4 8-8"/><path d="M17 7h4v4"/></svg>
+                    <span>مقارنة</span>
+                </button>
             </div>
             <div class="hp-main-metric">
                 <div class="hp-avg-label">متوسط الاختبارات لكل مريض</div>
@@ -4105,6 +5296,7 @@ function buildHospitalPromiseCard(h, idx, clusterDailyDays) {
                     </div>
                 </div>
             ` : `<div class="hp-clean">لا يوجد مرضى تجاوزوا الـ ١٠ اختبارات</div>`}
+            <button class="btn-hp-export" onclick="exportHospitalComparison('${h.key}')">تصدير تقرير المقارنة الزمنية</button>
         </div>
     `;
 }
@@ -4217,6 +5409,473 @@ function closePromise() {
     document.body.style.overflow = '';
 }
 
+// ============== مقارنة فردية لمستشفى ==============
+
+// نحسب متوسط الاختبارات/مريض لمجموعة أيام محددة
+function avgForDayRange(rows, fromDay, toDay) {
+    const filtered = rows.filter(r => r.dayKey && r.dayKey >= fromDay && r.dayKey <= toDay);
+    if (filtered.length === 0) return null;
+    const tests = filtered.length;
+    const patients = new Set();
+    filtered.forEach(r => { if (r.patientId) patients.add(r.patientId); });
+    const patientsCount = patients.size;
+    const exceeding = (() => {
+        const map = new Map();
+        filtered.forEach(r => {
+            if (!r.patientId) return;
+            map.set(r.patientId, (map.get(r.patientId) || 0) + 1);
+        });
+        return Array.from(map.values()).filter(v => v > 10).length;
+    })();
+    return {
+        tests,
+        patients: patientsCount,
+        avg: patientsCount > 0 ? tests / patientsCount : 0,
+        exceeding,
+        days: [...new Set(filtered.map(r => r.dayKey))].length
+    };
+}
+
+// إضافة n أيام لتاريخ ISO YYYY-MM-DD
+function addDays(dayKey, n) {
+    const d = new Date(dayKey + 'T00:00:00');
+    d.setDate(d.getDate() + n);
+    return d.toISOString().slice(0, 10);
+}
+
+function buildHospitalCompare(hospitalKey) {
+    const p = STATE.processed[hospitalKey];
+    if (!p || !p.erRowsForTests) return null;
+
+    // نستثني الصفوف بدون patientId (متوافق مع الحساب الرئيسي)
+    const rows = p.erRowsForTests.filter(r => r.patientId && r.patientId.length > 0 && r.dayKey);
+    if (rows.length === 0) return null;
+
+    // استخراج الأيام المتاحة
+    const allDays = [...new Set(rows.map(r => r.dayKey))].sort();
+    const lastDay = allDays[allDays.length - 1]; // "اليوم" = آخر يوم متاح
+
+    const dayBefore = addDays(lastDay, -1);
+
+    // الفترات
+    const periods = [];
+
+    // 1. اليوم vs أمس
+    const today = avgForDayRange(rows, lastDay, lastDay);
+    const yesterday = avgForDayRange(rows, dayBefore, dayBefore);
+    if (today && yesterday) {
+        periods.push({
+            id: 'day',
+            title: 'اليوم مقابل الأمس',
+            currentLabel: lastDay,
+            prevLabel: dayBefore,
+            current: today,
+            prev: yesterday
+        });
+    }
+
+    // 2. آخر 3 أيام vs الـ 3 السابقة
+    const last3From = addDays(lastDay, -2);
+    const prev3To = addDays(lastDay, -3);
+    const prev3From = addDays(lastDay, -5);
+    const last3 = avgForDayRange(rows, last3From, lastDay);
+    const prev3 = avgForDayRange(rows, prev3From, prev3To);
+    if (last3 && prev3 && last3.days >= 2 && prev3.days >= 2) {
+        periods.push({
+            id: '3days',
+            title: 'آخر ٣ أيام مقابل الثلاثة السابقة',
+            currentLabel: `${last3From} → ${lastDay}`,
+            prevLabel: `${prev3From} → ${prev3To}`,
+            current: last3,
+            prev: prev3
+        });
+    }
+
+    // 3. آخر 7 أيام vs الـ 7 السابقة
+    const last7From = addDays(lastDay, -6);
+    const prev7To = addDays(lastDay, -7);
+    const prev7From = addDays(lastDay, -13);
+    const last7 = avgForDayRange(rows, last7From, lastDay);
+    const prev7 = avgForDayRange(rows, prev7From, prev7To);
+    if (last7 && prev7 && last7.days >= 4 && prev7.days >= 4) {
+        periods.push({
+            id: '7days',
+            title: 'آخر أسبوع مقابل الأسبوع السابق',
+            currentLabel: `${last7From} → ${lastDay}`,
+            prevLabel: `${prev7From} → ${prev7To}`,
+            current: last7,
+            prev: prev7
+        });
+    }
+
+    return {
+        key: hospitalKey,
+        name: HOSPITALS[hospitalKey].ar,
+        en: HOSPITALS[hospitalKey].en,
+        avgAll: p.avgTestsPerPatient || 0,
+        totalTestsAll: p.totalTests || 0,
+        totalPatientsAll: p.patientsCount || 0,
+        exceedingAll: p.patientsExceedingTarget || 0,
+        dailyBreakdown: p.dailyBreakdown || [],
+        lastDay,
+        periods
+    };
+}
+
+// حكم: تحسّن / تراجع / ثابت (خاص بمؤشر الاختبارات لكل مريض - الأقل أحسن)
+// thresh = حد التغيّر المعتبر (افتراضياً 5% فرق نسبي)
+function judgeChange(curr, prev, lowerIsBetter = true, thresh = 0.05) {
+    if (prev === 0 && curr === 0) return { type: 'same', label: 'ثابت', color: '#94A3B8', sign: '' };
+    if (prev === 0) {
+        return curr > 0
+            ? { type: lowerIsBetter ? 'down' : 'up', label: lowerIsBetter ? 'تراجع' : 'تحسّن', color: lowerIsBetter ? '#EF4444' : '#10B981', sign: lowerIsBetter ? '+' : '+' }
+            : { type: 'same', label: 'ثابت', color: '#94A3B8', sign: '' };
+    }
+    const diff = curr - prev;
+    const rel = Math.abs(diff) / Math.abs(prev);
+    if (rel < thresh) return { type: 'same', label: 'ثابت', color: '#94A3B8', sign: diff >= 0 ? '+' : '−' };
+    const improved = lowerIsBetter ? diff < 0 : diff > 0;
+    return improved
+        ? { type: 'up', label: 'تحسّن', color: '#10B981', sign: diff >= 0 ? '+' : '−' }
+        : { type: 'down', label: 'تراجع', color: '#EF4444', sign: diff >= 0 ? '+' : '−' };
+}
+
+function fmtSigned(diff, decimals = 2) {
+    if (diff === 0) return '0';
+    const abs = Math.abs(diff).toFixed(decimals);
+    return diff > 0 ? `+${abs}` : `−${abs}`;
+}
+
+function renderHospitalCompare(data) {
+    const page = document.getElementById('hospComparePage');
+    const titleEl = document.getElementById('hospCompareTitle');
+    titleEl.textContent = `مقارنة الأداء — ${data.name}`;
+
+    const now = new Date();
+    const dateStr = now.toISOString().slice(0, 10);
+    const overallColor = avgColor(data.avgAll);
+    const overallStatus = avgStatus(data.avgAll);
+
+    // إن لم تتوفر أي فترة مقارنة
+    const noCompare = data.periods.length === 0
+        ? `<div class="cmp-no-data">لا توجد بيانات كافية لإجراء مقارنة. الأيام المتاحة في الملف غير كافية لمقارنة "أمس" أو "آخر ٣ أيام" أو "آخر أسبوع".</div>`
+        : '';
+
+    page.innerHTML = `
+        <!-- Hero -->
+        <div class="promise-hero cmp-hero">
+            <div class="promise-hero-label">حفظ صورة للمقارنة</div>
+            <h1>${data.name}</h1>
+            <p>تقرير مقارنة الأداء على مؤشر "متوسط الاختبارات لكل مريض في الطوارئ" — الهدف ≤ ١٠ اختبارات لكل مريض.</p>
+            <div class="promise-meta">
+                <div class="meta-item"><span>آخر يوم في البيانات</span><strong>${data.lastDay}</strong></div>
+                <div class="meta-item"><span>المختبر</span><strong>${data.en}</strong></div>
+                <div class="meta-item"><span>تاريخ التقرير</span><strong>${dateStr}</strong></div>
+            </div>
+        </div>
+
+        <!-- Overall snapshot -->
+        <div class="cmp-snapshot">
+            <div class="cmp-snap-card" style="border-top-color:${overallColor};">
+                <div class="cmp-snap-label">متوسط الاختبارات لكل مريض (إجمالي الفترة المرفوعة)</div>
+                <div class="cmp-snap-row">
+                    <span class="cmp-snap-num" style="color:${overallColor};">${data.avgAll.toFixed(2)}</span>
+                    <span class="cmp-snap-unit">/ ١٠</span>
+                    <span class="cmp-snap-status" style="background:${overallColor}22; color:${overallColor};">${overallStatus}</span>
+                </div>
+                <div class="cmp-snap-meta">${data.totalTestsAll.toLocaleString('en')} اختبار • ${data.totalPatientsAll.toLocaleString('en')} مريض • ${data.exceedingAll.toLocaleString('en')} تجاوزوا الـ١٠</div>
+            </div>
+        </div>
+
+        ${noCompare}
+
+        <!-- Comparison periods -->
+        ${data.periods.map(period => buildCompareCard(period)).join('')}
+
+        <!-- Daily Trend -->
+        ${data.dailyBreakdown.length > 1 ? `
+            <div class="promise-daily-card">
+                <div class="card-title-row">
+                    <div>
+                        <div class="ptable-title">المسار اليومي للمستشفى</div>
+                        <div class="ptable-sub">متوسط الاختبارات لكل مريض في كل يوم متاح</div>
+                    </div>
+                </div>
+                ${buildHospitalDailyChart(data.dailyBreakdown)}
+            </div>
+        ` : ''}
+
+        <div class="cmp-footer-note">
+            مصدر البيانات: تحليل ملفات الإكسل المرفوعة • المؤشر: متوسط الاختبارات لكل مريض في الطوارئ ≤ ١٠ • هذا التقرير لمتابعة أداء المختبر وإدارة طلبات الاختبارات
+        </div>
+    `;
+}
+
+// بطاقة مقارنة لفترة واحدة
+function buildCompareCard(period) {
+    const c = period.current;
+    const pr = period.prev;
+
+    // الحكم على كل مؤشر
+    const judgeAvg = judgeChange(c.avg, pr.avg, true); // الأقل أحسن
+    const judgeTests = judgeChange(c.tests, pr.tests, false); // إجمالي الاختبارات: ليس مؤشر جودة لكنه معلومة
+    const judgePatients = judgeChange(c.patients, pr.patients, false); // عدد المرضى: ليس مؤشر جودة
+    const judgeExceeding = judgeChange(c.exceeding, pr.exceeding, true); // المتجاوزون: الأقل أحسن
+
+    // للاختبارات والمرضى نعطي حكم محايد (ثابت/زيادة/نقصان) بدل تحسّن/تراجع
+    const neutralLabel = (curr, prev) => {
+        if (prev === 0 && curr === 0) return { label: 'ثابت', color: '#94A3B8' };
+        const diff = curr - prev;
+        if (prev === 0) return { label: diff > 0 ? 'زيادة' : 'ثابت', color: '#94A3B8' };
+        const rel = Math.abs(diff) / Math.abs(prev);
+        if (rel < 0.05) return { label: 'ثابت', color: '#94A3B8' };
+        return diff > 0
+            ? { label: 'زيادة', color: '#06B6D4' }
+            : { label: 'نقصان', color: '#06B6D4' };
+    };
+    const testsNeutral = neutralLabel(c.tests, pr.tests);
+    const patientsNeutral = neutralLabel(c.patients, pr.patients);
+
+    const periodColor = avgColor(c.avg);
+
+    return `
+        <div class="cmp-period-card">
+            <div class="cmp-period-head">
+                <div class="cmp-period-title">${period.title}</div>
+                <div class="cmp-period-sub">
+                    <span class="cmp-period-tag current"><strong>الحالي:</strong> ${period.currentLabel}</span>
+                    <span class="cmp-period-tag prev"><strong>السابق:</strong> ${period.prevLabel}</span>
+                </div>
+            </div>
+            <table class="cmp-table">
+                <thead>
+                    <tr>
+                        <th>المؤشر</th>
+                        <th>الحالي</th>
+                        <th>السابق</th>
+                        <th>الفرق</th>
+                        <th>الحكم</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="cmp-key-row">
+                        <td>
+                            <div class="cmp-metric-name">متوسط الاختبارات لكل مريض</div>
+                            <div class="cmp-metric-target">الهدف ≤ ١٠</div>
+                        </td>
+                        <td><span class="cmp-num" style="color:${periodColor};">${c.avg.toFixed(2)}</span></td>
+                        <td><span class="cmp-num">${pr.avg.toFixed(2)}</span></td>
+                        <td><span class="cmp-num" style="color:${judgeAvg.color};">${fmtSigned(c.avg - pr.avg, 2)}</span></td>
+                        <td><span class="cmp-judge" style="background:${judgeAvg.color}22; color:${judgeAvg.color};">${judgeAvg.label}</span></td>
+                    </tr>
+                    <tr>
+                        <td><div class="cmp-metric-name">عدد الاختبارات</div></td>
+                        <td><span class="cmp-num">${c.tests.toLocaleString('en')}</span></td>
+                        <td><span class="cmp-num">${pr.tests.toLocaleString('en')}</span></td>
+                        <td><span class="cmp-num" style="color:${testsNeutral.color};">${fmtSigned(c.tests - pr.tests, 0)}</span></td>
+                        <td><span class="cmp-judge" style="background:${testsNeutral.color}22; color:${testsNeutral.color};">${testsNeutral.label}</span></td>
+                    </tr>
+                    <tr>
+                        <td><div class="cmp-metric-name">عدد المرضى</div></td>
+                        <td><span class="cmp-num">${c.patients.toLocaleString('en')}</span></td>
+                        <td><span class="cmp-num">${pr.patients.toLocaleString('en')}</span></td>
+                        <td><span class="cmp-num" style="color:${patientsNeutral.color};">${fmtSigned(c.patients - pr.patients, 0)}</span></td>
+                        <td><span class="cmp-judge" style="background:${patientsNeutral.color}22; color:${patientsNeutral.color};">${patientsNeutral.label}</span></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="cmp-metric-name">المرضى المتجاوزون للـ ١٠</div>
+                            <div class="cmp-metric-target">الأقل أفضل</div>
+                        </td>
+                        <td><span class="cmp-num" style="color:${c.exceeding > 0 ? 'var(--accent-rose)' : 'var(--accent-emerald)'};">${c.exceeding}</span></td>
+                        <td><span class="cmp-num" style="color:${pr.exceeding > 0 ? 'var(--accent-rose)' : 'var(--accent-emerald)'};">${pr.exceeding}</span></td>
+                        <td><span class="cmp-num" style="color:${judgeExceeding.color};">${fmtSigned(c.exceeding - pr.exceeding, 0)}</span></td>
+                        <td><span class="cmp-judge" style="background:${judgeExceeding.color}22; color:${judgeExceeding.color};">${judgeExceeding.label}</span></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- شريط مرئي للمقارنة -->
+            <div class="cmp-bars">
+                ${buildCompareBar('السابق', pr.avg, periodColor, '#64748B')}
+                ${buildCompareBar('الحالي', c.avg, periodColor, periodColor)}
+            </div>
+        </div>
+    `;
+}
+
+function buildCompareBar(label, value, currColor, barColor) {
+    const max = Math.max(20, value * 1.2);
+    const widthPct = Math.min(100, (value / max) * 100);
+    const targetLinePct = Math.min(100, (PROMISE_TARGET_AVG / max) * 100);
+    return `
+        <div class="cmp-bar-row">
+            <div class="cmp-bar-label">${label}</div>
+            <div class="cmp-bar-track">
+                <div class="cmp-bar-fill" style="width:${widthPct}%; background:${barColor};"></div>
+                <div class="cmp-bar-target" style="right:${100 - targetLinePct}%;"></div>
+            </div>
+            <div class="cmp-bar-value" style="color:${barColor};">${value.toFixed(2)}</div>
+        </div>
+    `;
+}
+
+// رسم يومي للمستشفى داخل صفحة المقارنة
+function buildHospitalDailyChart(dailyBreakdown) {
+    if (dailyBreakdown.length === 0) return '';
+    const maxAvg = Math.max(PROMISE_TARGET_AVG * 1.5, ...dailyBreakdown.map(d => d.avgTestsPerPatient));
+    const targetLinePct = (PROMISE_TARGET_AVG / maxAvg) * 100;
+
+    return `
+        <div class="daily-chart-wrap">
+            <div class="daily-chart-grid">
+                ${dailyBreakdown.map(d => {
+                    const heightPct = Math.min(100, (d.avgTestsPerPatient / maxAvg) * 100);
+                    const color = avgColor(d.avgTestsPerPatient);
+                    return `
+                        <div class="daily-col">
+                            <div class="daily-bar-wrap">
+                                <div class="daily-target-line" style="bottom: ${targetLinePct}%;"></div>
+                                <div class="daily-bar" style="height: ${heightPct}%; background: ${color};">
+                                    <span class="daily-bar-val">${d.avgTestsPerPatient.toFixed(1)}</span>
+                                </div>
+                            </div>
+                            <div class="daily-day-label">${d.day.slice(5)}</div>
+                            <div class="daily-meta">${d.tests} / ${d.patients}</div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+            <div class="daily-chart-legend">
+                <span><span class="leg-dot" style="background:rgba(255,255,255,0.4); width:14px; height:2px; border-radius:0;"></span> هدف = ١٠</span>
+                <span>اختبارات / مرضى لكل يوم</span>
+            </div>
+        </div>
+    `;
+}
+
+let CURRENT_COMPARE_HOSPITAL = null;
+
+function openHospitalCompare(hospitalKey) {
+    const data = buildHospitalCompare(hospitalKey);
+    if (!data) {
+        alert('لا توجد بيانات كافية لهذا المستشفى');
+        return;
+    }
+    CURRENT_COMPARE_HOSPITAL = data;
+    renderHospitalCompare(data);
+    document.getElementById('hospCompareModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeHospitalCompare() {
+    document.getElementById('hospCompareModal').classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+// Helper: ينتظر تحميل الخطوط + ينفذ تغيير العرض + ينتظر إعادة التخطيط بالكامل
+async function captureElementWide(elementId, targetWidth = 1500) {
+    const page = document.getElementById(elementId);
+    const oldWidth = page.style.width;
+    const oldMaxWidth = page.style.maxWidth;
+    const oldMinWidth = page.style.minWidth;
+
+    // 1. تحميل كل الخطوط أولاً
+    if (document.fonts && document.fonts.ready) {
+        try { await document.fonts.ready; } catch (_) {}
+    }
+
+    // 2. تطبيق العرض الجديد
+    page.style.width = targetWidth + 'px';
+    page.style.maxWidth = targetWidth + 'px';
+    page.style.minWidth = targetWidth + 'px';
+
+    // 3. الانتظار لإعادة التخطيط (frame واحد + تأخير) — مهم للنصوص العربية
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+    await new Promise(r => setTimeout(r, 250));
+
+    // 4. التأكد مرة أخرى من الخطوط بعد تغيير العرض
+    if (document.fonts && document.fonts.ready) {
+        try { await document.fonts.ready; } catch (_) {}
+    }
+
+    let canvas;
+    try {
+        canvas = await html2canvas(page, {
+            scale: 2,
+            backgroundColor: '#0A0E1A',
+            useCORS: true,
+            logging: false,
+            windowWidth: targetWidth,
+            width: targetWidth,
+            scrollX: 0,
+            scrollY: 0
+        });
+    } finally {
+        page.style.width = oldWidth;
+        page.style.maxWidth = oldMaxWidth;
+        page.style.minWidth = oldMinWidth;
+    }
+    return canvas;
+}
+
+async function exportHospitalComparePng() {
+    if (!CURRENT_COMPARE_HOSPITAL) return;
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.classList.add('active');
+    document.getElementById('loadingText').textContent = 'جاري حفظ الصورة...';
+    await new Promise(r => setTimeout(r, 100));
+
+    try {
+        const canvas = await captureElementWide('hospComparePage', 1500);
+        const link = document.createElement('a');
+        link.download = `comparison_${CURRENT_COMPARE_HOSPITAL.key}_${new Date().toISOString().slice(0,10)}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    } catch (e) {
+        console.error(e);
+        alert('فشل حفظ الصورة');
+    } finally {
+        overlay.classList.remove('active');
+    }
+}
+
+async function exportHospitalComparePdf() {
+    if (!CURRENT_COMPARE_HOSPITAL) return;
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.classList.add('active');
+    document.getElementById('loadingText').textContent = 'جاري إنشاء PDF...';
+    await new Promise(r => setTimeout(r, 100));
+
+    try {
+        const canvas = await captureElementWide('hospComparePage', 1500);
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+        const imgWidth = pageWidth;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        let heightLeft = imgHeight;
+        let position = 0;
+        const imgData = canvas.toDataURL('image/png');
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+        while (heightLeft > 0) {
+            position = heightLeft - imgHeight;
+            pdf.addPage();
+            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+        }
+        pdf.save(`comparison_${CURRENT_COMPARE_HOSPITAL.key}_${new Date().toISOString().slice(0,10)}.pdf`);
+    } catch (e) {
+        console.error(e);
+        alert('فشل حفظ PDF');
+    } finally {
+        overlay.classList.remove('active');
+    }
+}
+
+
 
 async function exportPromisePng() {
     const overlay = document.getElementById('loadingOverlay');
@@ -4224,18 +5883,8 @@ async function exportPromisePng() {
     document.getElementById('loadingText').textContent = 'جاري حفظ الصورة...';
     await new Promise(r => setTimeout(r, 100));
 
-    const page = document.getElementById('promisePage');
-    const oldStyle = { width: page.style.width };
-    page.style.width = '1500px';
-
     try {
-        const canvas = await html2canvas(page, {
-            scale: 2,
-            backgroundColor: '#0A0E1A',
-            useCORS: true,
-            logging: false,
-            windowWidth: 1500
-        });
+        const canvas = await captureElementWide('promisePage', 1500);
         canvas.toBlob(blob => {
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -4247,7 +5896,6 @@ async function exportPromisePng() {
     } catch (err) {
         alert('خطأ: ' + err.message);
     } finally {
-        Object.assign(page.style, oldStyle);
         overlay.classList.remove('active');
     }
 }
@@ -4261,18 +5909,8 @@ async function exportPromisePdf() {
     document.getElementById('loadingText').textContent = 'جاري إنشاء PDF...';
     await new Promise(r => setTimeout(r, 100));
 
-    const page = document.getElementById('promisePage');
-    const oldStyle = { width: page.style.width };
-    page.style.width = '1500px';
-
     try {
-        const canvas = await html2canvas(page, {
-            scale: 2,
-            backgroundColor: '#0A0E1A',
-            useCORS: true,
-            logging: false,
-            windowWidth: 1500
-        });
+        const canvas = await captureElementWide('promisePage', 1500);
         const imgData = canvas.toDataURL('image/jpeg', 0.95);
         const pdf = new jsPDF('p', 'mm', 'a4');
         const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -4293,7 +5931,6 @@ async function exportPromisePdf() {
     } catch (err) {
         alert('خطأ: ' + err.message);
     } finally {
-        Object.assign(page.style, oldStyle);
         overlay.classList.remove('active');
     }
 }
