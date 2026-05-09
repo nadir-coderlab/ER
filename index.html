@@ -1394,8 +1394,8 @@ body {
     gap: 10px;
 }
 .promise-toolbar h2::before {
-    content: '🎯';
-    font-size: 18px;
+    content: '';
+    display: none;
 }
 
 .promise-page {
@@ -1904,6 +1904,422 @@ body {
     line-height: 1.5;
 }
 
+/* ============== الوعد التنفيذي - عناصر إضافية ============== */
+.promise-meta {
+    display: flex;
+    gap: 24px;
+    margin-top: 18px;
+    flex-wrap: wrap;
+}
+.promise-meta .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.promise-meta .meta-item span {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.promise-meta .meta-item strong {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    font-family: 'JetBrains Mono', monospace;
+}
+.promise-filter-tag {
+    margin-top: 14px;
+    display: inline-block;
+    padding: 7px 14px;
+    background: rgba(6,182,212,0.1);
+    color: var(--accent-cyan);
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    border: 1px solid rgba(6,182,212,0.3);
+    direction: ltr;
+}
+.pkpi-status {
+    margin-right: auto;
+    font-size: 12px;
+    padding: 5px 11px;
+    border-radius: 4px;
+    font-weight: 700;
+}
+.pkpi-foot {
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+/* المسار اليومي على مستوى الكلستر */
+.promise-daily-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-medium);
+    border-radius: 6px;
+    padding: 22px;
+    margin-bottom: 28px;
+}
+.card-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 18px;
+}
+.daily-chart-wrap {
+    width: 100%;
+}
+.daily-chart-grid {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+    min-height: 280px;
+    padding: 10px 0 5px;
+    overflow-x: auto;
+    direction: ltr; /* الأيام من اليسار لليمين */
+}
+.daily-col {
+    flex: 1 1 0;
+    min-width: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+}
+.daily-bar-wrap {
+    position: relative;
+    height: 240px;
+    background: var(--bg-input);
+    border-radius: 4px 4px 0 0;
+    border: 1px solid var(--border-subtle);
+    border-bottom: 2px solid var(--border-medium);
+    display: flex;
+    align-items: flex-end;
+    overflow: visible;
+}
+.daily-bar {
+    width: 100%;
+    border-radius: 3px 3px 0 0;
+    position: relative;
+    transition: height 0.3s ease;
+    min-height: 6px;
+}
+.daily-bar-val {
+    position: absolute;
+    top: -22px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-primary);
+    background: rgba(10,14,26,0.85);
+    padding: 1px 6px;
+    border-radius: 3px;
+    white-space: nowrap;
+}
+.daily-target-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: rgba(255,255,255,0.55);
+    z-index: 5;
+    pointer-events: none;
+}
+.daily-target-line::after {
+    content: 'الهدف 10';
+    position: absolute;
+    right: -2px;
+    top: -16px;
+    font-size: 9px;
+    color: rgba(255,255,255,0.7);
+    background: rgba(10,14,26,0.85);
+    padding: 1px 4px;
+    border-radius: 2px;
+    direction: rtl;
+    font-family: 'Tajawal', sans-serif;
+}
+.daily-day-label {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    direction: ltr;
+}
+.daily-meta {
+    text-align: center;
+    font-size: 10px;
+    color: var(--text-tertiary);
+    font-family: 'JetBrains Mono', monospace;
+    direction: ltr;
+}
+.daily-chart-legend {
+    margin-top: 14px;
+    display: flex;
+    gap: 22px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    align-items: center;
+    border-top: 1px solid var(--border-subtle);
+    padding-top: 12px;
+}
+
+/* شارة قانونية للأشرطة */
+.bars-legend {
+    margin-top: 14px;
+    display: flex;
+    gap: 22px;
+    flex-wrap: wrap;
+    font-size: 12px;
+    color: var(--text-secondary);
+    border-top: 1px solid var(--border-subtle);
+    padding-top: 12px;
+}
+.bars-legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.leg-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+/* شبكة بطاقات المستشفيات */
+.promise-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 18px;
+    margin-bottom: 28px;
+}
+.hp-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-medium);
+    border-top: 3px solid var(--accent-emerald);
+    border-radius: 6px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+.hp-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid var(--border-subtle);
+    padding-bottom: 12px;
+}
+.hp-rank {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-tertiary);
+    background: var(--bg-input);
+    padding: 4px 9px;
+    border-radius: 4px;
+    border: 1px solid var(--border-subtle);
+}
+.hp-name {
+    flex: 1;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+.hp-status {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-weight: 700;
+}
+.hp-main-metric {
+    background: var(--bg-input);
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    padding: 12px 14px;
+}
+.hp-avg-label {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-bottom: 4px;
+}
+.hp-avg-row {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+}
+.hp-avg-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1;
+}
+.hp-target {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: var(--text-tertiary);
+}
+.hp-gap {
+    margin-top: 6px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.hp-stats-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+}
+.hp-stat {
+    background: var(--bg-input);
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    padding: 10px 8px;
+    text-align: center;
+}
+.hp-stat-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+.hp-stat-lbl {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+}
+.hp-mini-title {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 4px;
+    border-bottom: 1px solid var(--border-subtle);
+    padding-bottom: 6px;
+}
+.mini-daily-chart {
+    display: flex;
+    gap: 4px;
+    align-items: flex-end;
+    height: 80px;
+    padding: 10px 0 0;
+    direction: ltr;
+}
+.mini-col {
+    flex: 1 1 0;
+    min-width: 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 3px;
+    cursor: help;
+}
+.mini-bar-wrap {
+    position: relative;
+    flex: 1;
+    background: var(--bg-input);
+    border: 1px solid var(--border-subtle);
+    border-radius: 2px;
+    display: flex;
+    align-items: flex-end;
+    overflow: visible;
+    min-height: 50px;
+}
+.mini-bar {
+    width: 100%;
+    border-radius: 1px 1px 0 0;
+    min-height: 3px;
+    transition: opacity 0.2s;
+}
+.mini-col:hover .mini-bar { opacity: 0.85; }
+.mini-target-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 1.5px;
+    background: rgba(255,255,255,0.45);
+    z-index: 3;
+    pointer-events: none;
+}
+.mini-day-lbl {
+    text-align: center;
+    font-size: 8.5px;
+    color: var(--text-tertiary);
+    font-family: 'JetBrains Mono', monospace;
+}
+.mini-empty {
+    padding: 16px;
+    text-align: center;
+    color: var(--text-tertiary);
+    font-size: 11px;
+    background: var(--bg-input);
+    border-radius: 4px;
+}
+.hp-top-exceed {
+    background: rgba(239,68,68,0.06);
+    border: 1px solid rgba(239,68,68,0.2);
+    border-radius: 4px;
+    padding: 10px 12px;
+}
+.hp-top-title {
+    font-size: 11px;
+    color: var(--accent-rose);
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+.hp-exceed-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+.hp-exceed-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11.5px;
+    padding: 4px 0;
+    border-bottom: 1px dashed rgba(239,68,68,0.15);
+}
+.hp-exceed-item:last-child { border-bottom: none; }
+.hp-pid {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-secondary);
+}
+.hp-pcount {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent-rose);
+    font-weight: 700;
+}
+.hp-clean {
+    background: rgba(16,185,129,0.06);
+    border: 1px solid rgba(16,185,129,0.2);
+    border-radius: 4px;
+    padding: 10px 12px;
+    text-align: center;
+    font-size: 11.5px;
+    color: var(--accent-emerald);
+    font-weight: 600;
+}
+.pactions-sub {
+    font-size: 12.5px;
+    color: var(--text-tertiary);
+    margin-bottom: 14px;
+}
+
+/* تجاوب */
+@media (max-width: 768px) {
+    .promise-grid { grid-template-columns: 1fr; }
+    .promise-meta { gap: 14px; }
+    .daily-chart-grid { min-height: 220px; }
+    .daily-bar-wrap { height: 180px; }
+    .hp-avg-value { font-size: 26px; }
+}
+
 /* LOADING */
 .loading-overlay {
     position: fixed; inset: 0;
@@ -2047,7 +2463,7 @@ body {
         </div>
     </div>
     <div class="actions-buttons">
-        <button class="btn btn-promise" id="btnPromise" disabled>🎯 الوعد التنفيذي</button>
+        <button class="btn btn-promise" id="btnPromise" disabled>الوعد التنفيذي</button>
         <button class="btn btn-exec" id="btnExecSummary" disabled>📊 ملخص تنفيذي</button>
         <button class="btn" id="btnExportCompare" disabled>مقارنة (صورة)</button>
         <button class="btn" id="btnExportDashPng" disabled>الداشبورد (صورة)</button>
@@ -2453,12 +2869,25 @@ function extractTimings(key) {
     const all = raw.map(r => normalizeRow(r, schema));
     const erAll = all.filter(r => isER(r.patientType));
 
+    // كل صفوف الطوارئ (لحساب عدد الاختبارات لكل مريض - الوعد التنفيذي)
+    // نستثني المرفوض/الملغي لأنه ليس اختباراً فعلياً للمريض
+    const erRowsForTests = erAll.filter(r => !isRejected(r, schema)).map(r => {
+        const refDate = r.orderDate || r.collectDate || r.receiveDate || r.completeDate || null;
+        return {
+            patientId: r.patientId,
+            sampleId: r.sampleId,
+            testName: r.testName,
+            refDate: refDate,
+            dayKey: refDate ? refDate.toISOString().slice(0, 10) : null
+        };
+    });
+
     const completed = erAll.filter(r =>
         r.orderDate && r.collectDate && r.receiveDate && r.completeDate &&
         !isRejected(r, schema)
     );
 
-    if (completed.length === 0) return { totalEr: erAll.length, timings: [] };
+    if (completed.length === 0) return { totalEr: erAll.length, timings: [], erRowsForTests };
 
     const timings = completed.map(r => {
         const tot = diffMinutes(r.orderDate, r.completeDate);
@@ -2482,13 +2911,13 @@ function extractTimings(key) {
         };
     }).filter(r => r.tot !== null);
 
-    return { totalEr: erAll.length, timings };
+    return { totalEr: erAll.length, timings, erRowsForTests };
 }
 
 // المرحلة الثانية: حساب الإحصائيات من قائمة timings (نقدر نعيد استدعاءها مع timings مفلترة)
-function computeStats(timingsRaw, totalEr) {
+function computeStats(timingsRaw, totalEr, erRowsForTests) {
     if (!timingsRaw || timingsRaw.length === 0) {
-        return { total: totalEr || 0, completed: 0, empty: true };
+        return { total: totalEr || 0, completed: 0, empty: true, erRowsForTests: erRowsForTests || [] };
     }
 
     const timings = timingsRaw;
@@ -2555,33 +2984,71 @@ function computeStats(timingsRaw, totalEr) {
         };
     }
 
+    // ===== حساب الاختبارات لكل مريض (الوعد التنفيذي) =====
+    // المصدر: erRowsForTests = كل صفوف الطوارئ غير المرفوضة (كل صف = اختبار)
+    // المريض = Patient ID • الهدف = متوسط الاختبارات لكل مريض ≤ 10
+    // نستثني الصفوف بدون Patient ID لأنها لا يمكن ربطها بمريض محدد
+    const rowsForTests = (erRowsForTests || []).filter(r => r.patientId && r.patientId.length > 0);
     const patientTestsMap = new Map();
-    timings.forEach(t => {
-        const pid = t.patientId || `__no_id_${t.sampleId}`;
-        if (!patientTestsMap.has(pid)) patientTestsMap.set(pid, 0);
-        patientTestsMap.set(pid, patientTestsMap.get(pid) + 1);
+    rowsForTests.forEach(r => {
+        const pid = r.patientId;
+        if (!patientTestsMap.has(pid)) patientTestsMap.set(pid, { count: 0, days: new Set() });
+        const entry = patientTestsMap.get(pid);
+        entry.count++;
+        if (r.dayKey) entry.days.add(r.dayKey);
     });
     const patientsCount = patientTestsMap.size;
-    const totalTests = timings.length;
+    const totalTests = rowsForTests.length;
     const avgTestsPerPatient = patientsCount > 0 ? totalTests / patientsCount : 0;
-    const patientsWithinTarget = Array.from(patientTestsMap.values()).filter(v => v <= 10).length;
+    const patientsWithinTarget = Array.from(patientTestsMap.values()).filter(v => v.count <= 10).length;
     const patientsExceedingTarget = patientsCount - patientsWithinTarget;
     const targetCompliancePct = patientsCount > 0 ? (patientsWithinTarget / patientsCount) * 100 : 0;
+
+    // قائمة المرضى الذين تجاوزوا الـ 10 اختبارات
+    const exceedingList = [];
+    patientTestsMap.forEach((v, pid) => {
+        if (v.count > 10) {
+            exceedingList.push({ id: pid, count: v.count });
+        }
+    });
+    exceedingList.sort((a, b) => b.count - a.count);
+
+    // تحليل يومي
+    const dailyTestsMap = new Map();
+    rowsForTests.forEach(r => {
+        if (!r.dayKey) return;
+        if (!dailyTestsMap.has(r.dayKey)) dailyTestsMap.set(r.dayKey, { tests: 0, patients: new Set() });
+        const entry = dailyTestsMap.get(r.dayKey);
+        entry.tests++;
+        entry.patients.add(r.patientId);
+    });
+    const dailyBreakdown = Array.from(dailyTestsMap.entries())
+        .map(([day, v]) => ({
+            day,
+            tests: v.tests,
+            patients: v.patients.size,
+            avgTestsPerPatient: v.patients.size > 0 ? v.tests / v.patients.size : 0
+        }))
+        .sort((a, b) => a.day.localeCompare(b.day));
 
     return {
         total: totalEr || timings.length,
         completed: timings.length,
         timings: timings, // نحتفظ بالـ timings عشان نقدر نفلتر بالتاريخ لاحقاً
+        erRowsForTests: rowsForTests,
         overall,
         byShift,
         byHour,
         delayedIds,
+        // الوعد التنفيذي
         patientsCount,
         totalTests,
         avgTestsPerPatient,
         patientsWithinTarget,
         patientsExceedingTarget,
         targetCompliancePct,
+        exceedingList,
+        dailyBreakdown,
         empty: false
     };
 }
@@ -2599,23 +3066,31 @@ function applyFilterAndRecompute() {
             STATE.processed[h] = null;
             return;
         }
-        if (raw.empty || !raw.timings) {
+        // إذا ما فيه timings نهائياً وما فيه erRowsForTests نهائياً، نسخه فاضي
+        if ((raw.empty || !raw.timings) && (!raw.erRowsForTests || raw.erRowsForTests.length === 0)) {
             STATE.processed[h] = { ...raw, key: h };
             STATE.processed[h].key = h;
             return;
         }
 
-        let filteredTimings = raw.timings;
+        let filteredTimings = raw.timings || [];
+        let filteredErRows = raw.erRowsForTests || [];
         if (fromDate || toDate) {
-            filteredTimings = raw.timings.filter(t => {
+            filteredTimings = filteredTimings.filter(t => {
                 if (!t.orderDate) return false;
                 if (fromDate && t.orderDate < fromDate) return false;
                 if (toDate && t.orderDate > toDate) return false;
                 return true;
             });
+            filteredErRows = filteredErRows.filter(r => {
+                if (!r.refDate) return false;
+                if (fromDate && r.refDate < fromDate) return false;
+                if (toDate && r.refDate > toDate) return false;
+                return true;
+            });
         }
 
-        const stats = computeStats(filteredTimings, raw.total);
+        const stats = computeStats(filteredTimings, raw.total, filteredErRows);
         STATE.processed[h] = { ...stats, key: h };
     });
 }
@@ -2639,15 +3114,23 @@ async function analyzeAll() {
             STATE.rawProcessed[h] = null;
             return;
         }
-        const stats = computeStats(extracted.timings, extracted.totalEr);
+        const stats = computeStats(extracted.timings, extracted.totalEr, extracted.erRowsForTests);
         STATE.rawProcessed[h] = stats;
 
-        // حساب نطاق التاريخ المتاح
+        // حساب نطاق التاريخ المتاح (من timings ومن erRowsForTests)
         if (stats.timings && stats.timings.length > 0) {
             stats.timings.forEach(t => {
                 if (t.orderDate) {
                     if (!globalMin || t.orderDate < globalMin) globalMin = t.orderDate;
                     if (!globalMax || t.orderDate > globalMax) globalMax = t.orderDate;
+                }
+            });
+        }
+        if (stats.erRowsForTests && stats.erRowsForTests.length > 0) {
+            stats.erRowsForTests.forEach(r => {
+                if (r.refDate) {
+                    if (!globalMin || r.refDate < globalMin) globalMin = r.refDate;
+                    if (!globalMax || r.refDate > globalMax) globalMax = r.refDate;
                 }
             });
         }
@@ -3113,7 +3596,7 @@ function renderExecSummary() {
                         'var(--accent-rose)';
 
     const filterTag = (STATE.dateRange.from || STATE.dateRange.to)
-        ? `<div style="margin-top:8px; display:inline-block; padding:5px 10px; background:rgba(6,182,212,0.1); color:var(--accent-cyan); border-radius:4px; font-family:'JetBrains Mono', monospace; font-size:11.5px; border:1px solid rgba(6,182,212,0.3); direction:ltr;">📅 ${STATE.dateRange.from || '...'} → ${STATE.dateRange.to || '...'}</div>`
+        ? `<div style="margin-top:8px; display:inline-block; padding:5px 10px; background:rgba(6,182,212,0.1); color:var(--accent-cyan); border-radius:4px; font-family:'JetBrains Mono', monospace; font-size:11.5px; border:1px solid rgba(6,182,212,0.3); direction:ltr;">${STATE.dateRange.from || '...'} → ${STATE.dateRange.to || '...'}</div>`
         : '';
 
     page.innerHTML = `
@@ -3262,96 +3745,115 @@ async function exportExecSummaryPdf() {
 // PROMISE PAGE — الوعد التنفيذي
 // ============================================
 
+// الهدف: متوسط الاختبارات لكل مريض في الطوارئ ≤ 10
+const PROMISE_TARGET_AVG = 10;
+
 function buildPromiseData() {
-    const valid = Object.entries(STATE.processed).filter(([_, p]) => p && !p.empty);
+    // لصفحة الوعد التنفيذي نحتاج: المستشفيات اللي عندها بيانات اختبارات لكل مريض
+    // (سواء عندها timings مكتملة أو لا - المهم erRowsForTests)
+    const valid = Object.entries(STATE.processed).filter(([_, p]) =>
+        p && (p.totalTests || 0) > 0 && (p.patientsCount || 0) > 0
+    );
     if (valid.length === 0) {
-        alert('لا توجد بيانات');
+        alert('لا توجد بيانات اختبارات لمرضى الطوارئ. ارفع الملفات أولاً واضغط "تحليل البيانات".');
         return null;
     }
 
-    // إجماليات
-    const totalSamples = valid.reduce((s, [_, p]) => s + p.completed, 0);
-    const totalCompliantSamples = valid.reduce((s, [_, p]) => {
-        return s + p.timings.filter(t => t.compTotal).length;
-    }, 0);
-    const overallTatCompliance = totalSamples > 0 ? (totalCompliantSamples / totalSamples * 100) : 0;
+    // إجماليات الكلستر
+    const totalTestsAll = valid.reduce((s, [_, p]) => s + (p.totalTests || 0), 0);
+    const totalPatientsAll = valid.reduce((s, [_, p]) => s + (p.patientsCount || 0), 0);
+    const overallAvg = totalPatientsAll > 0 ? totalTestsAll / totalPatientsAll : 0;
+    const totalExceeding = valid.reduce((s, [_, p]) => s + (p.patientsExceedingTarget || 0), 0);
+    const totalWithinTarget = totalPatientsAll - totalExceeding;
 
-    // متوسط TAT الكلي مرجّح
-    let totalTatSum = 0, totalTatCount = 0;
-    valid.forEach(([_, p]) => {
-        p.timings.forEach(t => {
-            if (t.tot !== null) {
-                totalTatSum += t.tot;
-                totalTatCount++;
+    // ترتيب المستشفيات حسب متوسط الاختبارات (الأعلى = الأبعد عن الهدف)
+    const ranked = valid.map(([key, p]) => ({
+        key,
+        name: HOSPITALS[key].ar,
+        avg: p.avgTestsPerPatient || 0,
+        patients: p.patientsCount || 0,
+        tests: p.totalTests || 0,
+        exceeding: p.patientsExceedingTarget || 0,
+        withinTarget: p.patientsWithinTarget || 0,
+        compliancePct: p.targetCompliancePct || 0,
+        exceedingList: p.exceedingList || [],
+        dailyBreakdown: p.dailyBreakdown || []
+    })).sort((a, b) => b.avg - a.avg); // الأعلى أولاً (الأسوأ)
+
+    // المستشفيات الواصلة للهدف (متوسط ≤ 10)
+    const hospitalsAtTarget = ranked.filter(h => h.avg <= PROMISE_TARGET_AVG).length;
+    const hospitalsAboveTarget = ranked.length - hospitalsAtTarget;
+    const hospitalsCritical = ranked.filter(h => h.avg > 15).length; // متوسط > 15 = حرج
+    const hospitalsAmber = hospitalsAboveTarget - hospitalsCritical;
+
+    // التحليل اليومي على مستوى الكلستر (نستثني الصفوف بدون patient ID)
+    const dailyClusterMap = new Map();
+    valid.forEach(([key, p]) => {
+        (p.erRowsForTests || []).forEach(r => {
+            if (!r.dayKey) return;
+            if (!r.patientId || r.patientId.length === 0) return;
+            if (!dailyClusterMap.has(r.dayKey)) {
+                dailyClusterMap.set(r.dayKey, { tests: 0, patients: new Set(), byHospital: {} });
             }
+            const entry = dailyClusterMap.get(r.dayKey);
+            entry.tests++;
+            const pid = `${key}_${r.patientId}`;
+            entry.patients.add(pid);
+            if (!entry.byHospital[key]) entry.byHospital[key] = { tests: 0, patients: new Set() };
+            entry.byHospital[key].tests++;
+            entry.byHospital[key].patients.add(pid);
         });
     });
-    const overallAvgTat = totalTatCount > 0 ? totalTatSum / totalTatCount : 0;
 
-    // عدد المستشفيات الواصلة للهدف (≥90%)
-    const hospitalsAtTarget = valid.filter(([_, p]) => p.overall.total_compliance >= 90).length;
-    const hospitalsBelowTarget = valid.filter(([_, p]) => p.overall.total_compliance < 70).length;
-    const hospitalsAmber = valid.length - hospitalsAtTarget - hospitalsBelowTarget;
-
-    // إحصائيات المراحل (مرجّحة)
-    const stageCompliance = (key) => {
-        let pass = 0, total = 0;
-        valid.forEach(([_, p]) => {
-            p.timings.forEach(t => {
-                if (key === 'compOrdCol' && t.ord_col === null) return;
-                if (key === 'compColRec' && t.col_rec === null) return;
-                if (key === 'compRecRes' && t.rec_res === null) return;
-                total++;
-                if (t[key]) pass++;
+    const dailyCluster = Array.from(dailyClusterMap.entries())
+        .map(([day, v]) => {
+            const byHospital = {};
+            Object.keys(v.byHospital).forEach(k => {
+                const e = v.byHospital[k];
+                byHospital[k] = {
+                    tests: e.tests,
+                    patients: e.patients.size,
+                    avg: e.patients.size > 0 ? e.tests / e.patients.size : 0
+                };
             });
-        });
-        return total > 0 ? (pass / total * 100) : 0;
-    };
-
-    const stage1Comp = stageCompliance('compOrdCol');
-    const stage2Comp = stageCompliance('compColRec');
-    const stage3Comp = stageCompliance('compRecRes');
-
-    // ترتيب
-    const sorted = [...valid].sort((a, b) => b[1].overall.total_compliance - a[1].overall.total_compliance);
-    const bottomThree = [...valid]
-        .sort((a, b) => a[1].overall.total_compliance - b[1].overall.total_compliance)
-        .slice(0, 5);
-
-    // عدد العينات المتأخرة
-    const totalDelayed = valid.reduce((s, [_, p]) => s + p.delayedIds.length, 0);
+            return {
+                day,
+                tests: v.tests,
+                patients: v.patients.size,
+                avg: v.patients.size > 0 ? v.tests / v.patients.size : 0,
+                byHospital
+            };
+        })
+        .sort((a, b) => a.day.localeCompare(b.day));
 
     return {
         valid,
-        sorted,
-        bottomThree,
-        totalSamples,
-        totalCompliantSamples,
-        overallTatCompliance,
-        overallAvgTat,
-        totalDelayed,
+        ranked,
+        totalTestsAll,
+        totalPatientsAll,
+        overallAvg,
+        totalExceeding,
+        totalWithinTarget,
         hospitalsAtTarget,
-        hospitalsBelowTarget,
+        hospitalsAboveTarget,
         hospitalsAmber,
-        stage1Comp,
-        stage2Comp,
-        stage3Comp,
+        hospitalsCritical,
+        dailyCluster,
         hospitalCount: valid.length
     };
 }
 
-function buildDonutSvg(value, color) {
-    const pct = Math.max(0, Math.min(100, value));
-    const radius = 80;
-    const circumference = 2 * Math.PI * radius;
-    const offset = circumference - (pct / 100) * circumference;
-    return `
-        <svg class="donut-svg" viewBox="0 0 200 200">
-            <circle cx="100" cy="100" r="${radius}" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="20"/>
-            <circle cx="100" cy="100" r="${radius}" fill="none" stroke="${color}" stroke-width="20"
-                stroke-dasharray="${circumference}" stroke-dashoffset="${offset}" stroke-linecap="round"/>
-        </svg>
-    `;
+// ألوان حسب متوسط الاختبارات لكل مريض
+function avgColor(avg) {
+    if (avg <= PROMISE_TARGET_AVG) return '#10B981';      // إيمرالد
+    if (avg <= 15) return '#F59E0B';                       // أمبر
+    return '#EF4444';                                       // وردي
+}
+
+function avgStatus(avg) {
+    if (avg <= PROMISE_TARGET_AVG) return 'وصل الهدف';
+    if (avg <= 15) return 'قريب من الهدف';
+    return 'حرج';
 }
 
 function renderPromisePage() {
@@ -3363,45 +3865,43 @@ function renderPromisePage() {
     const dateStr = now.toISOString().slice(0, 10);
     const timeStr = now.toTimeString().slice(0, 5);
 
-    const tatColor = compColor(data.overallTatCompliance);
-    const tatStatus = data.overallTatCompliance >= 90 ? 'وصلنا الهدف' :
-                      data.overallTatCompliance >= 70 ? 'قريبون من الهدف' :
-                      'بحاجة لتحسين عاجل';
-
+    const overallColor = avgColor(data.overallAvg);
+    const overallStatus = avgStatus(data.overallAvg);
     const filterTag = (STATE.dateRange.from || STATE.dateRange.to)
-        ? `<div style="margin-top:10px; display:inline-block; padding:6px 12px; background:rgba(6,182,212,0.1); color:var(--accent-cyan); border-radius:4px; font-family:'JetBrains Mono', monospace; font-size:12px; border:1px solid rgba(6,182,212,0.3); direction:ltr;">📅 ${STATE.dateRange.from || '...'} → ${STATE.dateRange.to || '...'}</div>`
+        ? `<div class="promise-filter-tag">النطاق: ${STATE.dateRange.from || '...'} → ${STATE.dateRange.to || '...'}</div>`
         : '';
 
-    // bars max
-    const maxComp = Math.max(...data.valid.map(([_,p]) => p.overall.total_compliance));
-    const TARGET_LINE_PCT = 90; // هدف 90%
+    const numDays = data.dailyCluster.length;
+    const daysLabel = numDays === 1 ? 'يوم واحد' : numDays === 2 ? 'يومان' : `${numDays} أيام`;
 
     page.innerHTML = `
         <!-- Hero -->
         <div class="promise-hero">
-            <div class="promise-hero-label">🎯 الوعد التنفيذي</div>
-            <h1>متابعة الالتزام بهدف زمن إنجاز عينات الطوارئ ≤ ٦٠ دقيقة</h1>
-            <p>صفحة متابعة تنفيذية شاملة تعرض حالة الوصول للهدف عبر المستشفيات الـ ${data.hospitalCount}، مع تتبع كل مرحلة من مراحل التحليل، وتحديد نقاط الإختناق التي تحتاج تدخل فوري للوصول إلى مستهدف ٩٠٪ التزام.</p>
+            <div class="promise-hero-label">الوعد التنفيذي</div>
+            <h1>متوسط الاختبارات لكل مريض في الطوارئ ≤ ١٠</h1>
+            <p>هذه الصفحة تتابع مدى التزام كل مستشفى بالحد الأقصى للاختبارات لكل مريض. الهدف الاستراتيجي: ألا يزيد متوسط الاختبارات لكل مريض في الطوارئ عن ١٠ اختبارات. هذه الصفحة تُحاسِب وتكشف نقاط الإسراف في طلب الاختبارات.</p>
             ${filterTag}
-            <div style="position:absolute; top:24px; left:30px; text-align:left; font-family: 'JetBrains Mono', monospace; direction:ltr;">
-                <div style="font-size:18px; font-weight:700; color:var(--text-primary);">${dateStr}</div>
-                <div style="font-size:11px; color:var(--text-tertiary);">${timeStr}</div>
+            <div class="promise-meta">
+                <div class="meta-item"><span>الفترة</span><strong>${daysLabel}</strong></div>
+                <div class="meta-item"><span>المستشفيات</span><strong>${data.hospitalCount}</strong></div>
+                <div class="meta-item"><span>التاريخ</span><strong>${dateStr}</strong></div>
             </div>
         </div>
 
         <!-- Big KPIs -->
         <div class="promise-kpis">
-            <div class="pkpi-card hero-kpi" style="border-top-color: ${tatColor};">
-                <div class="pkpi-label">الالتزام الكلي بالـ TAT (الهدف ≤ 60 دقيقة)</div>
+            <div class="pkpi-card hero-kpi" style="border-top-color: ${overallColor};">
+                <div class="pkpi-label">متوسط الاختبارات لكل مريض (الكلستر) — الهدف ≤ ١٠</div>
                 <div class="pkpi-value-row">
-                    <span class="pkpi-value" style="color: ${tatColor};">${data.overallTatCompliance.toFixed(1)}</span>
-                    <span class="pkpi-unit">%</span>
-                    <span style="margin-right:auto; font-size:13px; padding:5px 12px; background:${tatColor}22; color:${tatColor}; border-radius:4px; font-weight:700;">${tatStatus}</span>
+                    <span class="pkpi-value" style="color: ${overallColor};">${data.overallAvg.toFixed(2)}</span>
+                    <span class="pkpi-unit">اختبار/مريض</span>
+                    <span class="pkpi-status" style="background:${overallColor}22; color:${overallColor};">${overallStatus}</span>
                 </div>
-                <div class="pkpi-target">${data.totalCompliantSamples.toLocaleString('en')} من ${data.totalSamples.toLocaleString('en')} عينة • متوسط ${data.overallAvgTat.toFixed(1)} دقيقة</div>
+                <div class="pkpi-target">${data.totalTestsAll.toLocaleString('en')} اختبار • ${data.totalPatientsAll.toLocaleString('en')} مريض</div>
                 <div class="pkpi-progress">
-                    <div class="pkpi-progress-fill" style="width:${data.overallTatCompliance}%; background: ${tatColor};"></div>
+                    <div class="pkpi-progress-fill" style="width:${Math.min(100, (PROMISE_TARGET_AVG / Math.max(data.overallAvg, PROMISE_TARGET_AVG)) * 100)}%; background: ${overallColor};"></div>
                 </div>
+                <div class="pkpi-foot">${data.overallAvg <= PROMISE_TARGET_AVG ? `وصلنا الهدف بفارق ${(PROMISE_TARGET_AVG - data.overallAvg).toFixed(2)} اختبار` : `الفجوة عن الهدف: <strong>+${(data.overallAvg - PROMISE_TARGET_AVG).toFixed(2)}</strong> اختبار/مريض`}</div>
             </div>
             <div class="pkpi-card">
                 <div class="pkpi-label">مستشفيات وصلت الهدف</div>
@@ -3409,263 +3909,247 @@ function renderPromisePage() {
                     <span class="pkpi-value" style="color: var(--accent-emerald);">${data.hospitalsAtTarget}</span>
                     <span class="pkpi-unit">من ${data.hospitalCount}</span>
                 </div>
-                <div class="pkpi-target">التزام ≥ 90%</div>
+                <div class="pkpi-target">متوسط ≤ ١٠ اختبار/مريض</div>
                 <div class="pkpi-progress">
                     <div class="pkpi-progress-fill" style="width:${(data.hospitalsAtTarget/data.hospitalCount*100)}%; background: var(--accent-emerald);"></div>
                 </div>
+                <div class="pkpi-foot">${(data.hospitalsAtTarget/data.hospitalCount*100).toFixed(0)}% من المستشفيات</div>
             </div>
             <div class="pkpi-card danger">
-                <div class="pkpi-label">عينات تجاوزت الهدف</div>
+                <div class="pkpi-label">مرضى تجاوزوا ١٠ اختبارات</div>
                 <div class="pkpi-value-row">
-                    <span class="pkpi-value" style="color: var(--accent-rose);">${data.totalDelayed.toLocaleString('en')}</span>
-                    <span class="pkpi-unit">عينة</span>
+                    <span class="pkpi-value" style="color: var(--accent-rose);">${data.totalExceeding.toLocaleString('en')}</span>
+                    <span class="pkpi-unit">مريض</span>
                 </div>
-                <div class="pkpi-target">يحتاجون مراجعة وتحسين</div>
+                <div class="pkpi-target">من إجمالي ${data.totalPatientsAll.toLocaleString('en')} مريض</div>
                 <div class="pkpi-progress">
-                    <div class="pkpi-progress-fill" style="width:${data.totalSamples > 0 ? (data.totalDelayed/data.totalSamples*100) : 0}%; background: var(--accent-rose);"></div>
+                    <div class="pkpi-progress-fill" style="width:${data.totalPatientsAll > 0 ? (data.totalExceeding/data.totalPatientsAll*100) : 0}%; background: var(--accent-rose);"></div>
                 </div>
+                <div class="pkpi-foot">${data.totalPatientsAll > 0 ? ((data.totalExceeding/data.totalPatientsAll*100).toFixed(1)) : 0}% من المرضى يحتاجون مراجعة</div>
             </div>
         </div>
 
-        <!-- Donut + Bars -->
-        <div class="promise-charts-row">
-            <div class="promise-donut-card">
-                <div class="promise-donut-title">توزيع المستشفيات حسب المستوى</div>
-                <div class="promise-donut-sub">حالة كل مستشفى مقارنة بالمستهدفات</div>
-                ${buildPromiseDonut(data)}
-                <div class="donut-legend">
-                    <div class="donut-leg-item">
-                        <span class="ldot" style="background: var(--accent-emerald);"></span>
-                        <span class="lname">وصلوا للهدف ≥ 90%</span>
-                        <span class="lval" style="color: var(--accent-emerald);">${data.hospitalsAtTarget}</span>
-                    </div>
-                    <div class="donut-leg-item">
-                        <span class="ldot" style="background: var(--accent-amber);"></span>
-                        <span class="lname">قريبون 70-89%</span>
-                        <span class="lval" style="color: var(--accent-amber);">${data.hospitalsAmber}</span>
-                    </div>
-                    <div class="donut-leg-item">
-                        <span class="ldot" style="background: var(--accent-rose);"></span>
-                        <span class="lname">يحتاجون تدخل &lt; 70%</span>
-                        <span class="lval" style="color: var(--accent-rose);">${data.hospitalsBelowTarget}</span>
-                    </div>
+        <!-- Daily Trend -->
+        ${data.dailyCluster.length > 0 ? `
+        <div class="promise-daily-card">
+            <div class="card-title-row">
+                <div>
+                    <div class="ptable-title">المسار اليومي — متوسط الاختبارات لكل مريض على مستوى الكلستر</div>
+                    <div class="ptable-sub">الخط الأبيض المتقطع = الهدف (١٠) • أعمدة فوق الهدف = أيام تحتاج مراجعة</div>
                 </div>
             </div>
+            ${buildDailyClusterChart(data)}
+        </div>
+        ` : ''}
 
-            <div class="promise-bars-card">
-                <div class="promise-bars-title">ترتيب المستشفيات حسب الالتزام الكلي</div>
-                <div class="promise-bars-sub">الخط الأبيض = هدف ٩٠٪ • الأعلى التزاماً في الأعلى</div>
-                <div class="bars-list">
-                    ${data.sorted.map(([key, p]) => {
-                        const v = p.overall.total_compliance;
-                        const color = compColor(v);
-                        return `
-                            <div class="bar-row">
-                                <div class="bar-label">${HOSPITALS[key].ar}</div>
-                                <div class="bar-track">
-                                    <div class="bar-fill" style="width: ${v}%; background: ${color};"></div>
-                                    <div class="bar-target-line" style="right: ${100-TARGET_LINE_PCT}%;"></div>
-                                </div>
-                                <div class="bar-value" style="color: ${color};">${v.toFixed(1)}%</div>
+        <!-- Hospital Bars Ranking -->
+        <div class="promise-bars-card">
+            <div class="promise-bars-title">ترتيب المستشفيات حسب متوسط الاختبارات لكل مريض</div>
+            <div class="promise-bars-sub">الخط الأبيض = الهدف (١٠) • الأعلى في الأعلى = الأبعد عن الهدف</div>
+            <div class="bars-list">
+                ${data.ranked.map(h => {
+                    const color = avgColor(h.avg);
+                    // النسبة المئوية للعرض: 25 كحد أقصى للعمود الكامل
+                    const maxScale = Math.max(20, ...data.ranked.map(r => r.avg));
+                    const widthPct = Math.min(100, (h.avg / maxScale) * 100);
+                    const targetLinePct = Math.min(100, (PROMISE_TARGET_AVG / maxScale) * 100);
+                    return `
+                        <div class="bar-row">
+                            <div class="bar-label">${h.name}</div>
+                            <div class="bar-track">
+                                <div class="bar-fill" style="width: ${widthPct}%; background: ${color};"></div>
+                                <div class="bar-target-line" style="right: ${100 - targetLinePct}%;"></div>
                             </div>
-                        `;
-                    }).join('')}
-                </div>
+                            <div class="bar-value" style="color: ${color};">${h.avg.toFixed(2)}</div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+            <div class="bars-legend">
+                <span><span class="leg-dot" style="background:#10B981;"></span> ≤ ١٠ (هدف)</span>
+                <span><span class="leg-dot" style="background:#F59E0B;"></span> ١٠–١٥ (قريب)</span>
+                <span><span class="leg-dot" style="background:#EF4444;"></span> &gt; ١٥ (حرج)</span>
             </div>
         </div>
 
-        <!-- Stages distribution -->
-        <div class="promise-distribution">
-            <div class="dist-title">التزام المراحل الثلاث — التزام كل مرحلة بشكل مستقل</div>
-            <div class="dist-sub">يساعد في تحديد المرحلة الأضعف التي تستحق تدخل تشغيلي</div>
-            ${buildStageDistribution(data)}
+        <!-- Hospital Cards Grid -->
+        <div class="promise-grid">
+            ${data.ranked.map((h, idx) => buildHospitalPromiseCard(h, idx, data.dailyCluster)).join('')}
         </div>
 
         <!-- Detailed Table -->
         <div class="promise-table-card">
             <div class="ptable-title">جدول المتابعة التفصيلي</div>
-            <div class="ptable-sub">حالة كل مستشفى عبر كل المؤشرات • مرتب حسب الالتزام الكلي</div>
+            <div class="ptable-sub">حالة كل مستشفى ضد هدف ≤ ١٠ اختبار/مريض • مرتبة من الأبعد للأقرب</div>
             <div style="overflow-x: auto;">
                 ${buildPromiseTable(data)}
             </div>
         </div>
 
-        <!-- Action Items -->
-        ${data.bottomThree.length > 0 && data.bottomThree[0][1].overall.total_compliance < 90 ? `
-        <div class="promise-actions-card">
-            <div class="pactions-title">⚠️ بنود تستحق المتابعة العاجلة (الأبعد عن الهدف)</div>
-            <div class="action-list">
-                ${data.bottomThree.slice(0, 5).map(([key, p], idx) => {
-                    const o = p.overall;
-                    const stages = [
-                        { name: 'من الطلب الى السحب', val: o.stage1_compliance, target: '≤ 10 د' },
-                        { name: 'من السحب للاستقبال', val: o.stage2_compliance, target: '≤ 10 د' },
-                        { name: 'من الاستقبال للنتيجة', val: o.stage3_compliance, target: '≤ 40 د' }
-                    ];
-                    const weakestStage = stages.reduce((min, s) => s.val < min.val ? s : min, stages[0]);
-                    const gap = (90 - o.total_compliance).toFixed(1);
+        ${buildAccountabilitySection(data)}
+    `;
+}
+
+// رسم بياني يومي على مستوى الكلستر
+function buildDailyClusterChart(data) {
+    const days = data.dailyCluster;
+    if (days.length === 0) return '';
+    const maxAvg = Math.max(PROMISE_TARGET_AVG * 1.5, ...days.map(d => d.avg));
+    const targetLinePct = (PROMISE_TARGET_AVG / maxAvg) * 100;
+
+    return `
+        <div class="daily-chart-wrap">
+            <div class="daily-chart-grid">
+                ${days.map(d => {
+                    const heightPct = Math.min(100, (d.avg / maxAvg) * 100);
+                    const color = avgColor(d.avg);
+                    const dayLabel = d.day.slice(5); // MM-DD
                     return `
-                        <div class="action-item">
-                            <div class="num">${idx+1}</div>
-                            <div class="body">
-                                <div class="name">${HOSPITALS[key].ar}</div>
-                                <div class="info">
-                                    التزام كلي ${o.total_compliance.toFixed(1)}% — يحتاج رفع <strong style="color:var(--accent-amber);">${gap}%</strong> للوصول للهدف. 
-                                    أضعف مرحلة: <strong>${weakestStage.name}</strong> (${weakestStage.val.toFixed(1)}%، المستهدف ${weakestStage.target}).
-                                    عدد العينات المتأخرة: <strong>${p.delayedIds.length}</strong> من <strong>${p.completed}</strong>.
+                        <div class="daily-col">
+                            <div class="daily-bar-wrap">
+                                <div class="daily-target-line" style="bottom: ${targetLinePct}%;"></div>
+                                <div class="daily-bar" style="height: ${heightPct}%; background: ${color};">
+                                    <span class="daily-bar-val">${d.avg.toFixed(1)}</span>
                                 </div>
                             </div>
+                            <div class="daily-day-label">${dayLabel}</div>
+                            <div class="daily-meta">${d.tests} / ${d.patients}</div>
                         </div>
                     `;
                 }).join('')}
             </div>
-        </div>
-        ` : ''}
-    `;
-}
-
-function buildPromiseDonut(data) {
-    const total = data.hospitalCount;
-    if (total === 0) return '';
-    const greenPct = (data.hospitalsAtTarget / total) * 100;
-    const amberPct = (data.hospitalsAmber / total) * 100;
-    const redPct = (data.hospitalsBelowTarget / total) * 100;
-
-    const radius = 80;
-    const circumference = 2 * Math.PI * radius;
-    
-    // نحسب الأطوال
-    const greenLen = (greenPct / 100) * circumference;
-    const amberLen = (amberPct / 100) * circumference;
-    const redLen = (redPct / 100) * circumference;
-
-    return `
-        <svg class="donut-svg" viewBox="0 0 200 200">
-            <circle cx="100" cy="100" r="${radius}" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="22"/>
-            ${greenLen > 0 ? `
-                <circle cx="100" cy="100" r="${radius}" fill="none" stroke="#10B981" stroke-width="22"
-                    stroke-dasharray="${greenLen} ${circumference}" stroke-dashoffset="0" stroke-linecap="butt"/>
-            ` : ''}
-            ${amberLen > 0 ? `
-                <circle cx="100" cy="100" r="${radius}" fill="none" stroke="#F59E0B" stroke-width="22"
-                    stroke-dasharray="${amberLen} ${circumference}" stroke-dashoffset="${-greenLen}" stroke-linecap="butt"/>
-            ` : ''}
-            ${redLen > 0 ? `
-                <circle cx="100" cy="100" r="${radius}" fill="none" stroke="#EF4444" stroke-width="22"
-                    stroke-dasharray="${redLen} ${circumference}" stroke-dashoffset="${-(greenLen + amberLen)}" stroke-linecap="butt"/>
-            ` : ''}
-        </svg>
-        <div class="donut-center">
-            <div class="big-num" style="color: var(--accent-emerald);">${greenPct.toFixed(0)}%</div>
-            <div class="small-cap">من المستشفيات وصلت الهدف</div>
+            <div class="daily-chart-legend">
+                <span class="dcl-axis"><span class="leg-dot" style="background:rgba(255,255,255,0.4); width:14px; height:2px; border-radius:0;"></span> هدف = ١٠</span>
+                <span>اختبارات / مرضى لكل يوم</span>
+            </div>
         </div>
     `;
 }
 
-function buildStageDistribution(data) {
-    const stages = [
-        { 
-            name: 'من الطلب إلى سحب العينة', 
-            target: '≤ 10 دقائق',
-            val: data.stage1Comp,
-            color: data.stage1Comp >= 90 ? '#10B981' : data.stage1Comp >= 70 ? '#F59E0B' : '#EF4444'
-        },
-        { 
-            name: 'من سحب العينة إلى استقبال المختبر', 
-            target: '≤ 10 دقائق',
-            val: data.stage2Comp,
-            color: data.stage2Comp >= 90 ? '#10B981' : data.stage2Comp >= 70 ? '#F59E0B' : '#EF4444'
-        },
-        { 
-            name: 'من استقبال المختبر إلى النتيجة', 
-            target: '≤ 40 دقيقة',
-            val: data.stage3Comp,
-            color: data.stage3Comp >= 90 ? '#10B981' : data.stage3Comp >= 70 ? '#F59E0B' : '#EF4444'
-        },
-        { 
-            name: 'الالتزام الكلي', 
-            target: '≤ 60 دقيقة',
-            val: data.overallTatCompliance,
-            color: compColor(data.overallTatCompliance)
-        }
-    ];
+// بطاقة لكل مستشفى مع mini chart يومي
+function buildHospitalPromiseCard(h, idx, clusterDailyDays) {
+    const color = avgColor(h.avg);
+    const status = avgStatus(h.avg);
+    const gap = h.avg - PROMISE_TARGET_AVG;
+    const gapDisplay = gap <= 0
+        ? `<span style="color:var(--accent-emerald);">وصل الهدف بفارق ${Math.abs(gap).toFixed(2)}</span>`
+        : `<span style="color:${color};">+${gap.toFixed(2)} عن الهدف</span>`;
+
+    // mini daily chart
+    const dailyDays = h.dailyBreakdown;
+    const miniMax = Math.max(PROMISE_TARGET_AVG * 1.5, ...dailyDays.map(d => d.avgTestsPerPatient));
+    const miniTargetLinePct = (PROMISE_TARGET_AVG / miniMax) * 100;
+
+    const miniChart = dailyDays.length > 0 ? `
+        <div class="mini-daily-chart">
+            ${dailyDays.map(d => {
+                const heightPct = Math.min(100, (d.avgTestsPerPatient / miniMax) * 100);
+                const c = avgColor(d.avgTestsPerPatient);
+                return `
+                    <div class="mini-col" title="${d.day}: ${d.avgTestsPerPatient.toFixed(2)} اختبار/مريض (${d.tests} اختبار، ${d.patients} مريض)">
+                        <div class="mini-bar-wrap">
+                            <div class="mini-target-line" style="bottom: ${miniTargetLinePct}%;"></div>
+                            <div class="mini-bar" style="height: ${heightPct}%; background: ${c};"></div>
+                        </div>
+                        <div class="mini-day-lbl">${d.day.slice(5)}</div>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+    ` : `<div class="mini-empty">لا توجد بيانات يومية كافية</div>`;
+
+    // أعلى ٣ مرضى تجاوزوا الهدف
+    const topExceeding = (h.exceedingList || []).slice(0, 3);
 
     return `
-        <div class="dist-legend">
-            ${stages.map(s => `
-                <div class="dist-leg-card" style="border-right-color: ${s.color};">
-                    <div class="dl-label">${s.target}</div>
-                    <div class="dl-value" style="color: ${s.color};">${s.val.toFixed(1)}%</div>
-                    <div class="dl-pct">${s.name}</div>
+        <div class="hp-card" style="border-top-color: ${color};">
+            <div class="hp-head">
+                <div class="hp-rank">#${idx + 1}</div>
+                <div class="hp-name">${h.name}</div>
+                <div class="hp-status" style="background:${color}22; color:${color};">${status}</div>
+            </div>
+            <div class="hp-main-metric">
+                <div class="hp-avg-label">متوسط الاختبارات لكل مريض</div>
+                <div class="hp-avg-row">
+                    <span class="hp-avg-value" style="color:${color};">${h.avg.toFixed(2)}</span>
+                    <span class="hp-target">/ ١٠</span>
                 </div>
-            `).join('')}
-        </div>
-        <div style="margin-top: 16px;">
-            ${stages.map(s => `
-                <div style="margin-bottom: 12px;">
-                    <div style="display:flex; justify-content:space-between; font-size:12.5px; margin-bottom:5px;">
-                        <span style="font-weight:600; color:var(--text-primary);">${s.name}</span>
-                        <span style="font-family:'JetBrains Mono', monospace; font-weight:700; color: ${s.color};">${s.val.toFixed(1)}%</span>
-                    </div>
-                    <div style="height:10px; background:var(--bg-input); border-radius:3px; overflow:hidden; position:relative; border: 1px solid var(--border-subtle);">
-                        <div style="height:100%; width:${s.val}%; background:${s.color}; border-radius:3px;"></div>
-                        <div style="position:absolute; top:-2px; bottom:-2px; right:10%; width:2px; background:rgba(255,255,255,0.6);"></div>
+                <div class="hp-gap">${gapDisplay}</div>
+            </div>
+            <div class="hp-stats-row">
+                <div class="hp-stat">
+                    <div class="hp-stat-num">${h.tests.toLocaleString('en')}</div>
+                    <div class="hp-stat-lbl">اختبار</div>
+                </div>
+                <div class="hp-stat">
+                    <div class="hp-stat-num">${h.patients.toLocaleString('en')}</div>
+                    <div class="hp-stat-lbl">مريض</div>
+                </div>
+                <div class="hp-stat">
+                    <div class="hp-stat-num" style="color:${h.exceeding > 0 ? 'var(--accent-rose)' : 'var(--accent-emerald)'};">${h.exceeding.toLocaleString('en')}</div>
+                    <div class="hp-stat-lbl">تجاوزوا الـ ١٠</div>
+                </div>
+            </div>
+            <div class="hp-mini-title">المسار اليومي</div>
+            ${miniChart}
+            ${topExceeding.length > 0 ? `
+                <div class="hp-top-exceed">
+                    <div class="hp-top-title">أعلى المرضى تجاوزاً (Top ${topExceeding.length})</div>
+                    <div class="hp-exceed-list">
+                        ${topExceeding.map(e => `
+                            <div class="hp-exceed-item">
+                                <span class="hp-pid">${e.id}</span>
+                                <span class="hp-pcount">${e.count} اختبار</span>
+                            </div>
+                        `).join('')}
                     </div>
                 </div>
-            `).join('')}
+            ` : `<div class="hp-clean">لا يوجد مرضى تجاوزوا الـ ١٠ اختبارات</div>`}
         </div>
     `;
 }
 
 function buildPromiseTable(data) {
-    const fmt = v => v === null ? '--' : v.toFixed(1);
-    const statusPill = (val) => {
-        if (val >= 90) return `<span class="status-pill green">${val.toFixed(1)}%</span>`;
-        if (val >= 70) return `<span class="status-pill amber">${val.toFixed(1)}%</span>`;
-        return `<span class="status-pill red">${val.toFixed(1)}%</span>`;
-    };
-    const statusBadge = (val) => {
-        if (val >= 90) return `<span class="status-pill green">✓ هدف</span>`;
-        if (val >= 70) return `<span class="status-pill amber">قريب</span>`;
-        return `<span class="status-pill red">يحتاج تدخل</span>`;
+    const statusBadge = (avg) => {
+        const c = avgColor(avg);
+        const s = avgStatus(avg);
+        const pillClass = avg <= PROMISE_TARGET_AVG ? 'green' : avg <= 15 ? 'amber' : 'red';
+        return `<span class="status-pill ${pillClass}">${s}</span>`;
     };
 
     let html = `
         <table class="ptable">
             <thead>
                 <tr>
+                    <th>#</th>
                     <th>المستشفى</th>
                     <th>الحالة</th>
-                    <th>الالتزام الكلي</th>
-                    <th>المرحلة 1</th>
-                    <th>المرحلة 2</th>
-                    <th>المرحلة 3</th>
-                    <th>متوسط TAT</th>
-                    <th>عينات</th>
-                    <th>متأخرة</th>
-                    <th>الفجوة للهدف</th>
+                    <th>متوسط الاختبارات/مريض</th>
+                    <th>إجمالي الاختبارات</th>
+                    <th>عدد المرضى</th>
+                    <th>تجاوزوا ١٠</th>
+                    <th>الفجوة عن الهدف</th>
                 </tr>
             </thead>
             <tbody>
     `;
 
-    data.sorted.forEach(([key, p]) => {
-        const o = p.overall;
-        const gap = 90 - o.total_compliance;
-        const gapDisplay = gap <= 0 
-            ? `<span style="color:var(--accent-emerald);">✓ تجاوز الهدف</span>` 
-            : `<span style="color:var(--accent-amber);">+${gap.toFixed(1)}%</span>`;
+    data.ranked.forEach((h, idx) => {
+        const c = avgColor(h.avg);
+        const gap = h.avg - PROMISE_TARGET_AVG;
+        const gapDisplay = gap <= 0
+            ? `<span style="color:var(--accent-emerald);">وصل الهدف</span>`
+            : `<span style="color:${c}; font-weight:700;">+${gap.toFixed(2)}</span>`;
+        const pillClass = h.avg <= PROMISE_TARGET_AVG ? 'green' : h.avg <= 15 ? 'amber' : 'red';
         html += `
             <tr>
-                <td>${HOSPITALS[key].ar}</td>
-                <td>${statusBadge(o.total_compliance)}</td>
-                <td>${statusPill(o.total_compliance)}</td>
-                <td>${statusPill(o.stage1_compliance)}</td>
-                <td>${statusPill(o.stage2_compliance)}</td>
-                <td>${statusPill(o.stage3_compliance)}</td>
-                <td>${fmt(o.total_avg)} د</td>
-                <td>${p.completed.toLocaleString('en')}</td>
-                <td style="color:${p.delayedIds.length > 0 ? 'var(--accent-rose)' : 'var(--accent-emerald)'};">${p.delayedIds.length.toLocaleString('en')}</td>
+                <td>${idx + 1}</td>
+                <td>${h.name}</td>
+                <td>${statusBadge(h.avg)}</td>
+                <td><span class="status-pill ${pillClass}">${h.avg.toFixed(2)}</span></td>
+                <td>${h.tests.toLocaleString('en')}</td>
+                <td>${h.patients.toLocaleString('en')}</td>
+                <td style="color:${h.exceeding > 0 ? 'var(--accent-rose)' : 'var(--accent-emerald)'};">${h.exceeding.toLocaleString('en')}</td>
                 <td>${gapDisplay}</td>
             </tr>
         `;
@@ -3673,6 +4157,51 @@ function buildPromiseTable(data) {
 
     html += `</tbody></table>`;
     return html;
+}
+
+// قسم المحاسبة - يحدد المستشفيات اللي تحتاج تدخل
+function buildAccountabilitySection(data) {
+    const needsAction = data.ranked.filter(h => h.avg > PROMISE_TARGET_AVG);
+    if (needsAction.length === 0) {
+        return `
+            <div class="promise-actions-card">
+                <div class="pactions-title" style="color: var(--accent-emerald);">جميع المستشفيات وصلت الهدف</div>
+                <div class="action-list">
+                    <div style="padding: 16px; color: var(--text-secondary); text-align: center;">
+                        كل مستشفى بمتوسط ≤ ١٠ اختبارات لكل مريض. الحفاظ على هذا المستوى مطلوب.
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    return `
+        <div class="promise-actions-card">
+            <div class="pactions-title">بنود المحاسبة — المستشفيات التي تجاوزت الهدف</div>
+            <div class="pactions-sub">عدد المستشفيات المطلوب متابعتها: ${needsAction.length}</div>
+            <div class="action-list">
+                ${needsAction.map((h, idx) => {
+                    const c = avgColor(h.avg);
+                    const gap = h.avg - PROMISE_TARGET_AVG;
+                    const reductionNeeded = h.exceeding;
+                    return `
+                        <div class="action-item">
+                            <div class="num">${idx + 1}</div>
+                            <div class="body">
+                                <div class="name">${h.name}</div>
+                                <div class="info">
+                                    متوسط <strong style="color:${c};">${h.avg.toFixed(2)}</strong> اختبار/مريض — تجاوز الهدف بـ <strong style="color:${c};">${gap.toFixed(2)}</strong>.
+                                    <strong>${h.exceeding}</strong> مريض من أصل <strong>${h.patients}</strong> تجاوزوا الـ ١٠ اختبارات
+                                    (${h.patients > 0 ? ((h.exceeding / h.patients) * 100).toFixed(1) : 0}%).
+                                    ${h.exceedingList.length > 0 ? `أعلى مريض: <strong>${h.exceedingList[0].count}</strong> اختبار.` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        </div>
+    `;
 }
 
 function openPromise() {
@@ -3687,6 +4216,7 @@ function closePromise() {
     document.getElementById('promiseModal').classList.remove('active');
     document.body.style.overflow = '';
 }
+
 
 async function exportPromisePng() {
     const overlay = document.getElementById('loadingOverlay');
