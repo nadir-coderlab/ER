@@ -288,10 +288,99 @@ body {
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(139,92,246,0.3);
 }
+
+.btn-promise {
+    background: linear-gradient(135deg, var(--accent-emerald), var(--accent-cyan)) !important;
+    border-color: transparent !important;
+    color: #fff !important;
+    font-weight: 800 !important;
+}
+.btn-promise:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16,185,129,0.3);
+}
+
 .btn-close {
     background: var(--accent-rose) !important;
     border-color: var(--accent-rose) !important;
     color: #fff !important;
+}
+
+/* DATE FILTER */
+.date-filter-bar {
+    display: none;
+    background: var(--bg-card);
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-md);
+    padding: 14px 18px;
+    margin-bottom: 22px;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+.date-filter-bar.active { display: flex; }
+.date-filter-title {
+    font-family: 'Cairo', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-left: 10px;
+    border-left: 2px solid var(--accent-cyan);
+}
+.date-filter-title::before {
+    content: '🗓';
+    font-size: 16px;
+}
+.date-filter-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.date-filter-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+.date-filter-input {
+    background: var(--bg-input);
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-sm);
+    padding: 8px 10px;
+    color: var(--text-primary);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    direction: ltr;
+    color-scheme: dark;
+    cursor: pointer;
+    min-width: 150px;
+}
+.date-filter-input:focus {
+    outline: none;
+    border-color: var(--accent-cyan);
+}
+.date-filter-actions {
+    display: flex;
+    gap: 6px;
+    margin-right: auto;
+}
+.date-filter-info {
+    font-size: 11.5px;
+    color: var(--text-tertiary);
+    font-family: 'JetBrains Mono', monospace;
+    direction: ltr;
+    padding: 6px 10px;
+    background: var(--bg-input);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-subtle);
+}
+.date-filter-info.active-filter {
+    color: var(--accent-cyan);
+    border-color: rgba(6,182,212,0.3);
+    background: rgba(6,182,212,0.06);
 }
 
 .empty-state {
@@ -621,7 +710,7 @@ body {
     font-weight: 700;
 }
 
-/* DELAYED SAMPLES IDS LIST */
+/* DELAYED SAMPLES */
 .delayed-section { margin-top: 26px; }
 .delayed-header {
     display: flex; justify-content: space-between; align-items: center;
@@ -701,7 +790,6 @@ body {
     left: -99999px;
     top: 0;
     width: 1920px;
-    height: 1080px;
     background: var(--bg-primary);
     padding: 60px;
     color: var(--text-primary);
@@ -711,6 +799,7 @@ body {
     overflow: hidden;
 }
 .slide-export.active { left: 0; top: 0; z-index: -1; }
+.slide-export.fixed-1080 { height: 1080px; }
 .slide-header {
     display: flex; justify-content: space-between;
     align-items: center; margin-bottom: 32px;
@@ -854,14 +943,11 @@ body {
     opacity: 0.12;
 }
 .slide-footer {
-    position: absolute;
-    bottom: 24px;
-    left: 60px;
-    right: 60px;
-    display: flex; justify-content: space-between;
-    align-items: center;
+    margin-top: 28px;
     padding-top: 16px;
     border-top: 1px solid var(--border-subtle);
+    display: flex; justify-content: space-between;
+    align-items: center;
     font-size: 13px;
     color: var(--text-muted);
 }
@@ -870,21 +956,29 @@ body {
     direction: ltr;
 }
 
-/* COMPARE */
+/* COMPARE SLIDE - يدعم 15 مستشفى */
+.compare-section-title {
+    font-family: 'Cairo', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-subtle);
+}
 .compare-row {
     display: grid;
-    grid-template-columns: 220px 1fr;
-    gap: 24px;
+    grid-template-columns: 200px 1fr;
+    gap: 14px;
     align-items: center;
-    margin-bottom: 18px;
+    margin-bottom: 8px;
 }
 .compare-label {
     font-family: 'Cairo', sans-serif;
     font-weight: 700;
-    font-size: 17px;
+    font-size: 14px;
 }
 .compare-bar-wrap {
-    height: 38px;
+    height: 30px;
     background: var(--bg-input);
     border-radius: 4px;
     position: relative;
@@ -900,9 +994,9 @@ body {
 .compare-bar-text {
     position: relative;
     z-index: 10;
-    padding: 0 14px;
+    padding: 0 12px;
     font-weight: 700;
-    font-size: 16px;
+    font-size: 13.5px;
     font-family: 'JetBrains Mono', monospace;
 }
 
@@ -989,7 +1083,7 @@ body {
     direction: ltr;
 }
 
-/* Executive Promise (يظهر في الواجهة فقط، يخفى عند التصدير) */
+/* Executive Promise */
 .exec-promise-card {
     background: linear-gradient(135deg, var(--bg-card-elevated), var(--bg-card));
     border: 1px solid var(--border-medium);
@@ -1065,7 +1159,7 @@ body {
     .promise-num { font-size: 36px; }
 }
 
-/* Heatmap - Hours x Hospitals */
+/* Heatmap */
 .exec-heatmap-section {
     background: var(--bg-card);
     border: 1px solid var(--border-subtle);
@@ -1157,7 +1251,7 @@ body {
     text-shadow: none;
 }
 
-/* Stages Compliance Table */
+/* Stages Table */
 .exec-stages-table {
     background: var(--bg-card);
     border: 1px solid var(--border-subtle);
@@ -1221,43 +1315,6 @@ body {
     min-width: 56px;
 }
 
-/* Top Issues */
-.exec-top-issues {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    margin-bottom: 22px;
-}
-.top-issue-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border-subtle);
-    border-right: 4px solid var(--accent-rose);
-    border-radius: var(--radius-md);
-    padding: 16px 18px;
-}
-.top-issue-card .issue-label {
-    font-size: 11px;
-    color: var(--text-tertiary);
-    font-weight: 600;
-    margin-bottom: 6px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-.top-issue-card .issue-value {
-    font-family: 'Cairo', sans-serif;
-    font-size: 17px;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 4px;
-}
-.top-issue-card .issue-detail {
-    font-size: 12px;
-    color: var(--text-secondary);
-    font-family: 'JetBrains Mono', monospace;
-    direction: ltr;
-    text-align: right;
-}
-
 /* Summary Header */
 .exec-summary-header {
     display: flex;
@@ -1291,6 +1348,562 @@ body {
     color: var(--text-tertiary);
 }
 
+/* ============================================
+   PROMISE PAGE - الوعد التنفيذي
+   ============================================ */
+.promise-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(10,14,26,0.95);
+    backdrop-filter: blur(10px);
+    z-index: 500;
+    display: none;
+    overflow-y: auto;
+    padding: 20px;
+}
+.promise-modal.active { display: block; }
+
+.promise-content {
+    max-width: 1500px;
+    margin: 0 auto;
+    background: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    border: 1px solid var(--border-medium);
+}
+
+.promise-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border-medium);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.promise-toolbar h2 {
+    font-family: 'Cairo', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.promise-toolbar h2::before {
+    content: '🎯';
+    font-size: 18px;
+}
+
+.promise-page {
+    background: var(--bg-primary);
+    padding: 32px 36px;
+}
+
+/* Hero */
+.promise-hero {
+    background: linear-gradient(135deg, rgba(16,185,129,0.08), rgba(6,182,212,0.05));
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-md);
+    padding: 28px 32px;
+    margin-bottom: 22px;
+    position: relative;
+    overflow: hidden;
+}
+.promise-hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(16,185,129,0.12), transparent 70%);
+    pointer-events: none;
+}
+.promise-hero-label {
+    font-family: 'Cairo', sans-serif;
+    font-size: 12px;
+    color: var(--accent-emerald);
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    position: relative;
+}
+.promise-hero h1 {
+    font-family: 'Cairo', sans-serif;
+    font-size: 26px;
+    font-weight: 800;
+    margin-bottom: 8px;
+    position: relative;
+}
+.promise-hero p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    max-width: 800px;
+    position: relative;
+}
+
+/* Big KPIs Grid */
+.promise-kpis {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 22px;
+}
+.pkpi-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 22px 24px;
+    position: relative;
+    overflow: hidden;
+}
+.pkpi-card.hero-kpi {
+    background: linear-gradient(135deg, var(--bg-card), var(--bg-card-elevated));
+    border-top: 4px solid var(--accent-emerald);
+}
+.pkpi-card.warning {
+    border-right: 3px solid var(--accent-amber);
+}
+.pkpi-card.danger {
+    border-right: 3px solid var(--accent-rose);
+}
+.pkpi-label {
+    font-size: 12px;
+    color: #B8C0D0;
+    font-weight: 600;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.pkpi-value-row {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+.pkpi-value {
+    font-family: 'Cairo', sans-serif;
+    font-size: 42px;
+    font-weight: 900;
+    line-height: 1;
+}
+.pkpi-unit {
+    font-family: 'Cairo', sans-serif;
+    font-size: 18px;
+    color: #B8C0D0;
+    font-weight: 700;
+}
+.pkpi-target {
+    font-size: 12px;
+    color: #B8C0D0;
+    font-family: 'JetBrains Mono', monospace;
+    direction: ltr;
+    text-align: right;
+    margin-bottom: 8px;
+}
+.pkpi-progress {
+    height: 6px;
+    background: var(--bg-input);
+    border-radius: 4px;
+    overflow: hidden;
+}
+.pkpi-progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.6s ease;
+}
+
+/* Donut Chart */
+.promise-charts-row {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 16px;
+    margin-bottom: 22px;
+}
+.promise-donut-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.promise-donut-title {
+    font-family: 'Cairo', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.promise-donut-title::before {
+    content: '';
+    width: 4px;
+    height: 18px;
+    background: var(--accent-emerald);
+    border-radius: 2px;
+}
+.promise-donut-sub {
+    font-size: 12px;
+    color: #B8C0D0;
+    margin-bottom: 14px;
+    width: 100%;
+}
+.donut-svg {
+    width: 220px;
+    height: 220px;
+    transform: rotate(-90deg);
+}
+.donut-center {
+    margin-top: -150px;
+    margin-bottom: 60px;
+    text-align: center;
+    pointer-events: none;
+}
+.donut-center .big-num {
+    font-family: 'Cairo', sans-serif;
+    font-size: 36px;
+    font-weight: 900;
+    line-height: 1;
+}
+.donut-center .small-cap {
+    font-size: 11px;
+    color: #B8C0D0;
+    margin-top: 4px;
+    font-weight: 600;
+}
+.donut-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    margin-top: 8px;
+}
+.donut-leg-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 10px;
+    background: var(--bg-input);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-subtle);
+}
+.donut-leg-item .ldot {
+    width: 10px; height: 10px;
+    border-radius: 2px;
+    margin-left: 8px;
+}
+.donut-leg-item .lname {
+    font-size: 12.5px;
+    color: var(--text-primary);
+    font-weight: 600;
+    flex: 1;
+}
+.donut-leg-item .lval {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 13px;
+}
+
+/* Bar Chart */
+.promise-bars-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 22px;
+}
+.promise-bars-title {
+    font-family: 'Cairo', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.promise-bars-title::before {
+    content: '';
+    width: 4px;
+    height: 18px;
+    background: var(--accent-cyan);
+    border-radius: 2px;
+}
+.promise-bars-sub {
+    font-size: 12px;
+    color: #B8C0D0;
+    margin-bottom: 16px;
+}
+.bars-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.bar-row {
+    display: grid;
+    grid-template-columns: 170px 1fr 60px;
+    gap: 10px;
+    align-items: center;
+}
+.bar-row .bar-label {
+    font-family: 'Cairo', sans-serif;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.bar-row .bar-track {
+    height: 22px;
+    background: var(--bg-input);
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid var(--border-subtle);
+}
+.bar-row .bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.6s ease;
+    position: relative;
+}
+.bar-row .bar-target-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: rgba(255,255,255,0.5);
+    z-index: 2;
+}
+.bar-row .bar-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 12px;
+    text-align: left;
+    direction: ltr;
+}
+
+/* Patient Distribution */
+.promise-distribution {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 22px;
+    margin-bottom: 22px;
+}
+.dist-title {
+    font-family: 'Cairo', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.dist-title::before {
+    content: '';
+    width: 4px;
+    height: 18px;
+    background: var(--accent-violet);
+    border-radius: 2px;
+}
+.dist-sub {
+    font-size: 12px;
+    color: #B8C0D0;
+    margin-bottom: 16px;
+}
+.dist-bar {
+    height: 38px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    overflow: hidden;
+    border: 1px solid var(--border-subtle);
+    margin-bottom: 14px;
+}
+.dist-segment {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 12.5px;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+    min-width: 40px;
+}
+.dist-legend {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+.dist-leg-card {
+    background: var(--bg-input);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    border-right: 3px solid;
+}
+.dist-leg-card .dl-label {
+    font-size: 11.5px;
+    color: #B8C0D0;
+    font-weight: 600;
+    margin-bottom: 5px;
+    direction: ltr;
+    text-align: right;
+}
+.dist-leg-card .dl-value {
+    font-family: 'Cairo', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 3px;
+}
+.dist-leg-card .dl-pct {
+    font-size: 11px;
+    color: #B8C0D0;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* Detailed Hospital Table */
+.promise-table-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 22px;
+    margin-bottom: 22px;
+}
+.ptable-title {
+    font-family: 'Cairo', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.ptable-title::before {
+    content: '';
+    width: 4px;
+    height: 18px;
+    background: var(--accent-amber);
+    border-radius: 2px;
+}
+.ptable-sub {
+    font-size: 12px;
+    color: #B8C0D0;
+    margin-bottom: 16px;
+}
+.ptable {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+}
+.ptable th {
+    background: var(--bg-input);
+    font-family: 'Cairo', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: #FFFFFF;
+    padding: 10px 10px;
+    text-align: center;
+    border-bottom: 1px solid var(--border-medium);
+    white-space: nowrap;
+}
+.ptable th:first-child { text-align: right; min-width: 150px; }
+.ptable td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid var(--border-subtle);
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 12px;
+}
+.ptable td:first-child {
+    text-align: right;
+    font-family: 'Cairo', sans-serif;
+    font-size: 12.5px;
+}
+.ptable .status-pill {
+    display: inline-block;
+    padding: 3px 9px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 700;
+}
+.ptable .status-pill.green { background: rgba(16,185,129,0.15); color: var(--accent-emerald); }
+.ptable .status-pill.amber { background: rgba(245,158,11,0.15); color: var(--accent-amber); }
+.ptable .status-pill.red { background: rgba(239,68,68,0.15); color: var(--accent-rose); }
+.ptable tr:last-child td { border-bottom: none; }
+
+/* Action Items */
+.promise-actions-card {
+    background: linear-gradient(135deg, rgba(245,158,11,0.06), rgba(239,68,68,0.04));
+    border: 1px solid rgba(245,158,11,0.2);
+    border-right: 4px solid var(--accent-amber);
+    border-radius: var(--radius-md);
+    padding: 22px 26px;
+}
+.pactions-title {
+    font-family: 'Cairo', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    color: var(--accent-amber);
+}
+.action-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.action-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+.action-item .num {
+    background: var(--accent-amber);
+    color: #fff;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 800;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+.action-item .body {
+    flex: 1;
+}
+.action-item .body .name {
+    font-family: 'Cairo', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+.action-item .body .info {
+    font-size: 12px;
+    color: #B8C0D0;
+    line-height: 1.5;
+}
+
 /* LOADING */
 .loading-overlay {
     position: fixed; inset: 0;
@@ -1321,6 +1934,8 @@ body {
     .upload-grid { grid-template-columns: repeat(3, 1fr); }
     .indicator-stages-grid { grid-template-columns: repeat(3, 1fr); }
     .kpi-row { grid-template-columns: repeat(2, 1fr); }
+    .promise-charts-row { grid-template-columns: 1fr; }
+    .promise-donut-card { align-items: center; }
 }
 @media (max-width: 1100px) {
     .cmd-main { padding: 24px 22px 60px; }
@@ -1330,9 +1945,11 @@ body {
     .stages-strip { grid-template-columns: 1fr; }
     .hourly-grid { grid-template-columns: repeat(8, 1fr); }
     .kpi-row { grid-template-columns: repeat(2, 1fr); }
-    .exec-top-issues { grid-template-columns: 1fr; }
     .heatmap-table th.hospital-col, .heatmap-table td.hospital-name { min-width: 100px; font-size: 10px; }
     .heatmap-table td { width: 22px; font-size: 8.5px; }
+    .promise-kpis { grid-template-columns: 1fr; }
+    .dist-legend { grid-template-columns: repeat(2, 1fr); }
+    .bar-row { grid-template-columns: 130px 1fr 55px; }
 }
 @media (max-width: 768px) {
     .cmd-header { padding: 14px 16px; }
@@ -1356,10 +1973,20 @@ body {
     .hospital-header { padding: 14px 16px; }
     .hospital-body { padding: 16px; }
     .delayed-ids-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
-    .exec-summary-page { padding: 18px 14px; }
+    .exec-summary-page, .promise-page { padding: 18px 14px; }
     .heatmap-table { font-size: 9px; }
     .heatmap-table td { width: 18px; height: 22px; font-size: 7.5px; }
     .heatmap-table th { font-size: 8px; }
+    .pkpi-value { font-size: 32px; }
+    .promise-hero h1 { font-size: 20px; }
+    .bar-row { grid-template-columns: 110px 1fr 50px; gap: 6px; }
+    .bar-row .bar-label { font-size: 11px; }
+    .ptable { font-size: 10.5px; }
+    .ptable th, .ptable td { padding: 7px 4px; }
+    .ptable th { font-size: 10px; }
+    .dist-legend { grid-template-columns: 1fr; }
+    .date-filter-bar { flex-direction: column; align-items: stretch; }
+    .date-filter-actions { margin-right: 0; }
 }
 @media (max-width: 420px) {
     .hourly-grid { grid-template-columns: repeat(4, 1fr); }
@@ -1420,6 +2047,7 @@ body {
         </div>
     </div>
     <div class="actions-buttons">
+        <button class="btn btn-promise" id="btnPromise" disabled>🎯 الوعد التنفيذي</button>
         <button class="btn btn-exec" id="btnExecSummary" disabled>📊 ملخص تنفيذي</button>
         <button class="btn" id="btnExportCompare" disabled>مقارنة (صورة)</button>
         <button class="btn" id="btnExportDashPng" disabled>الداشبورد (صورة)</button>
@@ -1427,6 +2055,24 @@ body {
         <button class="btn" id="btnExportSlidesPdf" disabled>PDF (للاجتماعات)</button>
         <button class="btn" id="btnReset">إعادة تعيين</button>
         <button class="btn btn-primary" id="btnAnalyze" disabled>تحليل البيانات</button>
+    </div>
+</div>
+
+<!-- DATE FILTER -->
+<div class="date-filter-bar" id="dateFilterBar">
+    <div class="date-filter-title">فلترة حسب التاريخ</div>
+    <div class="date-filter-group">
+        <label class="date-filter-label">من:</label>
+        <input type="date" class="date-filter-input" id="dateFrom">
+    </div>
+    <div class="date-filter-group">
+        <label class="date-filter-label">إلى:</label>
+        <input type="date" class="date-filter-input" id="dateTo">
+    </div>
+    <div class="date-filter-info" id="dateFilterInfo">النطاق المتاح: --</div>
+    <div class="date-filter-actions">
+        <button class="btn" id="btnApplyDate">تطبيق الفلتر</button>
+        <button class="btn" id="btnClearDate">عرض الكل</button>
     </div>
 </div>
 
@@ -1482,6 +2128,22 @@ body {
     </div>
 </div>
 
+<!-- Promise Modal -->
+
+<div class="promise-modal" id="promiseModal">
+    <div class="promise-content">
+        <div class="promise-toolbar">
+            <h2>الوعد التنفيذي — متابعة الوصول للهدف</h2>
+            <div class="exec-toolbar-actions">
+                <button class="btn" id="btnPromiseExportPng">حفظ صورة PNG</button>
+                <button class="btn" id="btnPromiseExportPdf">حفظ PDF</button>
+                <button class="btn btn-close" id="btnPromiseClose">إغلاق</button>
+            </div>
+        </div>
+        <div class="promise-page" id="promisePage"></div>
+    </div>
+</div>
+
 <div class="loading-overlay" id="loadingOverlay">
     <div class="loader"></div>
     <div class="loading-text" id="loadingText">جاري المعالجة...</div>
@@ -1509,8 +2171,20 @@ const HOSPITALS = {
     mental:     { ar: 'مستشفى الصحة النفسية',        en: 'Mental Health Hospital',               schema: 'std' }
 };
 
-const STATE = { files: {}, rawData: {}, processed: {} };
-Object.keys(HOSPITALS).forEach(k => { STATE.files[k] = null; STATE.rawData[k] = null; STATE.processed[k] = null; });
+// STATE: نخزن البيانات الخام بعد التحليل (timings) عشان نقدر نعيد الفلترة بدون قراءة الإكسل
+const STATE = { 
+    files: {}, 
+    rawData: {}, 
+    processed: {},      // الناتج بعد الفلترة (هذا اللي يعرض في الواجهة)
+    rawProcessed: {},   // الناتج الكامل بدون فلترة (المرجع الأصلي)
+    dateRange: { min: null, max: null, from: null, to: null }
+};
+Object.keys(HOSPITALS).forEach(k => { 
+    STATE.files[k] = null; 
+    STATE.rawData[k] = null; 
+    STATE.processed[k] = null;
+    STATE.rawProcessed[k] = null;
+});
 
 const TARGET_TOTAL = 60;
 const TARGET_ORDER_COLLECT = 10;
@@ -1534,6 +2208,16 @@ function init() {
     document.getElementById('btnExecClose').addEventListener('click', closeExecSummary);
     document.getElementById('btnExecExportPng').addEventListener('click', exportExecSummaryPng);
     document.getElementById('btnExecExportPdf').addEventListener('click', exportExecSummaryPdf);
+
+    // Promise buttons
+    document.getElementById('btnPromise').addEventListener('click', openPromise);
+    document.getElementById('btnPromiseClose').addEventListener('click', closePromise);
+    document.getElementById('btnPromiseExportPng').addEventListener('click', exportPromisePng);
+    document.getElementById('btnPromiseExportPdf').addEventListener('click', exportPromisePdf);
+
+    // Date filter
+    document.getElementById('btnApplyDate').addEventListener('click', applyDateFilter);
+    document.getElementById('btnClearDate').addEventListener('click', clearDateFilter);
 
     setTimeout(() => {
         const shield = document.getElementById('initShield');
@@ -1760,7 +2444,8 @@ function isRejected(row, schema) {
     return s.includes('reject') || s.includes('cancel') || s.includes('pending') || (row.rejectReason && row.rejectReason !== '');
 }
 
-function processHospital(key) {
+// المرحلة الأولى: استخراج كل الـ timings الصالحة من الإكسل (مرة وحدة لكل ملف)
+function extractTimings(key) {
     const raw = STATE.rawData[key];
     if (!raw || raw.length === 0) return null;
     const schema = HOSPITALS[key].schema;
@@ -1773,9 +2458,7 @@ function processHospital(key) {
         !isRejected(r, schema)
     );
 
-    if (completed.length === 0) {
-        return { key, total: erAll.length, completed: 0, empty: true };
-    }
+    if (completed.length === 0) return { totalEr: erAll.length, timings: [] };
 
     const timings = completed.map(r => {
         const tot = diffMinutes(r.orderDate, r.completeDate);
@@ -1799,9 +2482,16 @@ function processHospital(key) {
         };
     }).filter(r => r.tot !== null);
 
-    if (timings.length === 0) {
-        return { key, total: erAll.length, completed: 0, empty: true };
+    return { totalEr: erAll.length, timings };
+}
+
+// المرحلة الثانية: حساب الإحصائيات من قائمة timings (نقدر نعيد استدعاءها مع timings مفلترة)
+function computeStats(timingsRaw, totalEr) {
+    if (!timingsRaw || timingsRaw.length === 0) {
+        return { total: totalEr || 0, completed: 0, empty: true };
     }
+
+    const timings = timingsRaw;
 
     const avg = (arr, k) => {
         const v = arr.filter(x => x[k] !== null && !isNaN(x[k]));
@@ -1865,7 +2555,6 @@ function processHospital(key) {
         };
     }
 
-    // حساب عدد الاختبارات لكل مريض (testsPerPatient)
     const patientTestsMap = new Map();
     timings.forEach(t => {
         const pid = t.patientId || `__no_id_${t.sampleId}`;
@@ -1880,14 +2569,13 @@ function processHospital(key) {
     const targetCompliancePct = patientsCount > 0 ? (patientsWithinTarget / patientsCount) * 100 : 0;
 
     return {
-        key,
-        total: erAll.length,
+        total: totalEr || timings.length,
         completed: timings.length,
+        timings: timings, // نحتفظ بالـ timings عشان نقدر نفلتر بالتاريخ لاحقاً
         overall,
         byShift,
         byHour,
         delayedIds,
-        // إحصائيات الاختبارات لكل مريض
         patientsCount,
         totalTests,
         avgTestsPerPatient,
@@ -1898,6 +2586,40 @@ function processHospital(key) {
     };
 }
 
+// تطبق الفلتر على البيانات الخام وتعيد الحساب
+function applyFilterAndRecompute() {
+    const fromStr = STATE.dateRange.from;
+    const toStr = STATE.dateRange.to;
+    const fromDate = fromStr ? new Date(fromStr + 'T00:00:00') : null;
+    const toDate = toStr ? new Date(toStr + 'T23:59:59') : null;
+
+    Object.keys(STATE.rawProcessed).forEach(h => {
+        const raw = STATE.rawProcessed[h];
+        if (!raw) {
+            STATE.processed[h] = null;
+            return;
+        }
+        if (raw.empty || !raw.timings) {
+            STATE.processed[h] = { ...raw, key: h };
+            STATE.processed[h].key = h;
+            return;
+        }
+
+        let filteredTimings = raw.timings;
+        if (fromDate || toDate) {
+            filteredTimings = raw.timings.filter(t => {
+                if (!t.orderDate) return false;
+                if (fromDate && t.orderDate < fromDate) return false;
+                if (toDate && t.orderDate > toDate) return false;
+                return true;
+            });
+        }
+
+        const stats = computeStats(filteredTimings, raw.total);
+        STATE.processed[h] = { ...stats, key: h };
+    });
+}
+
 async function analyzeAll() {
     const overlay = document.getElementById('loadingOverlay');
     overlay.classList.add('active');
@@ -1905,9 +2627,59 @@ async function analyzeAll() {
 
     await new Promise(r => setTimeout(r, 50));
 
+    // المرحلة 1: استخراج الـ timings الكاملة (بدون فلترة) لكل مستشفى
+    let globalMin = null, globalMax = null;
     Object.keys(STATE.rawData).forEach(h => {
-        if (STATE.rawData[h]) STATE.processed[h] = processHospital(h);
+        if (!STATE.rawData[h]) {
+            STATE.rawProcessed[h] = null;
+            return;
+        }
+        const extracted = extractTimings(h);
+        if (!extracted) {
+            STATE.rawProcessed[h] = null;
+            return;
+        }
+        const stats = computeStats(extracted.timings, extracted.totalEr);
+        STATE.rawProcessed[h] = stats;
+
+        // حساب نطاق التاريخ المتاح
+        if (stats.timings && stats.timings.length > 0) {
+            stats.timings.forEach(t => {
+                if (t.orderDate) {
+                    if (!globalMin || t.orderDate < globalMin) globalMin = t.orderDate;
+                    if (!globalMax || t.orderDate > globalMax) globalMax = t.orderDate;
+                }
+            });
+        }
     });
+
+    // حفظ نطاق التاريخ المتاح
+    STATE.dateRange.min = globalMin;
+    STATE.dateRange.max = globalMax;
+    STATE.dateRange.from = null;
+    STATE.dateRange.to = null;
+
+    // إعداد الـ date pickers
+    if (globalMin && globalMax) {
+        const minStr = globalMin.toISOString().slice(0, 10);
+        const maxStr = globalMax.toISOString().slice(0, 10);
+        const dateFrom = document.getElementById('dateFrom');
+        const dateTo = document.getElementById('dateTo');
+        dateFrom.min = minStr;
+        dateFrom.max = maxStr;
+        dateFrom.value = minStr;
+        dateTo.min = minStr;
+        dateTo.max = maxStr;
+        dateTo.value = maxStr;
+        document.getElementById('dateFilterInfo').textContent = `النطاق المتاح: ${minStr} → ${maxStr}`;
+        document.getElementById('dateFilterInfo').classList.remove('active-filter');
+        document.getElementById('dateFilterBar').classList.add('active');
+    } else {
+        document.getElementById('dateFilterBar').classList.remove('active');
+    }
+
+    // طبق فلتر فاضي (يعني نفس البيانات الكاملة)
+    applyFilterAndRecompute();
 
     document.getElementById('emptyState').style.display = 'none';
     document.getElementById('resultsSection').classList.add('active');
@@ -1917,12 +2689,77 @@ async function analyzeAll() {
     document.getElementById('btnExportSlidesPdf').disabled = false;
     document.getElementById('btnExportCompare').disabled = false;
     document.getElementById('btnExecSummary').disabled = false;
+    document.getElementById('btnPromise').disabled = false;
 
+    updateTotalSamples();
+    renderHospitals();
+
+    overlay.classList.remove('active');
+}
+
+function updateTotalSamples() {
     const valid = Object.values(STATE.processed).filter(p => p && !p.empty);
     const totalCompleted = valid.reduce((s, p) => s + p.completed, 0);
     document.getElementById('totalSamples').textContent = totalCompleted.toLocaleString('en');
+}
 
+async function applyDateFilter() {
+    const fromVal = document.getElementById('dateFrom').value;
+    const toVal = document.getElementById('dateTo').value;
+
+    if (fromVal && toVal && fromVal > toVal) {
+        alert('تاريخ "من" أكبر من "إلى" — راجع التواريخ');
+        return;
+    }
+
+    STATE.dateRange.from = fromVal || null;
+    STATE.dateRange.to = toVal || null;
+
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.classList.add('active');
+    document.getElementById('loadingText').textContent = 'جاري تطبيق الفلتر...';
+    await new Promise(r => setTimeout(r, 50));
+
+    applyFilterAndRecompute();
+    updateTotalSamples();
     renderHospitals();
+
+    // تحديث info
+    const info = document.getElementById('dateFilterInfo');
+    if (fromVal || toVal) {
+        info.textContent = `الفلتر النشط: ${fromVal || '...'} → ${toVal || '...'}`;
+        info.classList.add('active-filter');
+    } else {
+        const minStr = STATE.dateRange.min ? STATE.dateRange.min.toISOString().slice(0,10) : '--';
+        const maxStr = STATE.dateRange.max ? STATE.dateRange.max.toISOString().slice(0,10) : '--';
+        info.textContent = `النطاق المتاح: ${minStr} → ${maxStr}`;
+        info.classList.remove('active-filter');
+    }
+
+    overlay.classList.remove('active');
+}
+
+async function clearDateFilter() {
+    STATE.dateRange.from = null;
+    STATE.dateRange.to = null;
+    if (STATE.dateRange.min && STATE.dateRange.max) {
+        document.getElementById('dateFrom').value = STATE.dateRange.min.toISOString().slice(0,10);
+        document.getElementById('dateTo').value = STATE.dateRange.max.toISOString().slice(0,10);
+    }
+    
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.classList.add('active');
+    document.getElementById('loadingText').textContent = 'جاري إعادة التحميل...';
+    await new Promise(r => setTimeout(r, 50));
+
+    applyFilterAndRecompute();
+    updateTotalSamples();
+    renderHospitals();
+
+    const minStr = STATE.dateRange.min ? STATE.dateRange.min.toISOString().slice(0,10) : '--';
+    const maxStr = STATE.dateRange.max ? STATE.dateRange.max.toISOString().slice(0,10) : '--';
+    document.getElementById('dateFilterInfo').textContent = `النطاق المتاح: ${minStr} → ${maxStr}`;
+    document.getElementById('dateFilterInfo').classList.remove('active-filter');
 
     overlay.classList.remove('active');
 }
@@ -2135,7 +2972,6 @@ function buildExecSummary() {
 
     const totalSamples = valid.reduce((s, [_, p]) => s + p.completed, 0);
     
-    // حساب الإحصائيات الإجمالية للاختبارات لكل مريض
     const totalPatients = valid.reduce((s, [_, p]) => s + p.patientsCount, 0);
     const totalTests = valid.reduce((s, [_, p]) => s + p.totalTests, 0);
     const totalWithinTarget = valid.reduce((s, [_, p]) => s + p.patientsWithinTarget, 0);
@@ -2276,10 +3112,15 @@ function renderExecSummary() {
                         data.overallTargetPct >= 70 ? 'var(--accent-amber)' :
                         'var(--accent-rose)';
 
+    const filterTag = (STATE.dateRange.from || STATE.dateRange.to)
+        ? `<div style="margin-top:8px; display:inline-block; padding:5px 10px; background:rgba(6,182,212,0.1); color:var(--accent-cyan); border-radius:4px; font-family:'JetBrains Mono', monospace; font-size:11.5px; border:1px solid rgba(6,182,212,0.3); direction:ltr;">📅 ${STATE.dateRange.from || '...'} → ${STATE.dateRange.to || '...'}</div>`
+        : '';
+
     page.innerHTML = `
         <div class="exec-summary-header">
             <div class="brand">
                 <h1>الملخص التنفيذي — مؤشرات أداء مختبرات الطوارئ</h1>
+                ${filterTag}
             </div>
             <div class="meta">
                 <div class="date">${dateStr}</div>
@@ -2339,7 +3180,6 @@ async function exportExecSummaryPng() {
     const oldStyle = { width: page.style.width };
     page.style.width = '1400px';
 
-    // إخفاء عناصر no-export
     const hiddenEls = page.querySelectorAll('.no-export');
     hiddenEls.forEach(el => el.style.display = 'none');
 
@@ -2381,7 +3221,6 @@ async function exportExecSummaryPdf() {
     const oldStyle = { width: page.style.width };
     page.style.width = '1400px';
 
-    // إخفاء عناصر no-export
     const hiddenEls = page.querySelectorAll('.no-export');
     hiddenEls.forEach(el => el.style.display = 'none');
 
@@ -2414,6 +3253,516 @@ async function exportExecSummaryPdf() {
         alert('خطأ: ' + err.message);
     } finally {
         hiddenEls.forEach(el => el.style.display = '');
+        Object.assign(page.style, oldStyle);
+        overlay.classList.remove('active');
+    }
+}
+
+// ============================================
+// PROMISE PAGE — الوعد التنفيذي
+// ============================================
+
+function buildPromiseData() {
+    const valid = Object.entries(STATE.processed).filter(([_, p]) => p && !p.empty);
+    if (valid.length === 0) {
+        alert('لا توجد بيانات');
+        return null;
+    }
+
+    // إجماليات
+    const totalSamples = valid.reduce((s, [_, p]) => s + p.completed, 0);
+    const totalCompliantSamples = valid.reduce((s, [_, p]) => {
+        return s + p.timings.filter(t => t.compTotal).length;
+    }, 0);
+    const overallTatCompliance = totalSamples > 0 ? (totalCompliantSamples / totalSamples * 100) : 0;
+
+    // متوسط TAT الكلي مرجّح
+    let totalTatSum = 0, totalTatCount = 0;
+    valid.forEach(([_, p]) => {
+        p.timings.forEach(t => {
+            if (t.tot !== null) {
+                totalTatSum += t.tot;
+                totalTatCount++;
+            }
+        });
+    });
+    const overallAvgTat = totalTatCount > 0 ? totalTatSum / totalTatCount : 0;
+
+    // عدد المستشفيات الواصلة للهدف (≥90%)
+    const hospitalsAtTarget = valid.filter(([_, p]) => p.overall.total_compliance >= 90).length;
+    const hospitalsBelowTarget = valid.filter(([_, p]) => p.overall.total_compliance < 70).length;
+    const hospitalsAmber = valid.length - hospitalsAtTarget - hospitalsBelowTarget;
+
+    // إحصائيات المراحل (مرجّحة)
+    const stageCompliance = (key) => {
+        let pass = 0, total = 0;
+        valid.forEach(([_, p]) => {
+            p.timings.forEach(t => {
+                if (key === 'compOrdCol' && t.ord_col === null) return;
+                if (key === 'compColRec' && t.col_rec === null) return;
+                if (key === 'compRecRes' && t.rec_res === null) return;
+                total++;
+                if (t[key]) pass++;
+            });
+        });
+        return total > 0 ? (pass / total * 100) : 0;
+    };
+
+    const stage1Comp = stageCompliance('compOrdCol');
+    const stage2Comp = stageCompliance('compColRec');
+    const stage3Comp = stageCompliance('compRecRes');
+
+    // ترتيب
+    const sorted = [...valid].sort((a, b) => b[1].overall.total_compliance - a[1].overall.total_compliance);
+    const bottomThree = [...valid]
+        .sort((a, b) => a[1].overall.total_compliance - b[1].overall.total_compliance)
+        .slice(0, 5);
+
+    // عدد العينات المتأخرة
+    const totalDelayed = valid.reduce((s, [_, p]) => s + p.delayedIds.length, 0);
+
+    return {
+        valid,
+        sorted,
+        bottomThree,
+        totalSamples,
+        totalCompliantSamples,
+        overallTatCompliance,
+        overallAvgTat,
+        totalDelayed,
+        hospitalsAtTarget,
+        hospitalsBelowTarget,
+        hospitalsAmber,
+        stage1Comp,
+        stage2Comp,
+        stage3Comp,
+        hospitalCount: valid.length
+    };
+}
+
+function buildDonutSvg(value, color) {
+    const pct = Math.max(0, Math.min(100, value));
+    const radius = 80;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (pct / 100) * circumference;
+    return `
+        <svg class="donut-svg" viewBox="0 0 200 200">
+            <circle cx="100" cy="100" r="${radius}" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="20"/>
+            <circle cx="100" cy="100" r="${radius}" fill="none" stroke="${color}" stroke-width="20"
+                stroke-dasharray="${circumference}" stroke-dashoffset="${offset}" stroke-linecap="round"/>
+        </svg>
+    `;
+}
+
+function renderPromisePage() {
+    const data = buildPromiseData();
+    if (!data) return;
+
+    const page = document.getElementById('promisePage');
+    const now = new Date();
+    const dateStr = now.toISOString().slice(0, 10);
+    const timeStr = now.toTimeString().slice(0, 5);
+
+    const tatColor = compColor(data.overallTatCompliance);
+    const tatStatus = data.overallTatCompliance >= 90 ? 'وصلنا الهدف' :
+                      data.overallTatCompliance >= 70 ? 'قريبون من الهدف' :
+                      'بحاجة لتحسين عاجل';
+
+    const filterTag = (STATE.dateRange.from || STATE.dateRange.to)
+        ? `<div style="margin-top:10px; display:inline-block; padding:6px 12px; background:rgba(6,182,212,0.1); color:var(--accent-cyan); border-radius:4px; font-family:'JetBrains Mono', monospace; font-size:12px; border:1px solid rgba(6,182,212,0.3); direction:ltr;">📅 ${STATE.dateRange.from || '...'} → ${STATE.dateRange.to || '...'}</div>`
+        : '';
+
+    // bars max
+    const maxComp = Math.max(...data.valid.map(([_,p]) => p.overall.total_compliance));
+    const TARGET_LINE_PCT = 90; // هدف 90%
+
+    page.innerHTML = `
+        <!-- Hero -->
+        <div class="promise-hero">
+            <div class="promise-hero-label">🎯 الوعد التنفيذي</div>
+            <h1>متابعة الالتزام بهدف زمن إنجاز عينات الطوارئ ≤ ٦٠ دقيقة</h1>
+            <p>صفحة متابعة تنفيذية شاملة تعرض حالة الوصول للهدف عبر المستشفيات الـ ${data.hospitalCount}، مع تتبع كل مرحلة من مراحل التحليل، وتحديد نقاط الإختناق التي تحتاج تدخل فوري للوصول إلى مستهدف ٩٠٪ التزام.</p>
+            ${filterTag}
+            <div style="position:absolute; top:24px; left:30px; text-align:left; font-family: 'JetBrains Mono', monospace; direction:ltr;">
+                <div style="font-size:18px; font-weight:700; color:var(--text-primary);">${dateStr}</div>
+                <div style="font-size:11px; color:var(--text-tertiary);">${timeStr}</div>
+            </div>
+        </div>
+
+        <!-- Big KPIs -->
+        <div class="promise-kpis">
+            <div class="pkpi-card hero-kpi" style="border-top-color: ${tatColor};">
+                <div class="pkpi-label">الالتزام الكلي بالـ TAT (الهدف ≤ 60 دقيقة)</div>
+                <div class="pkpi-value-row">
+                    <span class="pkpi-value" style="color: ${tatColor};">${data.overallTatCompliance.toFixed(1)}</span>
+                    <span class="pkpi-unit">%</span>
+                    <span style="margin-right:auto; font-size:13px; padding:5px 12px; background:${tatColor}22; color:${tatColor}; border-radius:4px; font-weight:700;">${tatStatus}</span>
+                </div>
+                <div class="pkpi-target">${data.totalCompliantSamples.toLocaleString('en')} من ${data.totalSamples.toLocaleString('en')} عينة • متوسط ${data.overallAvgTat.toFixed(1)} دقيقة</div>
+                <div class="pkpi-progress">
+                    <div class="pkpi-progress-fill" style="width:${data.overallTatCompliance}%; background: ${tatColor};"></div>
+                </div>
+            </div>
+            <div class="pkpi-card">
+                <div class="pkpi-label">مستشفيات وصلت الهدف</div>
+                <div class="pkpi-value-row">
+                    <span class="pkpi-value" style="color: var(--accent-emerald);">${data.hospitalsAtTarget}</span>
+                    <span class="pkpi-unit">من ${data.hospitalCount}</span>
+                </div>
+                <div class="pkpi-target">التزام ≥ 90%</div>
+                <div class="pkpi-progress">
+                    <div class="pkpi-progress-fill" style="width:${(data.hospitalsAtTarget/data.hospitalCount*100)}%; background: var(--accent-emerald);"></div>
+                </div>
+            </div>
+            <div class="pkpi-card danger">
+                <div class="pkpi-label">عينات تجاوزت الهدف</div>
+                <div class="pkpi-value-row">
+                    <span class="pkpi-value" style="color: var(--accent-rose);">${data.totalDelayed.toLocaleString('en')}</span>
+                    <span class="pkpi-unit">عينة</span>
+                </div>
+                <div class="pkpi-target">يحتاجون مراجعة وتحسين</div>
+                <div class="pkpi-progress">
+                    <div class="pkpi-progress-fill" style="width:${data.totalSamples > 0 ? (data.totalDelayed/data.totalSamples*100) : 0}%; background: var(--accent-rose);"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Donut + Bars -->
+        <div class="promise-charts-row">
+            <div class="promise-donut-card">
+                <div class="promise-donut-title">توزيع المستشفيات حسب المستوى</div>
+                <div class="promise-donut-sub">حالة كل مستشفى مقارنة بالمستهدفات</div>
+                ${buildPromiseDonut(data)}
+                <div class="donut-legend">
+                    <div class="donut-leg-item">
+                        <span class="ldot" style="background: var(--accent-emerald);"></span>
+                        <span class="lname">وصلوا للهدف ≥ 90%</span>
+                        <span class="lval" style="color: var(--accent-emerald);">${data.hospitalsAtTarget}</span>
+                    </div>
+                    <div class="donut-leg-item">
+                        <span class="ldot" style="background: var(--accent-amber);"></span>
+                        <span class="lname">قريبون 70-89%</span>
+                        <span class="lval" style="color: var(--accent-amber);">${data.hospitalsAmber}</span>
+                    </div>
+                    <div class="donut-leg-item">
+                        <span class="ldot" style="background: var(--accent-rose);"></span>
+                        <span class="lname">يحتاجون تدخل &lt; 70%</span>
+                        <span class="lval" style="color: var(--accent-rose);">${data.hospitalsBelowTarget}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="promise-bars-card">
+                <div class="promise-bars-title">ترتيب المستشفيات حسب الالتزام الكلي</div>
+                <div class="promise-bars-sub">الخط الأبيض = هدف ٩٠٪ • الأعلى التزاماً في الأعلى</div>
+                <div class="bars-list">
+                    ${data.sorted.map(([key, p]) => {
+                        const v = p.overall.total_compliance;
+                        const color = compColor(v);
+                        return `
+                            <div class="bar-row">
+                                <div class="bar-label">${HOSPITALS[key].ar}</div>
+                                <div class="bar-track">
+                                    <div class="bar-fill" style="width: ${v}%; background: ${color};"></div>
+                                    <div class="bar-target-line" style="right: ${100-TARGET_LINE_PCT}%;"></div>
+                                </div>
+                                <div class="bar-value" style="color: ${color};">${v.toFixed(1)}%</div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+        </div>
+
+        <!-- Stages distribution -->
+        <div class="promise-distribution">
+            <div class="dist-title">التزام المراحل الثلاث — التزام كل مرحلة بشكل مستقل</div>
+            <div class="dist-sub">يساعد في تحديد المرحلة الأضعف التي تستحق تدخل تشغيلي</div>
+            ${buildStageDistribution(data)}
+        </div>
+
+        <!-- Detailed Table -->
+        <div class="promise-table-card">
+            <div class="ptable-title">جدول المتابعة التفصيلي</div>
+            <div class="ptable-sub">حالة كل مستشفى عبر كل المؤشرات • مرتب حسب الالتزام الكلي</div>
+            <div style="overflow-x: auto;">
+                ${buildPromiseTable(data)}
+            </div>
+        </div>
+
+        <!-- Action Items -->
+        ${data.bottomThree.length > 0 && data.bottomThree[0][1].overall.total_compliance < 90 ? `
+        <div class="promise-actions-card">
+            <div class="pactions-title">⚠️ بنود تستحق المتابعة العاجلة (الأبعد عن الهدف)</div>
+            <div class="action-list">
+                ${data.bottomThree.slice(0, 5).map(([key, p], idx) => {
+                    const o = p.overall;
+                    const stages = [
+                        { name: 'من الطلب الى السحب', val: o.stage1_compliance, target: '≤ 10 د' },
+                        { name: 'من السحب للاستقبال', val: o.stage2_compliance, target: '≤ 10 د' },
+                        { name: 'من الاستقبال للنتيجة', val: o.stage3_compliance, target: '≤ 40 د' }
+                    ];
+                    const weakestStage = stages.reduce((min, s) => s.val < min.val ? s : min, stages[0]);
+                    const gap = (90 - o.total_compliance).toFixed(1);
+                    return `
+                        <div class="action-item">
+                            <div class="num">${idx+1}</div>
+                            <div class="body">
+                                <div class="name">${HOSPITALS[key].ar}</div>
+                                <div class="info">
+                                    التزام كلي ${o.total_compliance.toFixed(1)}% — يحتاج رفع <strong style="color:var(--accent-amber);">${gap}%</strong> للوصول للهدف. 
+                                    أضعف مرحلة: <strong>${weakestStage.name}</strong> (${weakestStage.val.toFixed(1)}%، المستهدف ${weakestStage.target}).
+                                    عدد العينات المتأخرة: <strong>${p.delayedIds.length}</strong> من <strong>${p.completed}</strong>.
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        </div>
+        ` : ''}
+    `;
+}
+
+function buildPromiseDonut(data) {
+    const total = data.hospitalCount;
+    if (total === 0) return '';
+    const greenPct = (data.hospitalsAtTarget / total) * 100;
+    const amberPct = (data.hospitalsAmber / total) * 100;
+    const redPct = (data.hospitalsBelowTarget / total) * 100;
+
+    const radius = 80;
+    const circumference = 2 * Math.PI * radius;
+    
+    // نحسب الأطوال
+    const greenLen = (greenPct / 100) * circumference;
+    const amberLen = (amberPct / 100) * circumference;
+    const redLen = (redPct / 100) * circumference;
+
+    return `
+        <svg class="donut-svg" viewBox="0 0 200 200">
+            <circle cx="100" cy="100" r="${radius}" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="22"/>
+            ${greenLen > 0 ? `
+                <circle cx="100" cy="100" r="${radius}" fill="none" stroke="#10B981" stroke-width="22"
+                    stroke-dasharray="${greenLen} ${circumference}" stroke-dashoffset="0" stroke-linecap="butt"/>
+            ` : ''}
+            ${amberLen > 0 ? `
+                <circle cx="100" cy="100" r="${radius}" fill="none" stroke="#F59E0B" stroke-width="22"
+                    stroke-dasharray="${amberLen} ${circumference}" stroke-dashoffset="${-greenLen}" stroke-linecap="butt"/>
+            ` : ''}
+            ${redLen > 0 ? `
+                <circle cx="100" cy="100" r="${radius}" fill="none" stroke="#EF4444" stroke-width="22"
+                    stroke-dasharray="${redLen} ${circumference}" stroke-dashoffset="${-(greenLen + amberLen)}" stroke-linecap="butt"/>
+            ` : ''}
+        </svg>
+        <div class="donut-center">
+            <div class="big-num" style="color: var(--accent-emerald);">${greenPct.toFixed(0)}%</div>
+            <div class="small-cap">من المستشفيات وصلت الهدف</div>
+        </div>
+    `;
+}
+
+function buildStageDistribution(data) {
+    const stages = [
+        { 
+            name: 'من الطلب إلى سحب العينة', 
+            target: '≤ 10 دقائق',
+            val: data.stage1Comp,
+            color: data.stage1Comp >= 90 ? '#10B981' : data.stage1Comp >= 70 ? '#F59E0B' : '#EF4444'
+        },
+        { 
+            name: 'من سحب العينة إلى استقبال المختبر', 
+            target: '≤ 10 دقائق',
+            val: data.stage2Comp,
+            color: data.stage2Comp >= 90 ? '#10B981' : data.stage2Comp >= 70 ? '#F59E0B' : '#EF4444'
+        },
+        { 
+            name: 'من استقبال المختبر إلى النتيجة', 
+            target: '≤ 40 دقيقة',
+            val: data.stage3Comp,
+            color: data.stage3Comp >= 90 ? '#10B981' : data.stage3Comp >= 70 ? '#F59E0B' : '#EF4444'
+        },
+        { 
+            name: 'الالتزام الكلي', 
+            target: '≤ 60 دقيقة',
+            val: data.overallTatCompliance,
+            color: compColor(data.overallTatCompliance)
+        }
+    ];
+
+    return `
+        <div class="dist-legend">
+            ${stages.map(s => `
+                <div class="dist-leg-card" style="border-right-color: ${s.color};">
+                    <div class="dl-label">${s.target}</div>
+                    <div class="dl-value" style="color: ${s.color};">${s.val.toFixed(1)}%</div>
+                    <div class="dl-pct">${s.name}</div>
+                </div>
+            `).join('')}
+        </div>
+        <div style="margin-top: 16px;">
+            ${stages.map(s => `
+                <div style="margin-bottom: 12px;">
+                    <div style="display:flex; justify-content:space-between; font-size:12.5px; margin-bottom:5px;">
+                        <span style="font-weight:600; color:var(--text-primary);">${s.name}</span>
+                        <span style="font-family:'JetBrains Mono', monospace; font-weight:700; color: ${s.color};">${s.val.toFixed(1)}%</span>
+                    </div>
+                    <div style="height:10px; background:var(--bg-input); border-radius:3px; overflow:hidden; position:relative; border: 1px solid var(--border-subtle);">
+                        <div style="height:100%; width:${s.val}%; background:${s.color}; border-radius:3px;"></div>
+                        <div style="position:absolute; top:-2px; bottom:-2px; right:10%; width:2px; background:rgba(255,255,255,0.6);"></div>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function buildPromiseTable(data) {
+    const fmt = v => v === null ? '--' : v.toFixed(1);
+    const statusPill = (val) => {
+        if (val >= 90) return `<span class="status-pill green">${val.toFixed(1)}%</span>`;
+        if (val >= 70) return `<span class="status-pill amber">${val.toFixed(1)}%</span>`;
+        return `<span class="status-pill red">${val.toFixed(1)}%</span>`;
+    };
+    const statusBadge = (val) => {
+        if (val >= 90) return `<span class="status-pill green">✓ هدف</span>`;
+        if (val >= 70) return `<span class="status-pill amber">قريب</span>`;
+        return `<span class="status-pill red">يحتاج تدخل</span>`;
+    };
+
+    let html = `
+        <table class="ptable">
+            <thead>
+                <tr>
+                    <th>المستشفى</th>
+                    <th>الحالة</th>
+                    <th>الالتزام الكلي</th>
+                    <th>المرحلة 1</th>
+                    <th>المرحلة 2</th>
+                    <th>المرحلة 3</th>
+                    <th>متوسط TAT</th>
+                    <th>عينات</th>
+                    <th>متأخرة</th>
+                    <th>الفجوة للهدف</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    data.sorted.forEach(([key, p]) => {
+        const o = p.overall;
+        const gap = 90 - o.total_compliance;
+        const gapDisplay = gap <= 0 
+            ? `<span style="color:var(--accent-emerald);">✓ تجاوز الهدف</span>` 
+            : `<span style="color:var(--accent-amber);">+${gap.toFixed(1)}%</span>`;
+        html += `
+            <tr>
+                <td>${HOSPITALS[key].ar}</td>
+                <td>${statusBadge(o.total_compliance)}</td>
+                <td>${statusPill(o.total_compliance)}</td>
+                <td>${statusPill(o.stage1_compliance)}</td>
+                <td>${statusPill(o.stage2_compliance)}</td>
+                <td>${statusPill(o.stage3_compliance)}</td>
+                <td>${fmt(o.total_avg)} د</td>
+                <td>${p.completed.toLocaleString('en')}</td>
+                <td style="color:${p.delayedIds.length > 0 ? 'var(--accent-rose)' : 'var(--accent-emerald)'};">${p.delayedIds.length.toLocaleString('en')}</td>
+                <td>${gapDisplay}</td>
+            </tr>
+        `;
+    });
+
+    html += `</tbody></table>`;
+    return html;
+}
+
+function openPromise() {
+    const data = buildPromiseData();
+    if (!data) return;
+    renderPromisePage();
+    document.getElementById('promiseModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closePromise() {
+    document.getElementById('promiseModal').classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+async function exportPromisePng() {
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.classList.add('active');
+    document.getElementById('loadingText').textContent = 'جاري حفظ الصورة...';
+    await new Promise(r => setTimeout(r, 100));
+
+    const page = document.getElementById('promisePage');
+    const oldStyle = { width: page.style.width };
+    page.style.width = '1500px';
+
+    try {
+        const canvas = await html2canvas(page, {
+            scale: 2,
+            backgroundColor: '#0A0E1A',
+            useCORS: true,
+            logging: false,
+            windowWidth: 1500
+        });
+        canvas.toBlob(blob => {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Executive_Promise_${new Date().toISOString().slice(0,10)}.png`;
+            a.click();
+            setTimeout(() => URL.revokeObjectURL(url), 100);
+        });
+    } catch (err) {
+        alert('خطأ: ' + err.message);
+    } finally {
+        Object.assign(page.style, oldStyle);
+        overlay.classList.remove('active');
+    }
+}
+
+async function exportPromisePdf() {
+    const { jsPDF } = window.jspdf;
+    if (!jsPDF) { alert('تعذر تحميل مكتبة PDF'); return; }
+
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.classList.add('active');
+    document.getElementById('loadingText').textContent = 'جاري إنشاء PDF...';
+    await new Promise(r => setTimeout(r, 100));
+
+    const page = document.getElementById('promisePage');
+    const oldStyle = { width: page.style.width };
+    page.style.width = '1500px';
+
+    try {
+        const canvas = await html2canvas(page, {
+            scale: 2,
+            backgroundColor: '#0A0E1A',
+            useCORS: true,
+            logging: false,
+            windowWidth: 1500
+        });
+        const imgData = canvas.toDataURL('image/jpeg', 0.95);
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+        const pageHeight = pdf.internal.pageSize.getHeight();
+
+        let heightLeft = imgHeight;
+        let position = 0;
+        pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeight);
+        heightLeft -= pageHeight;
+        while (heightLeft > 0) {
+            position = heightLeft - imgHeight;
+            pdf.addPage();
+            pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeight);
+            heightLeft -= pageHeight;
+        }
+        pdf.save(`Executive_Promise_${new Date().toISOString().slice(0,10)}.pdf`);
+    } catch (err) {
+        alert('خطأ: ' + err.message);
+    } finally {
         Object.assign(page.style, oldStyle);
         overlay.classList.remove('active');
     }
@@ -2502,7 +3851,7 @@ async function exportMobilePdf() {
     dashboardArea.style.margin = '0 auto';
 
     window.scrollTo(0, 0);
-    await new Promise(r => setTimeout(r, 300)); // ننتظر إعادة الرسم
+    await new Promise(r => setTimeout(r, 300));
 
     try {
         const fullHeight = dashboardArea.scrollHeight;
@@ -2520,7 +3869,6 @@ async function exportMobilePdf() {
 
         const imgData = canvas.toDataURL('image/jpeg', 0.92);
         
-        // PDF بصفحات A4 طولية متعددة (للجوال) لتجنب صفحة واحدة ضخمة
         const pdf = new jsPDF('p', 'mm', 'a4');
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfPageHeight = pdf.internal.pageSize.getHeight();
@@ -2627,6 +3975,7 @@ async function exportSlide(h) {
     const o = p.overall;
 
     const slide = document.getElementById('slideExport');
+    slide.classList.add('fixed-1080');
     slide.innerHTML = `
         <div class="slide-header">
             <div class="slide-brand">
@@ -2724,10 +4073,14 @@ async function exportSlide(h) {
         alert('خطأ: ' + err.message);
     } finally {
         slide.classList.remove('active');
+        slide.classList.remove('fixed-1080');
         overlay.classList.remove('active');
     }
 }
 
+// ============================================
+// COMPARISON SLIDE - MUST FIT ALL 15 HOSPITALS
+// ============================================
 async function exportComparisonSlide() {
     const valid = Object.entries(STATE.processed).filter(([h, p]) => p && !p.empty);
     if (valid.length === 0) { alert('لا توجد بيانات'); return; }
@@ -2742,6 +4095,24 @@ async function exportComparisonSlide() {
     const slide = document.getElementById('compareExport');
 
     const sortedTotal = [...valid].sort((a,b) => b[1].overall.total_compliance - a[1].overall.total_compliance);
+
+    // ارتفاع ديناميكي بناءً على عدد المستشفيات
+    // كل صف ~38px مع 8px gap = 46px، نضيف header
+    const rowHeight = 46;
+    const sectionHeader = 50;
+    const sectionsPerRow = 2;
+    const rowsCount = valid.length;
+    const sectionHeight = sectionHeader + (rowsCount * rowHeight) + 50; // padding
+    
+    // نحتاج 4 sections في row-2 column → الارتفاع لكل column = sectionHeight
+    // إجمالي ارتفاع المحتوى = headerSlide + 2 صفوف من القسمين + footer
+    const headerHeight = 130;
+    const footerHeight = 60;
+    const rowGap = 22;
+    const totalContentHeight = headerHeight + (sectionHeight * 2) + rowGap + footerHeight + 80; // padding
+
+    slide.classList.remove('fixed-1080'); // ارتفاع ديناميكي
+    slide.style.height = totalContentHeight + 'px';
 
     const buildRow = (h, p, key) => {
         const val = p.overall[key];
@@ -2769,24 +4140,24 @@ async function exportComparisonSlide() {
             </div>
         </div>
 
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px;">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-top: 16px;">
             <div style="background: var(--bg-card-elevated); border-radius: 8px; padding: 22px; border: 1px solid var(--border-subtle);">
-                <h3 style="font-family: 'Cairo'; font-size: 18px; font-weight: 700; margin-bottom: 18px; color: var(--accent-emerald);">الالتزام الكلي (من الطلب الى ظهور النتيجة) ≤ 60 د</h3>
+                <h3 class="compare-section-title" style="color: var(--accent-emerald);">الالتزام الكلي ≤ 60 د (من الطلب الى ظهور النتيجة)</h3>
                 ${sortedTotal.map(([h,p]) => buildRow(h, p, 'total_compliance')).join('')}
             </div>
             <div style="background: var(--bg-card-elevated); border-radius: 8px; padding: 22px; border: 1px solid var(--border-subtle);">
-                <h3 style="font-family: 'Cairo'; font-size: 18px; font-weight: 700; margin-bottom: 18px; color: var(--accent-cyan);">من استقبال المختبر الى ظهور النتيجة ≤ 40 د</h3>
+                <h3 class="compare-section-title" style="color: var(--accent-cyan);">من استقبال المختبر الى ظهور النتيجة ≤ 40 د</h3>
                 ${sortedTotal.map(([h,p]) => buildRow(h, p, 'stage3_compliance')).join('')}
             </div>
         </div>
 
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 22px;">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-top: 22px;">
             <div style="background: var(--bg-card-elevated); border-radius: 8px; padding: 22px; border: 1px solid var(--border-subtle);">
-                <h3 style="font-family: 'Cairo'; font-size: 18px; font-weight: 700; margin-bottom: 18px; color: var(--accent-blue);">من الطلب الى سحب العينة ≤ 10 د</h3>
+                <h3 class="compare-section-title" style="color: var(--accent-blue);">من الطلب الى سحب العينة ≤ 10 د</h3>
                 ${sortedTotal.map(([h,p]) => buildRow(h, p, 'stage1_compliance')).join('')}
             </div>
             <div style="background: var(--bg-card-elevated); border-radius: 8px; padding: 22px; border: 1px solid var(--border-subtle);">
-                <h3 style="font-family: 'Cairo'; font-size: 18px; font-weight: 700; margin-bottom: 18px; color: var(--accent-violet);">من سحب العينة الى استقبال المختبر ≤ 10 د</h3>
+                <h3 class="compare-section-title" style="color: var(--accent-violet);">من سحب العينة الى استقبال المختبر ≤ 10 د</h3>
                 ${sortedTotal.map(([h,p]) => buildRow(h, p, 'stage2_compliance')).join('')}
             </div>
         </div>
@@ -2799,11 +4170,21 @@ async function exportComparisonSlide() {
 
     slide.classList.add('active');
 
+    // ننتظر شوي عشان الـ DOM يتحدث
+    await new Promise(r => setTimeout(r, 200));
+
+    // نقيس الارتفاع الفعلي للمحتوى
+    const actualHeight = Math.max(slide.scrollHeight, totalContentHeight);
+
     try {
         const canvas = await html2canvas(slide, {
-            width: 1920, height: 1080,
+            width: 1920, 
+            height: actualHeight,
             backgroundColor: '#0A0E1A',
-            scale: 1, logging: false
+            scale: 1, 
+            logging: false,
+            windowWidth: 1920,
+            windowHeight: actualHeight
         });
         canvas.toBlob(blob => {
             const url = URL.createObjectURL(blob);
@@ -2817,6 +4198,7 @@ async function exportComparisonSlide() {
         alert('خطأ: ' + err.message);
     } finally {
         slide.classList.remove('active');
+        slide.style.height = '';
         overlay.classList.remove('active');
     }
 }
@@ -2827,7 +4209,10 @@ function resetAll() {
         STATE.files[h] = null;
         STATE.rawData[h] = null;
         STATE.processed[h] = null;
+        STATE.rawProcessed[h] = null;
     });
+    STATE.dateRange = { min: null, max: null, from: null, to: null };
+    
     document.querySelectorAll('.upload-card').forEach(c => c.classList.remove('has-file'));
     document.querySelectorAll('.upload-status').forEach(s => {
         s.textContent = 'لم يتم الرفع';
@@ -2839,12 +4224,14 @@ function resetAll() {
     document.getElementById('resultsSection').classList.remove('active');
     document.getElementById('hospitalsSection').innerHTML = '';
     document.getElementById('totalSamples').textContent = '--';
+    document.getElementById('dateFilterBar').classList.remove('active');
     
     document.getElementById('btnExportDashPng').disabled = true;
     document.getElementById('btnExportMobilePdf').disabled = true;
     document.getElementById('btnExportSlidesPdf').disabled = true;
     document.getElementById('btnExportCompare').disabled = true;
     document.getElementById('btnExecSummary').disabled = true;
+    document.getElementById('btnPromise').disabled = true;
 
     updateUploadStatus();
 }
