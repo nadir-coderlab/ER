@@ -1976,6 +1976,19 @@ body {
     align-items: flex-start;
     margin-bottom: 18px;
 }
+.line-chart-container {
+    width: 100%;
+    background: linear-gradient(180deg, rgba(6,182,212,0.02), transparent);
+    border-radius: 4px;
+    padding: 8px 4px;
+}
+.line-chart-svg {
+    width: 100%;
+    height: auto;
+    display: block;
+    max-height: 360px;
+}
+
 .daily-chart-wrap {
     width: 100%;
 }
@@ -4893,7 +4906,7 @@ async function exportClusterComparison() {
     try {
         const canvas = await captureElementWideRaw(exportEl, 1500);
         const link = document.createElement('a');
-        link.download = `مقارنة_الكلستر_${ymdKey(new Date())}.png`;
+        link.download = `مقارنة_الجميع_${ymdKey(new Date())}.png`;
         link.href = canvas.toDataURL('image/png');
         link.click();
     } catch (err) {
@@ -4916,7 +4929,7 @@ function buildClusterComparisonReport(comparisons, refDate, data) {
     return `
         <div class="cer-header">
             <div class="cer-brand">الخدمات الصحية المساندة • مؤشر الوعد التنفيذي</div>
-            <h1 class="cer-title">تقرير المقارنة الزمنية — الكلستر بكامله</h1>
+            <h1 class="cer-title">تقرير المقارنة الزمنية — الجميع</h1>
             <div class="cer-meta">
                 <div class="cer-meta-item"><span>تاريخ التقرير</span><strong>${dateStr}</strong></div>
                 <div class="cer-meta-item"><span>تاريخ المرجع</span><strong>${refStr}</strong></div>
@@ -4926,7 +4939,7 @@ function buildClusterComparisonReport(comparisons, refDate, data) {
         </div>
 
         ${buildComparisonChart(comparisons)}
-        ${buildComparisonTable(comparisons, 'تفاصيل المقارنة الزمنية للكلستر')}
+        ${buildComparisonTable(comparisons, 'تفاصيل المقارنة الزمنية للجميع')}
 
         ${buildClusterComparisonByHospital(refDate)}
 
@@ -5041,7 +5054,7 @@ function renderPromisePage() {
         <!-- Big KPIs -->
         <div class="promise-kpis">
             <div class="pkpi-card hero-kpi" style="border-top-color: ${overallColor};">
-                <div class="pkpi-label">متوسط الاختبارات لكل مريض (الكلستر) — الهدف ≤ ١٠</div>
+                <div class="pkpi-label">متوسط الاختبارات لكل مريض (الجميع) — الهدف ≤ ١٠</div>
                 <div class="pkpi-value-row">
                     <span class="pkpi-value" style="color: ${overallColor};">${data.overallAvg.toFixed(2)}</span>
                     <span class="pkpi-unit">اختبار/مريض</span>
@@ -5084,7 +5097,7 @@ function renderPromisePage() {
         <div class="promise-daily-card">
             <div class="card-title-row">
                 <div>
-                    <div class="ptable-title">المسار اليومي — متوسط الاختبارات لكل مريض على مستوى الكلستر</div>
+                    <div class="ptable-title">المسار اليومي — متوسط الاختبارات لكل مريض على مستوى الجميع</div>
                     <div class="ptable-sub">الخط الأبيض المتقطع = الهدف (١٠) • أعمدة فوق الهدف = أيام تحتاج مراجعة</div>
                 </div>
             </div>
@@ -5106,10 +5119,10 @@ function renderPromisePage() {
                 <div class="comp-section-wrap">
                     <div class="comp-section-head">
                         <div>
-                            <div class="comp-section-title">المقارنة الزمنية للكلستر</div>
+                            <div class="comp-section-title">المقارنة الزمنية للجميع</div>
                             <div class="comp-section-sub">مقارنة كل فترة مع نفس طولها قبلها • تكشف هل المستشفيات تتحسن أم تتراجع</div>
                         </div>
-                        <button class="btn btn-cluster-comp" onclick="exportClusterComparison()">تصدير تقرير الكلستر</button>
+                        <button class="btn btn-cluster-comp" onclick="exportClusterComparison()">تصدير الجميع</button>
                     </div>
                     ${buildComparisonChart(comps)}
                     ${buildComparisonTable(comps, 'تفاصيل المقارنة الزمنية')}
@@ -5165,37 +5178,141 @@ function renderPromisePage() {
     `;
 }
 
-// رسم بياني يومي على مستوى الكلستر
+// رسم بياني يومي خطي SVG على مستوى التجمع
 function buildDailyClusterChart(data) {
     const days = data.dailyCluster;
     if (days.length === 0) return '';
-    const maxAvg = Math.max(PROMISE_TARGET_AVG * 1.5, ...days.map(d => d.avg));
-    const targetLinePct = (PROMISE_TARGET_AVG / maxAvg) * 100;
+
+    // أبعاد الرسم
+    const W = 1100;
+    const H = 320;
+    const margin = { top: 30, right: 40, bottom: 60, left: 55 };
+    const innerW = W - margin.left - margin.right;
+    const innerH = H - margin.top - margin.bottom;
+
+    // المحور الصادي: من 0 إلى max(الهدف*1.5, أعلى قيمة + 10%)
+    const dataMax = Math.max(...days.map(d => d.avg));
+    const yMax = Math.max(PROMISE_TARGET_AVG * 1.5, dataMax * 1.15);
+    const yMin = 0;
+
+    // حساب المواقع
+    const xStep = days.length > 1 ? innerW / (days.length - 1) : 0;
+    const xAt = i => days.length === 1 ? innerW / 2 : i * xStep;
+    const yAt = v => innerH - ((v - yMin) / (yMax - yMin)) * innerH;
+
+    // خط البيانات
+    const linePath = days.map((d, i) => `${i === 0 ? 'M' : 'L'} ${xAt(i)} ${yAt(d.avg)}`).join(' ');
+    // مساحة تحت الخط (gradient fill)
+    const areaPath = days.length > 1
+        ? `${linePath} L ${xAt(days.length - 1)} ${innerH} L ${xAt(0)} ${innerH} Z`
+        : '';
+
+    // خط الهدف
+    const targetY = yAt(PROMISE_TARGET_AVG);
+
+    // علامات المحور الصادي (كل 5 وحدات)
+    const yTicks = [];
+    const tickStep = yMax > 30 ? 10 : 5;
+    for (let v = 0; v <= yMax; v += tickStep) yTicks.push(v);
 
     return `
         <div class="daily-chart-wrap">
-            <div class="daily-chart-grid">
-                ${days.map(d => {
-                    const heightPct = Math.min(100, (d.avg / maxAvg) * 100);
-                    const color = avgColor(d.avg);
-                    const dayLabel = d.day.slice(5); // MM-DD
-                    return `
-                        <div class="daily-col">
-                            <div class="daily-bar-wrap">
-                                <div class="daily-target-line" style="bottom: ${targetLinePct}%;"></div>
-                                <div class="daily-bar" style="height: ${heightPct}%; background: ${color};">
-                                    <span class="daily-bar-val">${d.avg.toFixed(1)}</span>
-                                </div>
-                            </div>
-                            <div class="daily-day-label">${dayLabel}</div>
-                            <div class="daily-meta">${d.tests} / ${d.patients}</div>
-                        </div>
-                    `;
-                }).join('')}
+            <div class="line-chart-container">
+                <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" class="line-chart-svg" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#06B6D4" stop-opacity="0.35"/>
+                            <stop offset="100%" stop-color="#06B6D4" stop-opacity="0.02"/>
+                        </linearGradient>
+                        <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
+                            <stop offset="0%" stop-color="#22D3EE"/>
+                            <stop offset="100%" stop-color="#06B6D4"/>
+                        </linearGradient>
+                    </defs>
+                    <g transform="translate(${margin.left}, ${margin.top})">
+                        <!-- شبكة خطوط أفقية -->
+                        ${yTicks.map(v => {
+                            const y = yAt(v);
+                            return `<line x1="0" y1="${y}" x2="${innerW}" y2="${y}" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>`;
+                        }).join('')}
+
+                        <!-- منطقة فوق الهدف (تحذير خفيف) -->
+                        <rect x="0" y="0" width="${innerW}" height="${targetY}" fill="rgba(239, 68, 68, 0.04)"/>
+
+                        <!-- خط الهدف -->
+                        <line x1="0" y1="${targetY}" x2="${innerW}" y2="${targetY}"
+                              stroke="rgba(255,255,255,0.55)" stroke-width="1.5" stroke-dasharray="6 4"/>
+                        <text x="${innerW - 5}" y="${targetY - 6}" text-anchor="end"
+                              fill="rgba(255,255,255,0.7)" font-size="11" font-family="Tajawal, sans-serif">
+                            الهدف = ١٠
+                        </text>
+
+                        <!-- مساحة تحت الخط -->
+                        ${areaPath ? `<path d="${areaPath}" fill="url(#areaGradient)"/>` : ''}
+
+                        <!-- خط البيانات -->
+                        ${days.length > 1 ? `<path d="${linePath}" fill="none" stroke="url(#lineGradient)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>` : ''}
+
+                        <!-- النقاط -->
+                        ${days.map((d, i) => {
+                            const cx = xAt(i);
+                            const cy = yAt(d.avg);
+                            const color = avgColor(d.avg);
+                            return `
+                                <g>
+                                    <circle cx="${cx}" cy="${cy}" r="7" fill="${color}" stroke="#0A0E1A" stroke-width="3"/>
+                                    <text x="${cx}" y="${cy - 14}" text-anchor="middle"
+                                          fill="${color}" font-size="13" font-weight="700"
+                                          font-family="JetBrains Mono, monospace">
+                                        ${d.avg.toFixed(1)}
+                                    </text>
+                                </g>
+                            `;
+                        }).join('')}
+
+                        <!-- محور Y - علامات -->
+                        ${yTicks.map(v => {
+                            const y = yAt(v);
+                            return `
+                                <text x="-10" y="${y + 4}" text-anchor="end"
+                                      fill="rgba(255,255,255,0.4)" font-size="10"
+                                      font-family="JetBrains Mono, monospace">${v}</text>
+                            `;
+                        }).join('')}
+
+                        <!-- محور X - تواريخ -->
+                        ${days.map((d, i) => {
+                            const x = xAt(i);
+                            return `
+                                <g>
+                                    <line x1="${x}" y1="${innerH}" x2="${x}" y2="${innerH + 4}" stroke="rgba(255,255,255,0.2)"/>
+                                    <text x="${x}" y="${innerH + 18}" text-anchor="middle"
+                                          fill="rgba(255,255,255,0.7)" font-size="11" font-weight="600"
+                                          font-family="JetBrains Mono, monospace">
+                                        ${d.day.slice(5)}
+                                    </text>
+                                    <text x="${x}" y="${innerH + 36}" text-anchor="middle"
+                                          fill="rgba(255,255,255,0.4)" font-size="10"
+                                          font-family="JetBrains Mono, monospace">
+                                        ${d.tests}/${d.patients}
+                                    </text>
+                                </g>
+                            `;
+                        }).join('')}
+
+                        <!-- محور Y الخط -->
+                        <line x1="0" y1="0" x2="0" y2="${innerH}" stroke="rgba(255,255,255,0.15)"/>
+                        <!-- محور X الخط -->
+                        <line x1="0" y1="${innerH}" x2="${innerW}" y2="${innerH}" stroke="rgba(255,255,255,0.15)"/>
+                    </g>
+                </svg>
             </div>
             <div class="daily-chart-legend">
-                <span class="dcl-axis"><span class="leg-dot" style="background:rgba(255,255,255,0.4); width:14px; height:2px; border-radius:0;"></span> هدف = ١٠</span>
-                <span>اختبارات / مرضى لكل يوم</span>
+                <span><span class="leg-dot" style="background:rgba(255,255,255,0.55); width:14px; height:2px; border-radius:0;"></span> الهدف = ١٠</span>
+                <span><span class="leg-dot" style="background:#10B981;"></span> ≤ ١٠</span>
+                <span><span class="leg-dot" style="background:#F59E0B;"></span> ١٠–١٥</span>
+                <span><span class="leg-dot" style="background:#EF4444;"></span> &gt; ١٥</span>
+                <span style="margin-right:auto; color:var(--text-tertiary); font-size:11px;">الأرقام تحت كل نقطة: اختبارات / مرضى</span>
             </div>
         </div>
     `;
@@ -5356,7 +5473,7 @@ function buildAccountabilitySection(data) {
 
     return `
         <div class="promise-actions-card">
-            <div class="pactions-title">بنود المحاسبة — المستشفيات التي تجاوزت الهدف</div>
+            <div class="pactions-title">ملاحظات</div>
             <div class="pactions-sub">عدد المستشفيات المطلوب متابعتها: ${needsAction.length}</div>
             <div class="action-list">
                 ${needsAction.map((h, idx) => {
@@ -5710,32 +5827,120 @@ function buildCompareBar(label, value, currColor, barColor) {
 // رسم يومي للمستشفى داخل صفحة المقارنة
 function buildHospitalDailyChart(dailyBreakdown) {
     if (dailyBreakdown.length === 0) return '';
-    const maxAvg = Math.max(PROMISE_TARGET_AVG * 1.5, ...dailyBreakdown.map(d => d.avgTestsPerPatient));
-    const targetLinePct = (PROMISE_TARGET_AVG / maxAvg) * 100;
+
+    // نحول البيانات لنفس الشكل اللي يستخدمه buildDailyClusterChart
+    const days = dailyBreakdown.map(d => ({
+        day: d.day,
+        avg: d.avgTestsPerPatient,
+        tests: d.tests,
+        patients: d.patients
+    }));
+
+    const W = 1100;
+    const H = 320;
+    const margin = { top: 30, right: 40, bottom: 60, left: 55 };
+    const innerW = W - margin.left - margin.right;
+    const innerH = H - margin.top - margin.bottom;
+
+    const dataMax = Math.max(...days.map(d => d.avg));
+    const yMax = Math.max(PROMISE_TARGET_AVG * 1.5, dataMax * 1.15);
+    const yMin = 0;
+
+    const xStep = days.length > 1 ? innerW / (days.length - 1) : 0;
+    const xAt = i => days.length === 1 ? innerW / 2 : i * xStep;
+    const yAt = v => innerH - ((v - yMin) / (yMax - yMin)) * innerH;
+
+    const linePath = days.map((d, i) => `${i === 0 ? 'M' : 'L'} ${xAt(i)} ${yAt(d.avg)}`).join(' ');
+    const areaPath = days.length > 1
+        ? `${linePath} L ${xAt(days.length - 1)} ${innerH} L ${xAt(0)} ${innerH} Z`
+        : '';
+    const targetY = yAt(PROMISE_TARGET_AVG);
+
+    const yTicks = [];
+    const tickStep = yMax > 30 ? 10 : 5;
+    for (let v = 0; v <= yMax; v += tickStep) yTicks.push(v);
+
+    const gradientId = 'areaGradH_' + Math.random().toString(36).slice(2, 8);
+    const lineGradId = 'lineGradH_' + Math.random().toString(36).slice(2, 8);
 
     return `
         <div class="daily-chart-wrap">
-            <div class="daily-chart-grid">
-                ${dailyBreakdown.map(d => {
-                    const heightPct = Math.min(100, (d.avgTestsPerPatient / maxAvg) * 100);
-                    const color = avgColor(d.avgTestsPerPatient);
-                    return `
-                        <div class="daily-col">
-                            <div class="daily-bar-wrap">
-                                <div class="daily-target-line" style="bottom: ${targetLinePct}%;"></div>
-                                <div class="daily-bar" style="height: ${heightPct}%; background: ${color};">
-                                    <span class="daily-bar-val">${d.avgTestsPerPatient.toFixed(1)}</span>
-                                </div>
-                            </div>
-                            <div class="daily-day-label">${d.day.slice(5)}</div>
-                            <div class="daily-meta">${d.tests} / ${d.patients}</div>
-                        </div>
-                    `;
-                }).join('')}
+            <div class="line-chart-container">
+                <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" class="line-chart-svg" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="${gradientId}" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#06B6D4" stop-opacity="0.35"/>
+                            <stop offset="100%" stop-color="#06B6D4" stop-opacity="0.02"/>
+                        </linearGradient>
+                        <linearGradient id="${lineGradId}" x1="0" y1="0" x2="1" y2="0">
+                            <stop offset="0%" stop-color="#22D3EE"/>
+                            <stop offset="100%" stop-color="#06B6D4"/>
+                        </linearGradient>
+                    </defs>
+                    <g transform="translate(${margin.left}, ${margin.top})">
+                        ${yTicks.map(v => {
+                            const y = yAt(v);
+                            return `<line x1="0" y1="${y}" x2="${innerW}" y2="${y}" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>`;
+                        }).join('')}
+                        <rect x="0" y="0" width="${innerW}" height="${targetY}" fill="rgba(239, 68, 68, 0.04)"/>
+                        <line x1="0" y1="${targetY}" x2="${innerW}" y2="${targetY}"
+                              stroke="rgba(255,255,255,0.55)" stroke-width="1.5" stroke-dasharray="6 4"/>
+                        <text x="${innerW - 5}" y="${targetY - 6}" text-anchor="end"
+                              fill="rgba(255,255,255,0.7)" font-size="11" font-family="Tajawal, sans-serif">
+                            الهدف = ١٠
+                        </text>
+                        ${areaPath ? `<path d="${areaPath}" fill="url(#${gradientId})"/>` : ''}
+                        ${days.length > 1 ? `<path d="${linePath}" fill="none" stroke="url(#${lineGradId})" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>` : ''}
+                        ${days.map((d, i) => {
+                            const cx = xAt(i);
+                            const cy = yAt(d.avg);
+                            const color = avgColor(d.avg);
+                            return `
+                                <g>
+                                    <circle cx="${cx}" cy="${cy}" r="7" fill="${color}" stroke="#0A0E1A" stroke-width="3"/>
+                                    <text x="${cx}" y="${cy - 14}" text-anchor="middle"
+                                          fill="${color}" font-size="13" font-weight="700"
+                                          font-family="JetBrains Mono, monospace">
+                                        ${d.avg.toFixed(1)}
+                                    </text>
+                                </g>
+                            `;
+                        }).join('')}
+                        ${yTicks.map(v => {
+                            const y = yAt(v);
+                            return `<text x="-10" y="${y + 4}" text-anchor="end"
+                                          fill="rgba(255,255,255,0.4)" font-size="10"
+                                          font-family="JetBrains Mono, monospace">${v}</text>`;
+                        }).join('')}
+                        ${days.map((d, i) => {
+                            const x = xAt(i);
+                            return `
+                                <g>
+                                    <line x1="${x}" y1="${innerH}" x2="${x}" y2="${innerH + 4}" stroke="rgba(255,255,255,0.2)"/>
+                                    <text x="${x}" y="${innerH + 18}" text-anchor="middle"
+                                          fill="rgba(255,255,255,0.7)" font-size="11" font-weight="600"
+                                          font-family="JetBrains Mono, monospace">
+                                        ${d.day.slice(5)}
+                                    </text>
+                                    <text x="${x}" y="${innerH + 36}" text-anchor="middle"
+                                          fill="rgba(255,255,255,0.4)" font-size="10"
+                                          font-family="JetBrains Mono, monospace">
+                                        ${d.tests}/${d.patients}
+                                    </text>
+                                </g>
+                            `;
+                        }).join('')}
+                        <line x1="0" y1="0" x2="0" y2="${innerH}" stroke="rgba(255,255,255,0.15)"/>
+                        <line x1="0" y1="${innerH}" x2="${innerW}" y2="${innerH}" stroke="rgba(255,255,255,0.15)"/>
+                    </g>
+                </svg>
             </div>
             <div class="daily-chart-legend">
-                <span><span class="leg-dot" style="background:rgba(255,255,255,0.4); width:14px; height:2px; border-radius:0;"></span> هدف = ١٠</span>
-                <span>اختبارات / مرضى لكل يوم</span>
+                <span><span class="leg-dot" style="background:rgba(255,255,255,0.55); width:14px; height:2px; border-radius:0;"></span> الهدف = ١٠</span>
+                <span><span class="leg-dot" style="background:#10B981;"></span> ≤ ١٠</span>
+                <span><span class="leg-dot" style="background:#F59E0B;"></span> ١٠–١٥</span>
+                <span><span class="leg-dot" style="background:#EF4444;"></span> &gt; ١٥</span>
+                <span style="margin-right:auto; color:var(--text-tertiary); font-size:11px;">الأرقام تحت كل نقطة: اختبارات / مرضى</span>
             </div>
         </div>
     `;
