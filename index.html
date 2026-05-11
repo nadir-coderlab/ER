@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
@@ -16,15 +15,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Cairo:wght@600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-
 <script>
 if (typeof XLSX === 'undefined') {
     document.write('<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"><\/script>');
 }
 </script>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
@@ -2970,6 +2966,815 @@ body {
     .cmp-table th, .cmp-table td { padding: 8px 6px; font-size: 11.5px; }
 }
 
+/* ============== LIVE TV DISPLAY ============== */
+.btn-live {
+    background: linear-gradient(135deg, #DC2626, #B91C1C);
+    color: #FFFFFF;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    font-weight: 700;
+    position: relative;
+    padding-right: 36px;
+}
+.btn-live::before {
+    content: '';
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #FFFFFF;
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+    animation: livePulse 1.6s infinite;
+}
+@keyframes livePulse {
+    0%   { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7); }
+    70%  { box-shadow: 0 0 0 8px rgba(255, 255, 255, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+}
+.btn-live:disabled::before { animation: none; opacity: 0.4; }
+.btn-live:hover:not(:disabled) {
+    background: linear-gradient(135deg, #EF4444, #DC2626);
+    transform: translateY(-1px);
+}
+
+.live-modal {
+    position: fixed;
+    inset: 0;
+    background: #050810;
+    z-index: 9999;
+    display: none;
+    overflow: hidden;
+}
+.live-modal.active { display: block; }
+.live-content {
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    position: relative;
+}
+.live-exit {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 10000;
+    transition: all 0.2s;
+}
+.live-exit:hover {
+    background: rgba(239, 68, 68, 0.2);
+    color: #FFFFFF;
+    border-color: #EF4444;
+}
+
+.live-page {
+    width: 100%;
+    height: 100vh;
+    background: linear-gradient(180deg, #050810 0%, #0A0E1A 100%);
+    padding: 28px 36px;
+    box-sizing: border-box;
+    direction: rtl;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    overflow: hidden;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+}
+
+/* Top Bar */
+.live-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    flex-shrink: 0;
+}
+.live-brand-main {
+    font-family: 'Cairo', sans-serif;
+    font-size: 26px;
+    font-weight: 800;
+    color: #10B981;
+    letter-spacing: -0.5px;
+}
+.live-brand-sub {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.5);
+    margin-top: 2px;
+}
+.live-clock-block {
+    text-align: left;
+    direction: ltr;
+}
+.live-clock {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 38px;
+    font-weight: 700;
+    color: #FFFFFF;
+    letter-spacing: 1px;
+    line-height: 1;
+}
+.live-date {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.55);
+    margin-top: 4px;
+    direction: rtl;
+    text-align: left;
+}
+
+/* Title Strip */
+.live-title-strip {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(6, 182, 212, 0.06));
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    border-radius: 8px;
+    padding: 14px 22px;
+    flex-shrink: 0;
+}
+.live-title-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+.live-title-tag {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10B981;
+    padding: 5px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+.live-title-text {
+    font-family: 'Cairo', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: #FFFFFF;
+}
+.live-period-tag {
+    background: rgba(6, 182, 212, 0.12);
+    color: #06B6D4;
+    padding: 6px 14px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    border: 1px solid rgba(6, 182, 212, 0.3);
+    direction: ltr;
+}
+
+/* Main Grid */
+.live-main-grid {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 20px;
+    flex: 1;
+    min-height: 0;
+}
+.live-left-col {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-height: 0;
+}
+.live-right-col {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* KPIs */
+.live-kpis {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr;
+    gap: 14px;
+    flex-shrink: 0;
+}
+.live-kpi {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: 3px solid #10B981;
+    border-radius: 8px;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.live-kpi-label {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.55);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+}
+.live-kpi-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 56px;
+    font-weight: 800;
+    line-height: 1;
+    margin: 4px 0;
+}
+.live-kpi.big .live-kpi-value { font-size: 72px; }
+.live-kpi-foot {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+}
+.live-kpi-status {
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 700;
+}
+.live-kpi-target {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.45);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* Chart Card */
+.live-chart-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 14px 18px;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+.live-card-title {
+    font-family: 'Cairo', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: #FFFFFF;
+    margin-bottom: 4px;
+}
+.live-card-sub {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.4);
+    margin-bottom: 10px;
+}
+.live-chart-card .daily-chart-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.live-chart-card .line-chart-svg { max-height: none; }
+
+/* Stats Strip */
+.live-stats-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    padding: 12px 16px;
+    flex-shrink: 0;
+}
+.live-stat {
+    text-align: center;
+}
+.live-stat-label {
+    font-size: 11.5px;
+    color: rgba(255, 255, 255, 0.45);
+    margin-bottom: 4px;
+}
+.live-stat-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: #FFFFFF;
+}
+
+/* Leaderboard */
+.live-leaderboard {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 16px 18px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+.live-lb-list {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    overflow: hidden;
+    margin-top: 8px;
+}
+.live-lb-row {
+    display: grid;
+    grid-template-columns: 28px 1fr 1.2fr 50px;
+    gap: 10px;
+    align-items: center;
+    padding: 7px 10px;
+    background: rgba(255, 255, 255, 0.025);
+    border-radius: 5px;
+    border-right: 2px solid transparent;
+    transition: background 0.2s;
+}
+.live-lb-row.at-target {
+    background: rgba(16, 185, 129, 0.06);
+    border-right-color: #10B981;
+}
+.live-lb-rank {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.5);
+    text-align: center;
+}
+.live-lb-row.at-target .live-lb-rank {
+    color: #10B981;
+}
+.live-lb-name {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #FFFFFF;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.live-lb-bar-wrap {
+    height: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+}
+.live-lb-bar {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.4s ease;
+}
+.live-lb-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: left;
+    direction: ltr;
+}
+.live-lb-legend {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 10px;
+    margin-top: 10px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.55);
+    flex-shrink: 0;
+}
+
+/* تجاوب — للتلفزيونات الكبيرة (4K+) */
+@media (min-width: 2400px) {
+    .live-page { padding: 40px 60px; gap: 26px; }
+    .live-brand-main { font-size: 36px; }
+    .live-clock { font-size: 56px; }
+    .live-title-text { font-size: 30px; }
+    .live-kpi-value { font-size: 80px; }
+    .live-kpi.big .live-kpi-value { font-size: 100px; }
+    .live-stat-num { font-size: 30px; }
+    .live-card-title { font-size: 22px; }
+    .live-lb-name { font-size: 17px; }
+    .live-lb-value { font-size: 18px; }
+}
+
+/* للشاشات الأصغر */
+@media (max-width: 1280px) {
+    .live-main-grid { grid-template-columns: 1fr; }
+    .live-kpis { grid-template-columns: 1fr 1fr; }
+    .live-kpi.big { grid-column: span 2; }
+}
+
+/* ============== سلايد اجتماع الحج ============== */
+.btn-hajj {
+    background: linear-gradient(135deg, #126280, #063A58);
+    color: #FFFFFF;
+    border: 1px solid #1E88B5;
+    font-weight: 700;
+}
+.btn-hajj:hover:not(:disabled) {
+    background: linear-gradient(135deg, #1E88B5, #126280);
+    transform: translateY(-1px);
+}
+
+/* معاينة السلايد - خلفية بشكل خانات (لإظهار الشفافية) */
+.hajj-preview-wrap {
+    background:
+        linear-gradient(45deg, #1a1f2e 25%, transparent 25%),
+        linear-gradient(-45deg, #1a1f2e 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #1a1f2e 75%),
+        linear-gradient(-45deg, transparent 75%, #1a1f2e 75%);
+    background-size: 24px 24px;
+    background-position: 0 0, 0 12px, 12px -12px, -12px 0px;
+    background-color: #0F141F;
+    padding: 40px;
+    overflow: auto;
+    max-height: calc(100vh - 80px);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+/* السلايد - 1920x1080 بخلفية شفافة */
+.hajj-slide {
+    width: 1920px;
+    position: relative;
+    background: transparent;
+    font-family: 'Cairo', 'Tajawal', 'Janna LT', sans-serif;
+    direction: rtl;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    transform-origin: top center;
+    transform: scale(var(--slide-scale, 0.45));
+    margin-bottom: calc((1080px + 1080px + 40px) * (1 - var(--slide-scale, 0.45)) * -1);
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+}
+
+@media (max-width: 1100px) {
+    .hajj-slide { --slide-scale: 0.32; }
+}
+@media (max-width: 700px) {
+    .hajj-slide { --slide-scale: 0.20; }
+}
+
+/* الكارد الرئيسي */
+.hajj-card {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.97);
+    border-radius: 16px;
+    padding: 44px 52px;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.18);
+    box-sizing: border-box;
+}
+
+.hajj-card-header {
+    border-bottom: 3px solid #063A58;
+    padding-bottom: 22px;
+    margin-bottom: 28px;
+    text-align: center;
+}
+
+.hajj-card-title {
+    font-family: 'Cairo', 'Tajawal', 'Geeza Pro', 'Tahoma', sans-serif;
+    font-size: 44px;
+    font-weight: 700;
+    color: #063A58;
+    letter-spacing: 0;
+    margin-bottom: 6px;
+}
+
+.hajj-card-sub {
+    font-size: 18px;
+    color: #4A5A6B;
+    font-weight: 500;
+}
+
+/* بطاقة شرح المؤشر */
+.hajj-info {
+    background: #F0F4F8;
+    border: 1px solid #D5DEE7;
+    border-right: 5px solid #063A58;
+    border-radius: 10px;
+    padding: 18px 24px;
+    margin-bottom: 22px;
+}
+.hajj-info-title {
+    font-family: 'Cairo', 'Tajawal', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: #063A58;
+    margin-bottom: 12px;
+}
+.hajj-info-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+.hajj-info-row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 8px;
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 6px;
+    padding: 14px 12px;
+}
+.hajj-info-row.strong {
+    background: #063A58;
+    border-color: #08506E;
+}
+.hajj-info-row.strong .hajj-info-num,
+.hajj-info-row.strong .hajj-info-text {
+    color: #FFFFFF;
+}
+.hajj-info-row.strong .hajj-info-target {
+    background: rgba(255,255,255,0.18);
+    color: #FFFFFF;
+}
+.hajj-info-num {
+    background: #063A58;
+    color: #FFFFFF;
+    font-family: 'Cairo', 'Tajawal', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    min-width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 8px;
+}
+.hajj-info-row.strong .hajj-info-num {
+    background: #FFFFFF;
+    color: #063A58;
+    width: auto;
+    min-width: auto;
+    height: auto;
+    padding: 4px 14px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 700;
+}
+.hajj-info-text {
+    font-size: 14.5px;
+    color: #1A2433;
+    font-weight: 600;
+    line-height: 1.5;
+    flex: 1;
+}
+.hajj-info-target {
+    background: #E2E8F0;
+    color: #4A5568;
+    font-family: 'Cairo', 'Tajawal', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 5px 14px;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+/* الجدول */
+.hajj-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.hajj-table thead th {
+    background: #063A58;
+    color: #FFFFFF;
+    font-size: 15px;
+    font-weight: 700;
+    padding: 16px 10px;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 1.5;
+    border-left: 1px solid rgba(255, 255, 255, 0.15);
+}
+.hajj-table thead th:last-child { border-left: none; }
+.hajj-table thead th:first-child {
+    border-top-right-radius: 8px;
+}
+.hajj-table thead th:last-child {
+    border-top-left-radius: 8px;
+}
+.hajj-table thead th.hosp-col {
+    text-align: right;
+    padding-right: 22px;
+    width: 220px;
+    font-size: 17px;
+}
+.hajj-table thead th.th-strong {
+    background: #08506E;
+}
+
+.hajj-table .th-main {
+    font-size: 14.5px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    line-height: 1.4;
+}
+.hajj-table .th-target {
+    font-size: 11.5px;
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 500;
+    background: rgba(255, 255, 255, 0.08);
+    padding: 2px 8px;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+.hajj-table tbody tr {
+    transition: background 0.15s;
+}
+.hajj-table tbody tr:nth-child(even) {
+    background: #F7FAFC;
+}
+.hajj-table tbody tr:nth-child(odd) {
+    background: #FFFFFF;
+}
+.hajj-table tbody tr:last-child td:first-child {
+    border-bottom-right-radius: 8px;
+}
+.hajj-table tbody tr:last-child td:last-child {
+    border-bottom-left-radius: 8px;
+}
+
+.hajj-table td {
+    padding: 14px 10px;
+    text-align: center;
+    font-size: 16px;
+    border-bottom: 1px solid #E5EAF0;
+}
+
+.hajj-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.hajj-table td.hosp-name {
+    text-align: right;
+    padding-right: 22px;
+    font-weight: 700;
+    color: #1A2433;
+    font-size: 17px;
+}
+
+.cell-pct {
+    display: inline-block;
+    font-family: 'Cairo', 'Tajawal', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    min-width: 64px;
+}
+.cell-pct.strong {
+    font-size: 22px;
+}
+
+/* خلية تصميم بصري: رقم + شريط تقدّم */
+.m-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 0 6px;
+}
+.m-val {
+    font-family: 'Cairo', 'Tajawal', sans-serif;
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 1.1;
+    direction: ltr;
+}
+.m-bar {
+    width: 100%;
+    height: 8px;
+    background: #E5EAF0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+.m-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+}
+
+.hajj-legend {
+    margin-top: 24px;
+    padding-top: 18px;
+    border-top: 1px solid #E5EAF0;
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    flex-wrap: wrap;
+    font-size: 14px;
+    color: #4A5A6B;
+    font-weight: 600;
+}
+.hajj-legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.hajj-legend .leg-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+/* صفحات السلايد - كل صفحة بحجم 1920x1080 منفصل */
+.hajj-slide-page {
+    width: 1920px;
+    height: 1080px;
+    background: transparent;
+    padding: 60px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    direction: rtl;
+}
+.hajj-slide-page + .hajj-slide-page {
+    margin-top: 40px;
+}
+
+/* الخريطة الحرارية */
+.hajj-heat {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 2px;
+    table-layout: fixed;
+    margin-bottom: 22px;
+}
+.hajj-heat thead th {
+    background: transparent;
+    color: #4A5A6B;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 8px 0;
+    text-align: center;
+    font-family: 'Cairo', 'Tajawal', sans-serif;
+    border: none;
+}
+.hajj-heat .hh-corner {
+    background: #063A58;
+    color: #FFFFFF;
+    border-radius: 6px;
+    width: 200px;
+    text-align: right;
+    padding-right: 16px;
+    font-size: 14px;
+}
+.hajj-heat .hh-hour {
+    font-family: 'Cairo', 'Tajawal', sans-serif;
+    color: #4A5A6B;
+    font-size: 12px;
+}
+.hajj-heat tbody tr {
+    background: transparent;
+}
+.hajj-heat .hh-name {
+    background: #F0F4F8;
+    color: #1A2433;
+    font-weight: 700;
+    text-align: right;
+    padding: 10px 14px;
+    font-size: 13.5px;
+    border-radius: 6px;
+    border: 1px solid #D5DEE7;
+}
+.hajj-heat .hh-cell {
+    padding: 4px 2px;
+    text-align: center;
+    border-radius: 4px;
+    vertical-align: middle;
+    line-height: 1.1;
+    height: 50px;
+    width: auto;
+}
+.hajj-heat .hh-cell.empty {
+    border: 1px dashed #CBD5E0;
+}
+.hajj-heat .hh-pct {
+    font-family: 'Cairo', 'Tajawal', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    line-height: 1;
+}
+.hajj-heat .hh-cnt {
+    font-family: 'Cairo', 'Tajawal', sans-serif;
+    font-weight: 400;
+    font-size: 10.5px;
+    opacity: 0.85;
+    margin-top: 3px;
+    line-height: 1;
+}
+
 /* LOADING */
 .loading-overlay {
     position: fixed; inset: 0;
@@ -3088,98 +3893,97 @@ body {
 
 <main class="cmd-main">
 
-```
-<section class="upload-section">
-    <div class="section-title">
-        <h2>رفع ملفات المستشفيات</h2>
-        <span class="badge">١٥ مستشفى مستهدف</span>
-    </div>
-    <div class="upload-grid" id="uploadGrid"></div>
-</section>
-
-<div class="actions-bar">
-    <div class="actions-info">
-        <div class="info-stat">
-            <span class="label">الملفات المرفوعة</span>
-            <span class="value" id="filesCount">٠ / ١٥</span>
+    <section class="upload-section">
+        <div class="section-title">
+            <h2>رفع ملفات المستشفيات</h2>
+            <span class="badge">١٥ مستشفى مستهدف</span>
         </div>
-        <div class="info-stat">
-            <span class="label">إجمالي Sample ID المكتمل</span>
-            <span class="value" id="totalSamples">--</span>
-        </div>
-        <div class="info-stat">
-            <span class="label">المستهدف الكلي</span>
-            <span class="value" style="color: var(--accent-emerald);">٦٠ دقيقة</span>
-        </div>
-    </div>
-    <div class="actions-buttons">
-        <button class="btn btn-promise" id="btnPromise" disabled>الوعد التنفيذي</button>
-        <button class="btn btn-exec" id="btnExecSummary" disabled>📊 ملخص تنفيذي</button>
-        <button class="btn" id="btnExportCompare" disabled>مقارنة (صورة)</button>
-        <button class="btn" id="btnExportDashPng" disabled>الداشبورد (صورة)</button>
-        <button class="btn" id="btnExportMobilePdf" disabled>PDF (للجوال)</button>
-        <button class="btn" id="btnExportSlidesPdf" disabled>PDF (للاجتماعات)</button>
-        <button class="btn" id="btnReset">إعادة تعيين</button>
-        <button class="btn btn-primary" id="btnAnalyze" disabled>تحليل البيانات</button>
-    </div>
-</div>
+        <div class="upload-grid" id="uploadGrid"></div>
+    </section>
 
-<!-- DATE FILTER -->
-<div class="date-filter-bar" id="dateFilterBar">
-    <div class="date-filter-title">فلترة حسب التاريخ</div>
-    <div class="date-filter-group">
-        <label class="date-filter-label">من:</label>
-        <input type="date" class="date-filter-input" id="dateFrom">
-    </div>
-    <div class="date-filter-group">
-        <label class="date-filter-label">إلى:</label>
-        <input type="date" class="date-filter-input" id="dateTo">
-    </div>
-    <div class="date-filter-info" id="dateFilterInfo">النطاق المتاح: --</div>
-    <div class="date-filter-actions">
-        <button class="btn" id="btnApplyDate">تطبيق الفلتر</button>
-        <button class="btn" id="btnClearDate">عرض الكل</button>
-    </div>
-</div>
-
-<div class="empty-state" id="emptyState">
-    <h3>ارفع ملف واحد على الأقل لبدء التحليل</h3>
-    <p>الداشبورد يحلل عينات الطوارئ ER ويستثني العينات المرفوضة والملغاة والمعلقة</p>
-</div>
-
-<section class="results-section" id="resultsSection">
-    <div class="indicator-explainer">
-        <h2>تعريف المؤشر</h2>
-        <p class="indicator-text">
-            مؤشر زمن إنجاز عينات الطوارئ (TAT) يقيس الزمن الكلي بين طلب الفحص من قسم الطوارئ وحتى ظهور النتيجة معتمدة في النظام. المستهدف العام هو ٦٠ دقيقة فأقل. لتحديد نقطة التأخير بدقة، تم تقسيم رحلة العينة إلى ثلاث مراحل تشغيلية مستقلة، يخضع كل منها لمستهدف زمني خاص.
-        </p>
-        <div class="indicator-stages-grid">
-            <div class="indicator-stage-box">
-                <span class="num">١</span>
-                <div class="nm">من الطلب إلى سحب العينة</div>
-                <div class="tg">المستهدف ≤ 10 دقائق</div>
+    <div class="actions-bar">
+        <div class="actions-info">
+            <div class="info-stat">
+                <span class="label">الملفات المرفوعة</span>
+                <span class="value" id="filesCount">٠ / ١٥</span>
             </div>
-            <div class="indicator-stage-box">
-                <span class="num">٢</span>
-                <div class="nm">من سحب العينة إلى استقبال المختبر</div>
-                <div class="tg">المستهدف ≤ 10 دقائق</div>
+            <div class="info-stat">
+                <span class="label">إجمالي Sample ID المكتمل</span>
+                <span class="value" id="totalSamples">--</span>
             </div>
-            <div class="indicator-stage-box">
-                <span class="num">٣</span>
-                <div class="nm">من استقبال المختبر إلى ظهور النتيجة</div>
-                <div class="tg">المستهدف ≤ 40 دقيقة</div>
+            <div class="info-stat">
+                <span class="label">المستهدف الكلي</span>
+                <span class="value" style="color: var(--accent-emerald);">٦٠ دقيقة</span>
             </div>
         </div>
+        <div class="actions-buttons">
+            <button class="btn btn-promise" id="btnPromise" disabled>الوعد التنفيذي</button>
+            <button class="btn btn-live" id="btnLive" disabled>وضع العرض المباشر</button>
+            <button class="btn btn-hajj" id="btnHajj" disabled>سلايد اجتماع الحج</button>
+            <button class="btn btn-exec" id="btnExecSummary" disabled>📊 ملخص تنفيذي</button>
+            <button class="btn" id="btnExportCompare" disabled>مقارنة (صورة)</button>
+            <button class="btn" id="btnExportDashPng" disabled>الداشبورد (صورة)</button>
+            <button class="btn" id="btnExportMobilePdf" disabled>PDF (للجوال)</button>
+            <button class="btn" id="btnExportSlidesPdf" disabled>PDF (للاجتماعات)</button>
+            <button class="btn" id="btnReset">إعادة تعيين</button>
+            <button class="btn btn-primary" id="btnAnalyze" disabled>تحليل البيانات</button>
+        </div>
     </div>
 
-    <div class="hospitals-section" id="hospitalsSection"></div>
-</section>
-```
+    <!-- DATE FILTER -->
+    <div class="date-filter-bar" id="dateFilterBar">
+        <div class="date-filter-title">فلترة حسب التاريخ</div>
+        <div class="date-filter-group">
+            <label class="date-filter-label">من:</label>
+            <input type="date" class="date-filter-input" id="dateFrom">
+        </div>
+        <div class="date-filter-group">
+            <label class="date-filter-label">إلى:</label>
+            <input type="date" class="date-filter-input" id="dateTo">
+        </div>
+        <div class="date-filter-info" id="dateFilterInfo">النطاق المتاح: --</div>
+        <div class="date-filter-actions">
+            <button class="btn" id="btnApplyDate">تطبيق الفلتر</button>
+            <button class="btn" id="btnClearDate">عرض الكل</button>
+        </div>
+    </div>
+
+    <div class="empty-state" id="emptyState">
+        <h3>ارفع ملف واحد على الأقل لبدء التحليل</h3>
+        <p>الداشبورد يحلل عينات الطوارئ ER ويستثني العينات المرفوضة والملغاة والمعلقة</p>
+    </div>
+
+    <section class="results-section" id="resultsSection">
+        <div class="indicator-explainer">
+            <h2>تعريف المؤشر</h2>
+            <p class="indicator-text">
+                مؤشر زمن إنجاز عينات الطوارئ (TAT) يقيس الزمن الكلي بين طلب الفحص من قسم الطوارئ وحتى ظهور النتيجة معتمدة في النظام. المستهدف العام هو ٦٠ دقيقة فأقل. لتحديد نقطة التأخير بدقة، تم تقسيم رحلة العينة إلى ثلاث مراحل تشغيلية مستقلة، يخضع كل منها لمستهدف زمني خاص.
+            </p>
+            <div class="indicator-stages-grid">
+                <div class="indicator-stage-box">
+                    <span class="num">١</span>
+                    <div class="nm">من الطلب إلى سحب العينة</div>
+                    <div class="tg">المستهدف ≤ 10 دقائق</div>
+                </div>
+                <div class="indicator-stage-box">
+                    <span class="num">٢</span>
+                    <div class="nm">من سحب العينة إلى استقبال المختبر</div>
+                    <div class="tg">المستهدف ≤ 10 دقائق</div>
+                </div>
+                <div class="indicator-stage-box">
+                    <span class="num">٣</span>
+                    <div class="nm">من استقبال المختبر إلى ظهور النتيجة</div>
+                    <div class="tg">المستهدف ≤ 40 دقيقة</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="hospitals-section" id="hospitalsSection"></div>
+    </section>
 
 </main>
 
 <!-- Executive Summary Modal -->
-
 <div class="exec-summary-modal" id="execSummaryModal">
     <div class="exec-summary-content">
         <div class="exec-summary-toolbar">
@@ -3195,7 +3999,6 @@ body {
 </div>
 
 <!-- Promise Modal -->
-
 <div class="promise-modal" id="promiseModal">
     <div class="promise-content">
         <div class="promise-toolbar">
@@ -3211,7 +4014,6 @@ body {
 </div>
 
 <!-- Hospital Compare Modal -->
-
 <div class="promise-modal" id="hospCompareModal">
     <div class="promise-content">
         <div class="promise-toolbar">
@@ -3223,6 +4025,30 @@ body {
             </div>
         </div>
         <div class="promise-page" id="hospComparePage"></div>
+    </div>
+</div>
+
+<!-- Live TV Display -->
+<div class="live-modal" id="liveModal">
+    <div class="live-content">
+        <button class="live-exit" id="btnLiveExit" title="إغلاق">×</button>
+        <div class="live-page" id="livePage"></div>
+    </div>
+</div>
+
+<!-- Hajj Meeting Slide -->
+<div class="promise-modal" id="hajjModal">
+    <div class="promise-content">
+        <div class="promise-toolbar">
+            <h2>سلايد اجتماع الحج — مؤشرات مختبرات الطوارئ</h2>
+            <div class="exec-toolbar-actions">
+                <button class="btn" id="btnHajjExportPng">حفظ صورة PNG</button>
+                <button class="btn btn-close" id="btnHajjClose">إغلاق</button>
+            </div>
+        </div>
+        <div class="hajj-preview-wrap">
+            <div class="hajj-slide" id="hajjSlide"></div>
+        </div>
     </div>
 </div>
 
@@ -3301,6 +4127,22 @@ function init() {
     document.getElementById('btnHospCompareClose').addEventListener('click', closeHospitalCompare);
     document.getElementById('btnHospCompareExportPng').addEventListener('click', exportHospitalComparePng);
     document.getElementById('btnHospCompareExportPdf').addEventListener('click', exportHospitalComparePdf);
+
+    // Live TV
+    document.getElementById('btnLive').addEventListener('click', openLive);
+    document.getElementById('btnLiveExit').addEventListener('click', closeLive);
+    // ESC للخروج من ملء الشاشة
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && document.getElementById('liveModal').classList.contains('active')) {
+            closeLive();
+        }
+    });
+    document.addEventListener('fullscreenchange', () => {
+        // لو خرج المستخدم من ملء الشاشة بـ Esc، نغلق الـ modal كذلك
+        if (!document.fullscreenElement && document.getElementById('liveModal').classList.contains('active')) {
+            // نتركه مفتوح في وضع windowed (لو حب يطلع من Fullscreen فقط)
+        }
+    });
 
     // Date filter
     document.getElementById('btnApplyDate').addEventListener('click', applyDateFilter);
@@ -3844,6 +4686,8 @@ async function analyzeAll() {
     document.getElementById('btnExportCompare').disabled = false;
     document.getElementById('btnExecSummary').disabled = false;
     document.getElementById('btnPromise').disabled = false;
+    document.getElementById('btnLive').disabled = false;
+    document.getElementById('btnHajj').disabled = false;
 
     updateTotalSamples();
     renderHospitals();
@@ -5965,6 +6809,538 @@ function closeHospitalCompare() {
     document.body.style.overflow = '';
 }
 
+// ============================================
+// LIVE TV DISPLAY — وضع العرض المباشر
+// ============================================
+
+let LIVE_CLOCK_TIMER = null;
+
+function openLive() {
+    const data = buildPromiseData();
+    if (!data) return;
+    renderLivePage(data);
+    document.getElementById('liveModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+
+    // محاولة فتح ملء الشاشة
+    const modal = document.getElementById('liveModal');
+    if (modal.requestFullscreen) {
+        modal.requestFullscreen().catch(() => {});
+    }
+
+    // تشغيل الساعة الحية
+    startLiveClock();
+}
+
+function closeLive() {
+    if (document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
+    }
+    document.getElementById('liveModal').classList.remove('active');
+    document.body.style.overflow = '';
+    stopLiveClock();
+}
+
+function startLiveClock() {
+    stopLiveClock();
+    const update = () => {
+        const now = new Date();
+        const h = String(now.getHours()).padStart(2, '0');
+        const m = String(now.getMinutes()).padStart(2, '0');
+        const s = String(now.getSeconds()).padStart(2, '0');
+        const dateStr = now.toLocaleDateString('ar-SA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        const clockEl = document.getElementById('liveClock');
+        const dateEl = document.getElementById('liveDate');
+        if (clockEl) clockEl.textContent = `${h}:${m}:${s}`;
+        if (dateEl) dateEl.textContent = dateStr;
+    };
+    update();
+    LIVE_CLOCK_TIMER = setInterval(update, 1000);
+}
+
+function stopLiveClock() {
+    if (LIVE_CLOCK_TIMER) {
+        clearInterval(LIVE_CLOCK_TIMER);
+        LIVE_CLOCK_TIMER = null;
+    }
+}
+
+function renderLivePage(data) {
+    const page = document.getElementById('livePage');
+    const overallColor = avgColor(data.overallAvg);
+    const overallStatus = avgStatus(data.overallAvg);
+
+    // ترتيب: الأفضل في الأعلى للوحة الترتيب
+    const rankedBest = [...data.ranked].sort((a, b) => a.avg - b.avg);
+
+    // فترة البيانات
+    const dateRangeTag = (STATE.dateRange.from || STATE.dateRange.to)
+        ? `${STATE.dateRange.from || '...'} → ${STATE.dateRange.to || '...'}`
+        : (data.dailyCluster.length > 0
+            ? `${data.dailyCluster[0].day} → ${data.dailyCluster[data.dailyCluster.length - 1].day}`
+            : '');
+
+    page.innerHTML = `
+        <!-- Top Bar -->
+        <div class="live-topbar">
+            <div class="live-brand">
+                <div class="live-brand-main">الخدمات الصحية المساندة</div>
+                <div class="live-brand-sub">تجمع المدينة المنورة الصحي • مؤشر الوعد التنفيذي</div>
+            </div>
+            <div class="live-clock-block">
+                <div class="live-clock" id="liveClock">--:--:--</div>
+                <div class="live-date" id="liveDate"></div>
+            </div>
+        </div>
+
+        <!-- Title Strip -->
+        <div class="live-title-strip">
+            <div class="live-title-left">
+                <span class="live-title-tag">الهدف الاستراتيجي</span>
+                <span class="live-title-text">متوسط الاختبارات لكل مريض في الطوارئ ≤ ١٠</span>
+            </div>
+            ${dateRangeTag ? `<div class="live-period-tag">${dateRangeTag}</div>` : ''}
+        </div>
+
+        <!-- Main Layout: KPIs + Chart on left, Leaderboard on right -->
+        <div class="live-main-grid">
+            <div class="live-left-col">
+                <!-- 3 Big KPIs -->
+                <div class="live-kpis">
+                    <div class="live-kpi big" style="border-color:${overallColor};">
+                        <div class="live-kpi-label">المتوسط العام</div>
+                        <div class="live-kpi-value" style="color:${overallColor};">${data.overallAvg.toFixed(2)}</div>
+                        <div class="live-kpi-foot">
+                            <span class="live-kpi-status" style="background:${overallColor}22; color:${overallColor};">${overallStatus}</span>
+                            <span class="live-kpi-target">/ الهدف ١٠</span>
+                        </div>
+                    </div>
+                    <div class="live-kpi" style="border-color:#10B981;">
+                        <div class="live-kpi-label">وصلوا الهدف</div>
+                        <div class="live-kpi-value" style="color:#10B981;">${data.hospitalsAtTarget}</div>
+                        <div class="live-kpi-foot">
+                            <span class="live-kpi-target">من ${data.hospitalCount} مستشفى</span>
+                        </div>
+                    </div>
+                    <div class="live-kpi" style="border-color:#EF4444;">
+                        <div class="live-kpi-label">مرضى تجاوزوا ١٠</div>
+                        <div class="live-kpi-value" style="color:#EF4444;">${data.totalExceeding.toLocaleString('en')}</div>
+                        <div class="live-kpi-foot">
+                            <span class="live-kpi-target">من ${data.totalPatientsAll.toLocaleString('en')} مريض</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Daily Chart -->
+                ${data.dailyCluster.length > 0 ? `
+                    <div class="live-chart-card">
+                        <div class="live-card-title">المسار اليومي — متوسط الاختبارات لكل مريض</div>
+                        ${buildDailyClusterChart(data)}
+                    </div>
+                ` : ''}
+
+                <!-- Stats Strip -->
+                <div class="live-stats-strip">
+                    <div class="live-stat">
+                        <div class="live-stat-label">إجمالي الاختبارات</div>
+                        <div class="live-stat-num">${data.totalTestsAll.toLocaleString('en')}</div>
+                    </div>
+                    <div class="live-stat">
+                        <div class="live-stat-label">إجمالي المرضى</div>
+                        <div class="live-stat-num">${data.totalPatientsAll.toLocaleString('en')}</div>
+                    </div>
+                    <div class="live-stat">
+                        <div class="live-stat-label">عدد الأيام</div>
+                        <div class="live-stat-num">${data.dailyCluster.length}</div>
+                    </div>
+                    <div class="live-stat">
+                        <div class="live-stat-label">حرج (&gt;15)</div>
+                        <div class="live-stat-num" style="color:#EF4444;">${data.hospitalsCritical}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Leaderboard -->
+            <div class="live-right-col">
+                <div class="live-leaderboard">
+                    <div class="live-card-title">ترتيب المستشفيات</div>
+                    <div class="live-card-sub">من الأفضل إلى الأبعد عن الهدف</div>
+                    <div class="live-lb-list">
+                        ${rankedBest.map((h, idx) => {
+                            const c = avgColor(h.avg);
+                            const isAtTarget = h.avg <= PROMISE_TARGET_AVG;
+                            return `
+                                <div class="live-lb-row ${isAtTarget ? 'at-target' : ''}">
+                                    <div class="live-lb-rank">${idx + 1}</div>
+                                    <div class="live-lb-name">${h.name}</div>
+                                    <div class="live-lb-bar-wrap">
+                                        <div class="live-lb-bar" style="width:${Math.min(100, (h.avg / 20) * 100)}%; background:${c};"></div>
+                                    </div>
+                                    <div class="live-lb-value" style="color:${c};">${h.avg.toFixed(1)}</div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                    <div class="live-lb-legend">
+                        <span><span class="leg-dot" style="background:#10B981;"></span> ≤ ١٠</span>
+                        <span><span class="leg-dot" style="background:#F59E0B;"></span> ١٠–١٥</span>
+                        <span><span class="leg-dot" style="background:#EF4444;"></span> &gt; ١٥</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+// (تم حذف الأصول المضمّنة - السلايد لم يعد يستخدم الشعارات أو الخلفية)
+// ============================================
+// سلايد اجتماع الحج — مؤشرات مختبرات الطوارئ
+// ============================================
+// أصول الصور المضمّنة (مستخرجة من سلايد بنوك الدم الأصلي)
+// تُحمَّل ديناميكياً من ملف منفصل لتقليل حجم الـ HTML
+
+const HAJJ_ASSETS_LOADED_PROMISE = (async () => {
+    // الأصول معرّفة في window من ملف assets.js
+    if (typeof window.HAJJ_BG_B64 !== 'undefined') return true;
+    // fallback: ننتظر إذا كان التحميل غير مكتمل
+    await new Promise(r => setTimeout(r, 100));
+    return typeof window.HAJJ_BG_B64 !== 'undefined';
+})();
+
+// ألوان السلايد الأصلي
+const HAJJ_COLORS = {
+    bgDark: '#032436',       // خلفية فوق الصورة (داكنة جداً)
+    cardBg: '#063A58',       // الصناديق
+    cardBorder: '#126280',   // حدود الصناديق
+    textWhite: '#FFFFFF',
+    textLight: '#F5F9FB',
+    accent: '#1E88B5'
+};
+
+function openHajj() {
+    const data = buildPromiseData();
+    if (!data) return;
+    renderHajjSlide(data);
+    document.getElementById('hajjModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeHajj() {
+    document.getElementById('hajjModal').classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+function renderHajjSlide(data) {
+    const slide = document.getElementById('hajjSlide');
+
+    const hospitalRows = data.ranked.map(h => {
+        const p = STATE.processed[h.key];
+        const overall = p && p.overall ? p.overall : {};
+        const samplesCount = p && p.completed ? p.completed : 0;
+        return {
+            key: h.key,
+            name: h.name,
+            stage1Pct: overall.stage1_compliance != null ? overall.stage1_compliance : null,
+            stage2Pct: overall.stage2_compliance != null ? overall.stage2_compliance : null,
+            stage3Pct: overall.stage3_compliance != null ? overall.stage3_compliance : null,
+            totalPct: overall.total_compliance != null ? overall.total_compliance : null,
+            avgTests: h.avg,
+            samples: samplesCount
+        };
+    }).filter(r => r.samples > 0 || r.avgTests > 0);
+
+    hospitalRows.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+
+    // الألوان: الأعلى أفضل للنسب
+    const pctColor = (v) => {
+        if (v == null) return '#9CA3AF';
+        if (v >= 90) return '#10B981';
+        if (v >= 70) return '#F59E0B';
+        return '#EF4444';
+    };
+    // الأقل أفضل للمتوسط
+    const avgColor = (v) => {
+        if (v == null) return '#9CA3AF';
+        if (v <= 10) return '#10B981';
+        if (v <= 15) return '#F59E0B';
+        return '#EF4444';
+    };
+
+    const fmtPct = (v) => v == null ? '—' : Math.round(v) + '%';
+    const fmtAvg = (v) => v == null ? '—' : v.toFixed(1);
+
+    // خلية = رقم + شريط تقدّم ملوّن أسفله
+    const cellPct = (v) => {
+        const color = pctColor(v);
+        const fill = v == null ? 0 : Math.min(100, Math.max(0, v));
+        return `
+            <div class="m-cell">
+                <div class="m-val" style="color:${color};">${fmtPct(v)}</div>
+                <div class="m-bar"><div class="m-bar-fill" style="width:${fill}%; background:${color};"></div></div>
+            </div>
+        `;
+    };
+    // متوسط الاختبارات: شريط مقياسه 0..20 (المستهدف ≤10)
+    const cellAvg = (v) => {
+        const color = avgColor(v);
+        const fill = v == null ? 0 : Math.min(100, (v / 20) * 100);
+        return `
+            <div class="m-cell">
+                <div class="m-val" style="color:${color};">${fmtAvg(v)}</div>
+                <div class="m-bar"><div class="m-bar-fill" style="width:${fill}%; background:${color};"></div></div>
+            </div>
+        `;
+    };
+
+    // بناء بيانات الخريطة الحرارية (نسبة الالتزام بالـ TAT الإجمالي لكل ساعة لكل مستشفى)
+    const heatmapRows = hospitalRows.map(r => {
+        const p = STATE.processed[r.key];
+        const hours = [];
+        for (let h = 0; h < 24; h++) {
+            const hd = p && p.byHour ? p.byHour[h] : null;
+            hours.push({
+                hour: h,
+                count: hd && hd.count ? hd.count : 0,
+                comp: hd && hd.comp !== null ? hd.comp : null
+            });
+        }
+        return { name: r.name, hours };
+    });
+
+    // ألوان الـ heatmap بالنسبة المئوية
+    const heatColor = (v) => {
+        if (v == null) return '#F1F5F9';
+        if (v >= 95) return '#10B981';
+        if (v >= 85) return '#F59E0B';
+        return '#EF4444';
+    };
+    const heatTextColor = (v) => {
+        if (v == null) return '#94A3B8';
+        return '#FFFFFF';
+    };
+
+    slide.innerHTML = `
+        <div class="hajj-slide-page" data-page="1">
+            <div class="hajj-card">
+                <div class="hajj-card-header">
+                    <div class="hajj-card-title">مؤشرات أداء مختبرات الطوارئ</div>
+                </div>
+
+                <div class="hajj-info">
+                    <div class="hajj-info-title">شرح المؤشرات</div>
+                    <div class="hajj-info-grid">
+                        <div class="hajj-info-row">
+                            <span class="hajj-info-num">١</span>
+                            <span class="hajj-info-text">من الطلب إلى السحب</span>
+                            <span class="hajj-info-target">١٠ دقائق</span>
+                        </div>
+                        <div class="hajj-info-row">
+                            <span class="hajj-info-num">٢</span>
+                            <span class="hajj-info-text">من السحب إلى إرسالها للمختبر</span>
+                            <span class="hajj-info-target">١٠ دقائق</span>
+                        </div>
+                        <div class="hajj-info-row">
+                            <span class="hajj-info-num">٣</span>
+                            <span class="hajj-info-text">من استقبالها في المختبر إلى ظهور النتيجة</span>
+                            <span class="hajj-info-target">٤٠ دقيقة</span>
+                        </div>
+                        <div class="hajj-info-row strong">
+                            <span class="hajj-info-num">الإجمالي</span>
+                            <span class="hajj-info-text">من الطلب إلى ظهور النتيجة</span>
+                            <span class="hajj-info-target">٦٠ دقيقة</span>
+                        </div>
+                    </div>
+                </div>
+
+                <table class="hajj-table">
+                    <thead>
+                        <tr>
+                            <th class="hosp-col">المستشفى</th>
+                            <th>
+                                <div class="th-main">من الطلب إلى السحب</div>
+                                <div class="th-target">المستهدف ١٠ دقائق</div>
+                            </th>
+                            <th>
+                                <div class="th-main">من السحب إلى إرسالها للمختبر</div>
+                                <div class="th-target">المستهدف ١٠ دقائق</div>
+                            </th>
+                            <th>
+                                <div class="th-main">من استقبالها في المختبر إلى ظهور النتيجة</div>
+                                <div class="th-target">المستهدف ٤٠ دقيقة</div>
+                            </th>
+                            <th class="th-strong">
+                                <div class="th-main">الإجمالي خلال ٦٠ دقيقة</div>
+                                <div class="th-target">من الطلب إلى ظهور النتيجة</div>
+                            </th>
+                            <th class="th-strong">
+                                <div class="th-main">متوسط الاختبارات لكل مريض</div>
+                                <div class="th-target">المستهدف ١٠ اختبارات</div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${hospitalRows.map(r => `
+                            <tr>
+                                <td class="hosp-name">${r.name}</td>
+                                <td>${cellPct(r.stage1Pct)}</td>
+                                <td>${cellPct(r.stage2Pct)}</td>
+                                <td>${cellPct(r.stage3Pct)}</td>
+                                <td>${cellPct(r.totalPct)}</td>
+                                <td>${cellAvg(r.avgTests)}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+
+                <div class="hajj-legend">
+                    <span><span class="leg-dot" style="background:#10B981;"></span>ضمن المستهدف</span>
+                    <span><span class="leg-dot" style="background:#F59E0B;"></span>قريب من المستهدف</span>
+                    <span><span class="leg-dot" style="background:#EF4444;"></span>خارج المستهدف</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="hajj-slide-page" data-page="2">
+            <div class="hajj-card">
+                <div class="hajj-card-header">
+                    <div class="hajj-card-title">الخريطة الحرارية لأداء المختبرات</div>
+                </div>
+
+                <div class="hajj-info">
+                    <div class="hajj-info-title">نسبة الالتزام بالـ ٦٠ دقيقة في كل ساعة من اليوم</div>
+                    <div style="font-size: 14px; color: #4A5A6B; line-height: 1.6;">
+                        كل خانة تمثّل ساعة واحدة في يوم لمستشفى معيّن. الرقم العلوي = نسبة العينات المنجزة ضمن ٦٠ دقيقة، الرقم السفلي = عدد العينات في تلك الساعة. الخانات الفارغة تعني عدم وجود عينات في تلك الساعة.
+                    </div>
+                </div>
+
+                <table class="hajj-heat">
+                    <thead>
+                        <tr>
+                            <th class="hh-corner">المستشفى</th>
+                            ${Array.from({length: 24}, (_, h) => `<th class="hh-hour">${String(h).padStart(2, '0')}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${heatmapRows.map(r => `
+                            <tr>
+                                <td class="hh-name">${r.name}</td>
+                                ${r.hours.map(c => {
+                                    const bg = heatColor(c.comp);
+                                    const tc = heatTextColor(c.comp);
+                                    if (c.count === 0) {
+                                        return `<td class="hh-cell empty" style="background:${bg};"></td>`;
+                                    }
+                                    return `<td class="hh-cell" style="background:${bg}; color:${tc};">
+                                        <div class="hh-pct">${Math.round(c.comp)}%</div>
+                                        <div class="hh-cnt">${c.count}</div>
+                                    </td>`;
+                                }).join('')}
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+
+                <div class="hajj-legend">
+                    <span><span class="leg-dot" style="background:#10B981;"></span>الالتزام ٩٥٪ فأكثر</span>
+                    <span><span class="leg-dot" style="background:#F59E0B;"></span>الالتزام ٨٥–٩٤٪</span>
+                    <span><span class="leg-dot" style="background:#EF4444;"></span>الالتزام أقل من ٨٥٪</span>
+                    <span><span class="leg-dot" style="background:#F1F5F9; border:1px solid #CBD5E0;"></span>لا توجد عينات</span>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+async function exportHajjPng() {
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.classList.add('active');
+    document.getElementById('loadingText').textContent = 'جاري حفظ الصورة الأولى...';
+    await new Promise(r => setTimeout(r, 50));
+
+    const slide = document.getElementById('hajjSlide');
+    const originalTransform = slide.style.transform;
+    const originalMargin = slide.style.marginBottom;
+
+    try {
+        if (document.fonts && document.fonts.ready) {
+            try { await document.fonts.ready; } catch (_) {}
+        }
+
+        slide.style.transform = 'none';
+        slide.style.marginBottom = '0';
+        await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+        await new Promise(r => setTimeout(r, 250));
+
+        const pages = slide.querySelectorAll('.hajj-slide-page');
+        const dateStr = new Date().toISOString().slice(0, 10);
+        const filenames = ['ER_Lab_Slide', 'ER_Lab_Heatmap'];
+
+        // الخطوة 1: نلتقط كل الصور أولاً ونحوّلها لـ blobs
+        const blobs = [];
+        for (let i = 0; i < pages.length; i++) {
+            document.getElementById('loadingText').textContent =
+                `جاري إنشاء الصورة ${i + 1} من ${pages.length}...`;
+            await new Promise(r => setTimeout(r, 50));
+
+            const canvas = await html2canvas(pages[i], {
+                scale: 1.5,
+                backgroundColor: null,
+                useCORS: true,
+                logging: false,
+                width: 1920,
+                height: 1080,
+                windowWidth: 1920,
+                windowHeight: 1080
+            });
+
+            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+            blobs.push({ blob, filename: `${filenames[i] || 'ER_Lab_Page_' + (i+1)}_${dateStr}.png` });
+        }
+
+        // الخطوة 2: تنزيل كل الـ blobs بفواصل زمنية كافية لتجنّب حجب المتصفح
+        for (let i = 0; i < blobs.length; i++) {
+            document.getElementById('loadingText').textContent =
+                `جاري تنزيل الصورة ${i + 1} من ${blobs.length}...`;
+            await new Promise(r => setTimeout(r, 50));
+
+            const url = URL.createObjectURL(blobs[i].blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = blobs[i].filename;
+            a.style.display = 'none';
+            document.body.appendChild(a);
+            a.click();
+            await new Promise(r => setTimeout(r, 100));
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            // فاصل زمني أطول بين كل تنزيل
+            if (i < blobs.length - 1) {
+                await new Promise(r => setTimeout(r, 800));
+            }
+        }
+    } catch (err) {
+        console.error(err);
+        alert('فشل حفظ السلايد: ' + err.message);
+    } finally {
+        slide.style.transform = originalTransform;
+        slide.style.marginBottom = originalMargin;
+        overlay.classList.remove('active');
+    }
+}
+
+// (لم تعد مستخدمة - السلايد يستخدم html2canvas مع خطوط النظام)
+function collectRelevantCss() { return ''; }
+
+// Hajj Slide buttons
+document.addEventListener('DOMContentLoaded', () => {
+    const btnHajj = document.getElementById('btnHajj');
+    if (btnHajj) btnHajj.addEventListener('click', openHajj);
+    const btnHajjClose = document.getElementById('btnHajjClose');
+    if (btnHajjClose) btnHajjClose.addEventListener('click', closeHajj);
+    const btnHajjExportPng = document.getElementById('btnHajjExportPng');
+    if (btnHajjExportPng) btnHajjExportPng.addEventListener('click', exportHajjPng);
+});
+
 // Helper: ينتظر تحميل الخطوط + ينفذ تغيير العرض + ينتظر إعادة التخطيط بالكامل
 async function captureElementWide(elementId, targetWidth = 1500) {
     const page = document.getElementById(elementId);
@@ -6596,6 +7972,8 @@ function resetAll() {
     document.getElementById('btnExportCompare').disabled = true;
     document.getElementById('btnExecSummary').disabled = true;
     document.getElementById('btnPromise').disabled = true;
+    document.getElementById('btnLive').disabled = true;
+    document.getElementById('btnHajj').disabled = true;
 
     updateUploadStatus();
 }
