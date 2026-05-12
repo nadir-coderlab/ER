@@ -3418,6 +3418,57 @@ body {
     line-height: 1.7;
     margin: 0 0 24px;
 }
+
+/* بطاقات اختيار التحليل */
+.analysis-cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+}
+.analysis-card {
+    background: #0F172A;
+    border: 2px solid #334155;
+    border-radius: 10px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+}
+.analysis-card:hover {
+    border-color: #8B5CF6;
+    background: #1A2A47;
+    transform: translateY(-2px);
+}
+.analysis-card.active {
+    border-color: #8B5CF6;
+    background: linear-gradient(135deg, #2D1B5E, #1E1B4B);
+    box-shadow: 0 0 0 1px #8B5CF6;
+}
+.ac-icon {
+    font-size: 32px;
+    margin-bottom: 8px;
+}
+.ac-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #F1F5F9;
+    margin-bottom: 6px;
+}
+.ac-desc {
+    font-size: 13px;
+    color: #94A3B8;
+    line-height: 1.6;
+    margin-bottom: 10px;
+}
+.ac-files {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    color: #A78BFA;
+    background: rgba(139, 92, 246, 0.15);
+    padding: 3px 10px;
+    border-radius: 4px;
+}
 .doc-form-grid {
     display: flex;
     flex-direction: column;
@@ -3544,6 +3595,43 @@ body {
     margin-bottom: 16px;
 }
 .doc-back-btn:hover { background: #475569; }
+
+/* Tabs للتنقل بين التحاليل */
+.doc-nav-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+    background: #1E293B;
+    padding: 8px;
+    border-radius: 10px;
+    border: 1px solid #334155;
+}
+.doc-tab {
+    flex: 1;
+    min-width: 140px;
+    padding: 12px 16px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    color: #94A3B8;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.15s;
+}
+.doc-tab:hover {
+    background: #334155;
+    color: #E2E8F0;
+}
+.doc-tab.active {
+    background: linear-gradient(135deg, #7C3AED, #5B21B6);
+    color: #FFFFFF;
+    border-color: #8B5CF6;
+}
+.doc-tab-content { display: none; }
+.doc-tab-content.active { display: block; }
 
 /* معاينة السلايد - خلفية بشكل خانات (لإظهار الشفافية) */
 .hajj-preview-wrap {
@@ -4085,7 +4173,7 @@ body {
         </div>
         <div class="actions-buttons">
             <button class="btn btn-promise" id="btnPromise" disabled>الوعد التنفيذي</button>
-            <button class="btn btn-doctors" id="btnDoctors">تحليل الأطباء</button>
+            <button class="btn btn-doctors" id="btnDoctors">تحليل الموظفين</button>
             <button class="btn btn-live" id="btnLive" disabled>وضع العرض المباشر</button>
             <button class="btn btn-hajj" id="btnHajj" disabled>سلايد اجتماع الحج</button>
             <button class="btn btn-exec" id="btnExecSummary" disabled>📊 ملخص تنفيذي</button>
@@ -4224,7 +4312,7 @@ body {
 <div class="promise-modal" id="doctorsModal">
     <div class="promise-content">
         <div class="promise-toolbar">
-            <h2>تحليل الأطباء — تحديد الأكثر طلباً للاختبارات</h2>
+            <h2>تحليل الموظفين — التأخّر في كل مرحلة من مراحل العينة</h2>
             <div class="exec-toolbar-actions">
                 <button class="btn" id="btnDoctorsExportPng">حفظ صورة PNG</button>
                 <button class="btn btn-close" id="btnDoctorsClose">إغلاق</button>
@@ -4233,8 +4321,8 @@ body {
         <div class="doctors-page" id="doctorsPage">
             <!-- Step 1: Upload form -->
             <div class="doc-upload-card" id="docUploadCard">
-                <h3>تحليل طلبات الأطباء في الطوارئ</h3>
-                <p class="doc-help">ارفع الملفين لمستشفى معيّن: ملف Lab KPI (المعتاد) + ملف Lab Monitor Report. سيتم ربطهما برقم العينة (Sample ID) لمعرفة الطبيب الذي طلب كل اختبار.</p>
+                <h3>تحليل الموظفين — عينات الطوارئ</h3>
+                <p class="doc-help">ارفع الملفين لمستشفى معيّن: ملف Lab KPI (المعتاد) + ملف Lab Monitor Report. سيُجرى تحليل شامل تلقائياً لعينات الطوارئ فقط: الأطباء الأكثر طلباً، تأخّر الأطباء، التمريض، والمختبر.</p>
 
                 <div class="doc-form-grid">
                     <div class="doc-form-row">
@@ -7233,7 +7321,39 @@ const HAJJ_COLORS = {
 let DOC_STATE = {
     kpiRows: null,
     monitorRows: null,
-    results: null
+    results: null,
+    mode: null  // 'promise' | 'order' | 'nursing' | 'lab'
+};
+
+const ANALYSIS_MODES = {
+    promise: {
+        title: 'الوعد التنفيذي — الأطباء الأكثر طلباً',
+        needsKpi: true,
+        targetMin: 10,
+        targetLabel: '١٠ اختبارات/مريض',
+        staffLabel: 'الطبيب'
+    },
+    order: {
+        title: 'تأخّر الأطباء — من الطلب إلى السحب',
+        needsKpi: false,
+        targetMin: 10,
+        targetLabel: '١٠ دقائق',
+        staffLabel: 'الطبيب الطالب'
+    },
+    nursing: {
+        title: 'تأخّر التمريض — من السحب إلى إرسالها للمختبر',
+        needsKpi: false,
+        targetMin: 10,
+        targetLabel: '١٠ دقائق',
+        staffLabel: 'الممرض/الممرضة'
+    },
+    lab: {
+        title: 'تأخّر المختبر — من الاستقبال إلى ظهور النتيجة',
+        needsKpi: false,
+        targetMin: 40,
+        targetLabel: '٤٠ دقيقة',
+        staffLabel: 'موظف المختبر'
+    }
 };
 
 function openDoctors() {
@@ -7249,8 +7369,8 @@ function closeDoctors() {
 }
 
 function resetDoctorsForm() {
-    document.getElementById('docKpiFile').value = '';
-    document.getElementById('docMonitorFile').value = '';
+    const kpi = document.getElementById('docKpiFile'); if (kpi) kpi.value = '';
+    const mon = document.getElementById('docMonitorFile'); if (mon) mon.value = '';
     document.getElementById('docStatus').textContent = '';
     document.getElementById('docStatus').className = 'doc-status';
     document.getElementById('docUploadCard').style.display = 'block';
@@ -7292,7 +7412,6 @@ function findMaxRowFromKeys(ws) {
     let maxRow = 0;
     for (const key of Object.keys(ws)) {
         if (key[0] === '!') continue;
-        // مثلاً "AB3284" → نستخرج 3284
         const match = key.match(/[A-Z]+(\d+)/);
         if (match) {
             const r = parseInt(match[1], 10);
@@ -7300,6 +7419,87 @@ function findMaxRowFromKeys(ws) {
         }
     }
     return maxRow;
+}
+
+// parser مرن للتواريخ في ملف Monitor (يقبل string أو Date أو Excel serial)
+function parseMonDate(v) {
+    if (v == null) return null;
+    if (v instanceof Date) return isNaN(v.getTime()) ? null : v;
+    if (typeof v === 'number') {
+        // Excel serial date
+        const ms = (v - 25569) * 86400 * 1000;
+        const d = new Date(ms);
+        return isNaN(d.getTime()) ? null : d;
+    }
+    if (typeof v === 'string') {
+        // "5/5/2026, 4:34 AM" أو "5/5/2026 4:34" أو ISO
+        const s = v.trim();
+        if (!s) return null;
+        // نجرّب parse مباشر أولاً
+        let d = new Date(s);
+        if (!isNaN(d.getTime())) return d;
+        // نتعامل مع "M/D/YYYY, HH:MM AM/PM"
+        const m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})[,\s]+(\d{1,2}):(\d{2})\s*(AM|PM)?/i);
+        if (m) {
+            let hour = parseInt(m[4], 10);
+            const min = parseInt(m[5], 10);
+            const ampm = (m[6] || '').toUpperCase();
+            if (ampm === 'PM' && hour < 12) hour += 12;
+            if (ampm === 'AM' && hour === 12) hour = 0;
+            d = new Date(parseInt(m[3]), parseInt(m[1])-1, parseInt(m[2]), hour, min);
+            return isNaN(d.getTime()) ? null : d;
+        }
+        return null;
+    }
+    return null;
+}
+
+// قراءة عامة لـ Lab Monitor مع كل الأعمدة المطلوبة لكل التحاليل
+// التصحيح: الأعمدة:
+//   H=OrderTime, I=OrderedBy
+//   L=CollectTime, M=CollectedBy
+//   N=DispatchTime, O=DispatchedBy
+//   P=ReceiveTime, Q=ReceivedBy
+//   R=CompleteTime, S=CompletedBy
+//   AB=SampleID, AH=Hospital
+async function readMonitorForStages(file) {
+    const buffer = await file.arrayBuffer();
+    const wb = XLSX.read(new Uint8Array(buffer), { type: 'array' });
+    const sheetName = wb.SheetNames[0];
+    const ws = wb.Sheets[sheetName];
+
+    const endRow = findMaxRowFromKeys(ws);
+    console.log('[readMonitorForStages] Max row:', endRow);
+
+    if (endRow < 3) return [];
+
+    const rows = [];
+    for (let r = 3; r <= endRow; r++) {
+        const get = (col) => {
+            const c = ws[col + r];
+            return c ? c.v : null;
+        };
+        rows.push({
+            orderedBy: get('I'),
+            collectedBy: get('M'),
+            dispatchedBy: get('O'),
+            receivedBy: get('Q'),
+            completedBy: get('S'),
+            orderDateTime: parseMonDate(get('H')),
+            collectDateTime: parseMonDate(get('L')),
+            dispatchDateTime: parseMonDate(get('N')),
+            receiveDateTime: parseMonDate(get('P')),
+            completeDateTime: parseMonDate(get('R')),
+            sampleId: get('AB'),
+            hospital: get('AH')
+        });
+    }
+
+    console.log('[readMonitorForStages] Built rows:', rows.length);
+    if (rows.length > 0) {
+        console.log('[readMonitorForStages] First row:', rows[0]);
+    }
+    return rows;
 }
 
 // قراءة Lab Monitor: header في الصف الثاني، البيانات من الثالث
@@ -7392,11 +7592,11 @@ async function readKpiDirectly(file) {
 
 async function analyzeDoctors() {
     const status = document.getElementById('docStatus');
-    const kpiFile = document.getElementById('docKpiFile').files[0];
     const monitorFile = document.getElementById('docMonitorFile').files[0];
+    const kpiFile = document.getElementById('docKpiFile').files[0];
     const hospitalKey = document.getElementById('docHospitalSelect').value;
 
-    if (!kpiFile || !monitorFile) {
+    if (!monitorFile || !kpiFile) {
         status.textContent = '⚠ يرجى رفع كلا الملفين';
         status.className = 'doc-status error';
         return;
@@ -7408,67 +7608,578 @@ async function analyzeDoctors() {
         await new Promise(r => setTimeout(r, 50));
 
         const kpiRows = await readKpiDirectly(kpiFile);
-        const monitorRows = await readMonitorDirectly(monitorFile);
+        const monitorRows = await readMonitorForStages(monitorFile);
 
-        console.log('=== KPI ROWS ===');
-        console.log('Total:', kpiRows.length);
-        console.log('First 3:', kpiRows.slice(0, 3));
-        const ptypes = {};
+        // 1) نستخرج Sample IDs من عينات الطوارئ في KPI
+        const erSampleIds = new Set();
         kpiRows.forEach(r => {
-            const t = String(r.patientType || 'null').trim();
-            ptypes[t] = (ptypes[t] || 0) + 1;
+            if (isErType(r.patientType) && r.sampleId != null) {
+                const sid = normalizeSampleId(r.sampleId);
+                if (sid) erSampleIds.add(sid);
+            }
         });
-        console.log('Patient Types:', ptypes);
 
-        console.log('=== MONITOR ROWS ===');
-        console.log('Total:', monitorRows.length);
-        console.log('First 3:', monitorRows.slice(0, 3));
+        console.log('ER unique sample IDs in KPI:', erSampleIds.size);
 
-        status.textContent = `Monitor: ${monitorRows.length} | KPI: ${kpiRows.length}. جاري الربط...`;
-        await new Promise(r => setTimeout(r, 50));
-
-        const results = computeDoctorAnalysis(kpiRows, monitorRows, hospitalKey);
-
-        if (!results) {
-            const monValid = monitorRows.filter(r => r.sampleId != null && r.orderedBy).length;
-            const erKpi = kpiRows.filter(r => isErType(r.patientType)).length;
-            const erWithSid = kpiRows.filter(r => isErType(r.patientType) && r.sampleId != null).length;
-            const monSample = monitorRows.find(r => r.sampleId != null && r.orderedBy);
-            const kpiSample = kpiRows.find(r => isErType(r.patientType) && r.sampleId != null);
-
-            const diag = `
-                <div style="background:#1F2937; padding:14px; border-radius:6px; margin-top:10px; font-size:12px; line-height:1.8; font-family:monospace; text-align:left; direction:ltr;">
-                    <strong style="color:#FBBF24;">Monitor (${monitorRows.length} rows):</strong><br>
-                    • Valid (sid+doc): ${monValid}<br>
-                    • Example sid=${monSample ? JSON.stringify(monSample.sampleId) : 'none'}<br>
-                    • Example doc=${monSample ? monSample.orderedBy : 'none'}<br>
-                    <br>
-                    <strong style="color:#FBBF24;">KPI (${kpiRows.length} rows):</strong><br>
-                    • Patient Types: ${JSON.stringify(ptypes)}<br>
-                    • ER rows: ${erKpi}<br>
-                    • ER with SampleID: ${erWithSid}<br>
-                    • Example sid=${kpiSample ? JSON.stringify(kpiSample.sampleId) : 'none'}<br>
-                    <br>
-                    <strong style="color:#F87171;">F12 → Console للتفاصيل الكاملة</strong>
-                </div>
-            `;
-            status.innerHTML = '⚠ لم يتم العثور على بيانات صالحة.' + diag;
+        if (erSampleIds.size === 0) {
+            status.innerHTML = `⚠ لم يتم العثور على عينات طوارئ في ملف KPI. تأكد من أن العمود "Patient Type" يحتوي على قيم ER.`;
             status.className = 'doc-status error';
             return;
         }
 
-        DOC_STATE.kpiRows = kpiRows;
-        DOC_STATE.monitorRows = monitorRows;
-        DOC_STATE.results = results;
+        // 2) نفلتر Monitor على عينات الطوارئ فقط
+        const erMonitorRows = monitorRows.filter(row => {
+            const sid = normalizeSampleId(row.sampleId);
+            return sid && erSampleIds.has(sid);
+        });
 
-        renderDoctorResults(results);
+        console.log('Monitor rows matching ER samples:', erMonitorRows.length);
+
+        if (erMonitorRows.length === 0) {
+            status.innerHTML = `⚠ لم يتم العثور على تطابق بين عينات الطوارئ في KPI وملف Monitor. تأكد من أن الملفين لنفس المستشفى ونفس الفترة.`;
+            status.className = 'doc-status error';
+            return;
+        }
+
+        status.textContent = `تطابق ${erMonitorRows.length} عينة طوارئ. جاري التحليل...`;
+        await new Promise(r => setTimeout(r, 50));
+
+        // 3) نشغّل كل التحاليل الأربعة
+        const promiseResult = computeDoctorAnalysis(kpiRows, erMonitorRows, hospitalKey);
+        const orderResult = computeStageAnalysis(erMonitorRows, 'order', hospitalKey);
+        const nursingResult = computeStageAnalysis(erMonitorRows, 'nursing', hospitalKey);
+        const labResult = computeStageAnalysis(erMonitorRows, 'lab', hospitalKey);
+
+        DOC_STATE.kpiRows = kpiRows;
+        DOC_STATE.monitorRows = erMonitorRows;
+        DOC_STATE.results = {
+            hospitalKey,
+            hospitalName: HOSPITALS[hospitalKey] ? (HOSPITALS[hospitalKey].ar || hospitalKey) : hospitalKey,
+            totalErSamples: erSampleIds.size,
+            matchedErSamples: erMonitorRows.length,
+            promise: promiseResult,
+            order: orderResult,
+            nursing: nursingResult,
+            lab: labResult
+        };
+
+        renderAllAnalyses(DOC_STATE.results);
+
         document.getElementById('docUploadCard').style.display = 'none';
         document.getElementById('docResults').style.display = 'block';
     } catch (err) {
-        console.error('Doctor analysis error:', err);
+        console.error('Analysis error:', err);
         status.innerHTML = '❌ خطأ: ' + err.message;
         status.className = 'doc-status error';
     }
+}
+
+// عرض كل التحاليل في صفحة واحدة
+function renderAllAnalyses(R) {
+    const container = document.getElementById('docResults');
+
+    const fmtMin = (m) => m.toFixed(1) + ' د';
+    const fmtPct = (p) => p.toFixed(0) + '%';
+    const rankClass = (i) => i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+    const escapeStr = (s) => escapeHtml(s);
+
+    // ===== بناء كل قسم =====
+    const promiseHtml = R.promise ? renderPromiseSection(R.promise) : '<p style="color:#94A3B8;">لا توجد بيانات للوعد التنفيذي.</p>';
+    const orderHtml = R.order ? renderStageSection(R.order, 'order') : '<p style="color:#94A3B8;">لا توجد بيانات لتأخّر الأطباء.</p>';
+    const nursingHtml = R.nursing ? renderStageSection(R.nursing, 'nursing') : '<p style="color:#94A3B8;">لا توجد بيانات لتأخّر التمريض.</p>';
+    const labHtml = R.lab ? renderStageSection(R.lab, 'lab') : '<p style="color:#94A3B8;">لا توجد بيانات لتأخّر المختبر.</p>';
+
+    container.innerHTML = `
+        <button class="doc-back-btn" id="btnDocBack">→ تحليل ملفات أخرى</button>
+
+        <div class="doc-section">
+            <h4>${R.hospitalName} — تحليل شامل لعينات الطوارئ</h4>
+            <div class="doc-kpi-row">
+                <div class="doc-kpi">
+                    <div class="doc-kpi-label">عينات الطوارئ في KPI</div>
+                    <div class="doc-kpi-value">${R.totalErSamples.toLocaleString()}</div>
+                    <div class="doc-kpi-sub">عينة فريدة</div>
+                </div>
+                <div class="doc-kpi">
+                    <div class="doc-kpi-label">العينات المطابقة في Monitor</div>
+                    <div class="doc-kpi-value">${R.matchedErSamples.toLocaleString()}</div>
+                    <div class="doc-kpi-sub">صف مع تفاصيل الموظفين</div>
+                </div>
+                <div class="doc-kpi">
+                    <div class="doc-kpi-label">إجمالي الأطباء</div>
+                    <div class="doc-kpi-value">${R.promise ? R.promise.totalDoctors : '—'}</div>
+                    <div class="doc-kpi-sub">طبيب طلب اختبارات</div>
+                </div>
+                <div class="doc-kpi">
+                    <div class="doc-kpi-label">الفترة</div>
+                    <div class="doc-kpi-value" style="font-size:20px;">عينات الطوارئ فقط</div>
+                    <div class="doc-kpi-sub">مفلترة من KPI</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="doc-nav-tabs">
+            <button class="doc-tab active" data-target="sec-promise">🎯 الوعد التنفيذي</button>
+            <button class="doc-tab" data-target="sec-order">🩺 تأخّر الأطباء</button>
+            <button class="doc-tab" data-target="sec-nursing">💉 تأخّر التمريض</button>
+            <button class="doc-tab" data-target="sec-lab">🔬 تأخّر المختبر</button>
+        </div>
+
+        <div class="doc-tab-content active" id="sec-promise">${promiseHtml}</div>
+        <div class="doc-tab-content" id="sec-order">${orderHtml}</div>
+        <div class="doc-tab-content" id="sec-nursing">${nursingHtml}</div>
+        <div class="doc-tab-content" id="sec-lab">${labHtml}</div>
+    `;
+
+    document.getElementById('btnDocBack').addEventListener('click', () => {
+        resetDoctorsForm();
+    });
+
+    // tabs
+    document.querySelectorAll('.doc-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            const target = tab.dataset.target;
+            document.querySelectorAll('.doc-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.doc-tab-content').forEach(c => c.classList.remove('active'));
+            tab.classList.add('active');
+            document.getElementById(target).classList.add('active');
+        });
+    });
+}
+
+function renderPromiseSection(R) {
+    const avgClr = (v) => {
+        if (v <= 10) return 'avg-ok';
+        if (v <= 15) return 'avg-warn';
+        return 'avg-bad';
+    };
+    const rankClass = (i) => i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+    const byTotal = [...R.doctors].sort((a, b) => b.totalTests - a.totalTests).slice(0, 10);
+    const eligible = R.doctors.filter(d => d.patientCount >= 3);
+    const byAvg = eligible.sort((a, b) => b.avgTestsPerPatient - a.avgTestsPerPatient).slice(0, 10);
+
+    return `
+        <div class="doc-section">
+            <h4>الأطباء الأكثر طلباً للاختبارات (إجمالي)</h4>
+            <div class="doc-kpi-row" style="grid-template-columns:repeat(3,1fr); margin-bottom:18px;">
+                <div class="doc-kpi">
+                    <div class="doc-kpi-label">إجمالي الأطباء</div>
+                    <div class="doc-kpi-value">${R.totalDoctors}</div>
+                </div>
+                <div class="doc-kpi">
+                    <div class="doc-kpi-label">المتوسط العام</div>
+                    <div class="doc-kpi-value ${avgClr(R.overallAvg)}">${R.overallAvg.toFixed(2)}</div>
+                    <div class="doc-kpi-sub">اختبار/مريض</div>
+                </div>
+                <div class="doc-kpi">
+                    <div class="doc-kpi-label">أطباء فوق الهدف</div>
+                    <div class="doc-kpi-value avg-bad">${R.doctorsAboveTarget}</div>
+                    <div class="doc-kpi-sub">متوسطهم > ١٠</div>
+                </div>
+            </div>
+            <table class="doc-table">
+                <thead>
+                    <tr>
+                        <th class="num">#</th>
+                        <th>الطبيب</th>
+                        <th class="num">المرضى</th>
+                        <th class="num">الاختبارات</th>
+                        <th class="num">المتوسط/مريض</th>
+                        <th class="num">مرضى فوق ١٠</th>
+                        <th class="num">أعلى لمريض</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${byTotal.map((d, i) => `
+                        <tr>
+                            <td class="num"><span class="rank ${rankClass(i)}">${i + 1}</span></td>
+                            <td>${escapeHtml(d.name)}</td>
+                            <td class="num">${d.patientCount}</td>
+                            <td class="num">${d.totalTests.toLocaleString()}</td>
+                            <td class="num ${avgClr(d.avgTestsPerPatient)}">${d.avgTestsPerPatient.toFixed(2)}</td>
+                            <td class="num">${d.patientsExceeding}</td>
+                            <td class="num">${d.maxTestsOnePatient}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+
+        ${byAvg.length === 0 ? '' : `
+        <div class="doc-section">
+            <h4>أعلى الأطباء في متوسط الاختبارات/مريض</h4>
+            <p class="doc-section-note">مشروط بـ ٣ مرضى على الأقل. يكشف الأطباء الأكثر إفراطاً في طلب الاختبارات.</p>
+            <table class="doc-table">
+                <thead>
+                    <tr>
+                        <th class="num">#</th>
+                        <th>الطبيب</th>
+                        <th class="num">المتوسط/مريض</th>
+                        <th class="num">المرضى</th>
+                        <th class="num">الاختبارات</th>
+                        <th class="num">مرضى فوق ١٠</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${byAvg.map((d, i) => `
+                        <tr>
+                            <td class="num"><span class="rank ${rankClass(i)}">${i + 1}</span></td>
+                            <td>${escapeHtml(d.name)}</td>
+                            <td class="num ${avgClr(d.avgTestsPerPatient)}">${d.avgTestsPerPatient.toFixed(2)}</td>
+                            <td class="num">${d.patientCount}</td>
+                            <td class="num">${d.totalTests}</td>
+                            <td class="num">${d.patientsExceeding}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+        `}
+    `;
+}
+
+function renderStageSection(R, mode) {
+    const cfg = R.cfg;
+    const fmtMin = (m) => m.toFixed(1) + ' د';
+    const fmtPct = (p) => p.toFixed(0) + '%';
+    const rankClass = (i) => i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+    const timeClr = (m) => {
+        if (m <= cfg.targetMin) return 'avg-ok';
+        if (m <= cfg.targetMin * 1.5) return 'avg-warn';
+        return 'avg-bad';
+    };
+    const pctClr = (p) => {
+        if (p >= 90) return 'avg-ok';
+        if (p >= 70) return 'avg-warn';
+        return 'avg-bad';
+    };
+
+    const byDelayed = [...R.staffList].sort((a, b) => b.delayedCount - a.delayedCount).slice(0, 10);
+    const eligible = R.staffList.filter(s => s.totalSamples >= 5);
+    const byAvg = eligible.sort((a, b) => b.avgMinutes - a.avgMinutes).slice(0, 10);
+
+    return `
+        <div class="doc-section">
+            <h4>ملخص ${cfg.title}</h4>
+            <div class="doc-kpi-row">
+                <div class="doc-kpi">
+                    <div class="doc-kpi-label">إجمالي ${cfg.staffLabel}</div>
+                    <div class="doc-kpi-value">${R.totalStaff}</div>
+                </div>
+                <div class="doc-kpi">
+                    <div class="doc-kpi-label">إجمالي العينات</div>
+                    <div class="doc-kpi-value">${R.totalSamples.toLocaleString()}</div>
+                    <div class="doc-kpi-sub">${R.totalDelayed.toLocaleString()} متأخرة</div>
+                </div>
+                <div class="doc-kpi">
+                    <div class="doc-kpi-label">متوسط الزمن</div>
+                    <div class="doc-kpi-value ${timeClr(R.overallAvg)}">${fmtMin(R.overallAvg)}</div>
+                    <div class="doc-kpi-sub">المستهدف ${cfg.targetLabel}</div>
+                </div>
+                <div class="doc-kpi">
+                    <div class="doc-kpi-label">نسبة الالتزام</div>
+                    <div class="doc-kpi-value ${pctClr(R.overallCompliance)}">${fmtPct(R.overallCompliance)}</div>
+                    <div class="doc-kpi-sub">${R.staffAboveTarget} موظف فوق الهدف</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="doc-section">
+            <h4>أكثر الموظفين تأخراً (عدد العينات المتأخرة)</h4>
+            <table class="doc-table">
+                <thead>
+                    <tr>
+                        <th class="num">#</th>
+                        <th>${cfg.staffLabel}</th>
+                        <th class="num">إجمالي العينات</th>
+                        <th class="num">المتأخرة</th>
+                        <th class="num">نسبة الالتزام</th>
+                        <th class="num">متوسط الزمن</th>
+                        <th class="num">أعلى زمن</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${byDelayed.map((s, i) => `
+                        <tr>
+                            <td class="num"><span class="rank ${rankClass(i)}">${i + 1}</span></td>
+                            <td>${escapeHtml(s.name)}</td>
+                            <td class="num">${s.totalSamples}</td>
+                            <td class="num avg-bad">${s.delayedCount}</td>
+                            <td class="num ${pctClr(s.compliancePct)}">${fmtPct(s.compliancePct)}</td>
+                            <td class="num ${timeClr(s.avgMinutes)}">${fmtMin(s.avgMinutes)}</td>
+                            <td class="num">${fmtMin(s.maxMinutes)}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+
+        ${byAvg.length === 0 ? '' : `
+        <div class="doc-section">
+            <h4>أعلى الموظفين في متوسط الزمن</h4>
+            <p class="doc-section-note">مشروط بـ ٥ عينات على الأقل. يكشف الموظفين البطيئين بشكل منتظم.</p>
+            <table class="doc-table">
+                <thead>
+                    <tr>
+                        <th class="num">#</th>
+                        <th>${cfg.staffLabel}</th>
+                        <th class="num">متوسط الزمن</th>
+                        <th class="num">الوسيط</th>
+                        <th class="num">عينات</th>
+                        <th class="num">المتأخرة</th>
+                        <th class="num">الالتزام</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${byAvg.map((s, i) => `
+                        <tr>
+                            <td class="num"><span class="rank ${rankClass(i)}">${i + 1}</span></td>
+                            <td>${escapeHtml(s.name)}</td>
+                            <td class="num ${timeClr(s.avgMinutes)}">${fmtMin(s.avgMinutes)}</td>
+                            <td class="num">${fmtMin(s.medianMinutes)}</td>
+                            <td class="num">${s.totalSamples}</td>
+                            <td class="num">${s.delayedCount}</td>
+                            <td class="num ${pctClr(s.compliancePct)}">${fmtPct(s.compliancePct)}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+        `}
+    `;
+}
+
+// حساب تحليل مرحلة محددة (تأخّر الموظف بين timestamp البداية والنهاية)
+function computeStageAnalysis(monitorRows, mode, hospitalKey) {
+    const cfg = ANALYSIS_MODES[mode];
+
+    // أعمدة التواريخ
+    const startField = {
+        'order': 'orderDateTime',
+        'nursing': 'collectDateTime',
+        'lab': 'receiveDateTime'
+    }[mode];
+
+    const endField = {
+        'order': 'collectDateTime',
+        'nursing': 'dispatchDateTime',
+        'lab': 'completeDateTime'
+    }[mode];
+
+    const staffField = {
+        'order': 'orderedBy',
+        'nursing': 'collectedBy',
+        'lab': 'receivedBy'
+    }[mode];
+
+    const targetMin = cfg.targetMin;
+
+    // نبني خريطة: staff → list of durations (بالدقائق)
+    const staffMap = new Map();
+    let processedCount = 0;
+    let validDurationCount = 0;
+
+    monitorRows.forEach(row => {
+        const start = row[startField];
+        const end = row[endField];
+        const staff = row[staffField];
+
+        if (!start || !end || !staff) return;
+        if (!(start instanceof Date) || !(end instanceof Date)) return;
+
+        const diffMs = end - start;
+        if (diffMs < 0 || diffMs > 24 * 60 * 60 * 1000) return; // نتجاهل الأخطاء الكبيرة (>24س أو سالب)
+
+        const diffMin = diffMs / 60000;
+        const staffName = String(staff).trim();
+        if (!staffName) return;
+
+        if (!staffMap.has(staffName)) {
+            staffMap.set(staffName, { durations: [], delayedCount: 0, totalSamples: 0 });
+        }
+        const entry = staffMap.get(staffName);
+        entry.durations.push(diffMin);
+        entry.totalSamples++;
+        if (diffMin > targetMin) entry.delayedCount++;
+        validDurationCount++;
+        processedCount++;
+    });
+
+    console.log(`[${mode}] Processed: ${processedCount}, Valid: ${validDurationCount}, Staff: ${staffMap.size}`);
+
+    if (staffMap.size === 0) return null;
+
+    // نحوّل لمصفوفة
+    const staffList = [];
+    staffMap.forEach((entry, name) => {
+        const durations = entry.durations.sort((a, b) => a - b);
+        const sum = durations.reduce((s, d) => s + d, 0);
+        const avg = sum / durations.length;
+        const median = durations[Math.floor(durations.length / 2)];
+        const maxD = durations[durations.length - 1];
+        const compliancePct = ((entry.totalSamples - entry.delayedCount) / entry.totalSamples) * 100;
+
+        staffList.push({
+            name,
+            totalSamples: entry.totalSamples,
+            delayedCount: entry.delayedCount,
+            avgMinutes: avg,
+            medianMinutes: median,
+            maxMinutes: maxD,
+            compliancePct
+        });
+    });
+
+    // إحصاءات عامة
+    const totalStaff = staffList.length;
+    const totalSamples = staffList.reduce((s, x) => s + x.totalSamples, 0);
+    const totalDelayed = staffList.reduce((s, x) => s + x.delayedCount, 0);
+    const overallCompliance = totalSamples > 0 ? ((totalSamples - totalDelayed) / totalSamples) * 100 : 0;
+    const overallAvg = totalSamples > 0
+        ? staffList.reduce((s, x) => s + x.avgMinutes * x.totalSamples, 0) / totalSamples
+        : 0;
+    const staffAboveTarget = staffList.filter(s => s.avgMinutes > targetMin).length;
+
+    return {
+        mode,
+        hospitalKey,
+        hospitalName: HOSPITALS[hospitalKey] ? (HOSPITALS[hospitalKey].ar || hospitalKey) : hospitalKey,
+        cfg,
+        staffList,
+        totalStaff,
+        totalSamples,
+        totalDelayed,
+        overallCompliance,
+        overallAvg,
+        staffAboveTarget
+    };
+}
+
+function renderStageResults(R, mode) {
+    const container = document.getElementById('docResults');
+    const cfg = R.cfg;
+
+    // ترتيب 1: أكثر تأخراً (بإجمالي العينات المتأخرة)
+    const byDelayed = [...R.staffList].sort((a, b) => b.delayedCount - a.delayedCount);
+    const top10Delayed = byDelayed.slice(0, 10);
+
+    // ترتيب 2: أعلى متوسط زمن (مع شرط ≥ 5 عينات)
+    const eligible = R.staffList.filter(s => s.totalSamples >= 5);
+    const byAvg = eligible.sort((a, b) => b.avgMinutes - a.avgMinutes);
+    const top10Avg = byAvg.slice(0, 10);
+
+    const fmtMin = (m) => m.toFixed(1) + ' د';
+    const fmtPct = (p) => p.toFixed(0) + '%';
+    const rankClass = (i) => i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+
+    const timeClr = (m) => {
+        if (m <= cfg.targetMin) return 'avg-ok';
+        if (m <= cfg.targetMin * 1.5) return 'avg-warn';
+        return 'avg-bad';
+    };
+    const pctClr = (p) => {
+        if (p >= 90) return 'avg-ok';
+        if (p >= 70) return 'avg-warn';
+        return 'avg-bad';
+    };
+
+    container.innerHTML = `
+        <button class="doc-back-btn" id="btnDocBack">→ العودة لاختيار التحليل</button>
+
+        <div class="doc-section">
+            <h4>${R.hospitalName} — ${cfg.title}</h4>
+            <div class="doc-kpi-row">
+                <div class="doc-kpi">
+                    <div class="doc-kpi-label">إجمالي ${cfg.staffLabel}</div>
+                    <div class="doc-kpi-value">${R.totalStaff}</div>
+                    <div class="doc-kpi-sub">شارك في هذه المرحلة</div>
+                </div>
+                <div class="doc-kpi">
+                    <div class="doc-kpi-label">إجمالي العينات</div>
+                    <div class="doc-kpi-value">${R.totalSamples.toLocaleString()}</div>
+                    <div class="doc-kpi-sub">${R.totalDelayed.toLocaleString()} متأخرة</div>
+                </div>
+                <div class="doc-kpi">
+                    <div class="doc-kpi-label">المتوسط العام للزمن</div>
+                    <div class="doc-kpi-value ${timeClr(R.overallAvg)}">${fmtMin(R.overallAvg)}</div>
+                    <div class="doc-kpi-sub">المستهدف ${cfg.targetLabel}</div>
+                </div>
+                <div class="doc-kpi">
+                    <div class="doc-kpi-label">نسبة الالتزام</div>
+                    <div class="doc-kpi-value ${pctClr(R.overallCompliance)}">${fmtPct(R.overallCompliance)}</div>
+                    <div class="doc-kpi-sub">${R.staffAboveTarget} موظف متوسطه فوق المستهدف</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="doc-section">
+            <h4>أكثر ١٠ موظفين تأخراً (عدد العينات المتأخرة)</h4>
+            <p class="doc-section-note">مرتّبة بعدد العينات التي تجاوزت المستهدف (${cfg.targetLabel}). يعرض من أكثرهم تسبباً في تأخر العينات.</p>
+            <table class="doc-table">
+                <thead>
+                    <tr>
+                        <th class="num">الترتيب</th>
+                        <th>${cfg.staffLabel}</th>
+                        <th class="num">إجمالي عيناته</th>
+                        <th class="num">المتأخرة</th>
+                        <th class="num">نسبة الالتزام</th>
+                        <th class="num">متوسط الزمن</th>
+                        <th class="num">أعلى زمن</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${top10Delayed.map((s, i) => `
+                        <tr>
+                            <td class="num"><span class="rank ${rankClass(i)}">${i + 1}</span></td>
+                            <td>${escapeHtml(s.name)}</td>
+                            <td class="num">${s.totalSamples}</td>
+                            <td class="num avg-bad">${s.delayedCount}</td>
+                            <td class="num ${pctClr(s.compliancePct)}">${fmtPct(s.compliancePct)}</td>
+                            <td class="num ${timeClr(s.avgMinutes)}">${fmtMin(s.avgMinutes)}</td>
+                            <td class="num">${fmtMin(s.maxMinutes)}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="doc-section">
+            <h4>أعلى ١٠ موظفين في متوسط الزمن</h4>
+            <p class="doc-section-note">مرتّبة بمتوسط الزمن المستغرق. مشروط بأن يكون الموظف عمل على ٥ عينات على الأقل. يكشف الموظفين البطيئين بشكل منتظم (وليس فقط حالة استثنائية).</p>
+            ${top10Avg.length === 0 ? '<p style="color:#94A3B8;">لا توجد بيانات كافية.</p>' : `
+            <table class="doc-table">
+                <thead>
+                    <tr>
+                        <th class="num">الترتيب</th>
+                        <th>${cfg.staffLabel}</th>
+                        <th class="num">متوسط الزمن</th>
+                        <th class="num">الوسيط</th>
+                        <th class="num">إجمالي عيناته</th>
+                        <th class="num">المتأخرة</th>
+                        <th class="num">نسبة الالتزام</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${top10Avg.map((s, i) => `
+                        <tr>
+                            <td class="num"><span class="rank ${rankClass(i)}">${i + 1}</span></td>
+                            <td>${escapeHtml(s.name)}</td>
+                            <td class="num ${timeClr(s.avgMinutes)}">${fmtMin(s.avgMinutes)}</td>
+                            <td class="num">${fmtMin(s.medianMinutes)}</td>
+                            <td class="num">${s.totalSamples}</td>
+                            <td class="num">${s.delayedCount}</td>
+                            <td class="num ${pctClr(s.compliancePct)}">${fmtPct(s.compliancePct)}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+            `}
+        </div>
+    `;
+
+    document.getElementById('btnDocBack').addEventListener('click', () => {
+        resetDoctorsForm();
+    });
 }
 
 function isErType(type) {
@@ -7613,7 +8324,7 @@ function renderDoctorResults(R) {
     const top10ByAvg = byAvg.slice(0, 10);
 
     container.innerHTML = `
-        <button class="doc-back-btn" id="btnDocBack">→ تحليل ملفات أخرى</button>
+        <button class="doc-back-btn" id="btnDocBack">→ العودة لاختيار التحليل</button>
 
         <div class="doc-section">
             <h4>${R.hospitalName} — ملخص تحليل الأطباء</h4>
@@ -7706,9 +8417,7 @@ function renderDoctorResults(R) {
     `;
 
     document.getElementById('btnDocBack').addEventListener('click', () => {
-        document.getElementById('docUploadCard').style.display = 'block';
-        document.getElementById('docResults').style.display = 'none';
-        document.getElementById('docStatus').textContent = '';
+        resetDoctorsForm();
     });
 }
 
