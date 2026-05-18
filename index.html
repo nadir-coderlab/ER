@@ -229,6 +229,58 @@ body {
 .upload-status.success { color: var(--accent-emerald); }
 .upload-status.error { color: var(--accent-rose); }
 
+/* Lab Monitor block (comprehensive analysis) */
+.monitor-block {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed rgba(139, 92, 246, 0.3);
+}
+.monitor-wrap {
+    position: relative;
+}
+.monitor-label {
+    background: rgba(139, 92, 246, 0.08) !important;
+    border: 1px dashed rgba(139, 92, 246, 0.4) !important;
+    color: #A78BFA !important;
+    font-size: 11px !important;
+}
+.upload-card:hover .monitor-label {
+    background: rgba(139, 92, 246, 0.15) !important;
+    border-color: rgba(139, 92, 246, 0.6) !important;
+}
+.monitor-label.loaded {
+    background: rgba(16, 185, 129, 0.15) !important;
+    border-color: rgba(16, 185, 129, 0.6) !important;
+    color: #34D399 !important;
+}
+.btn-comp-analyze {
+    display: block;
+    width: 100%;
+    margin-top: 8px;
+    padding: 10px 14px;
+    background: linear-gradient(135deg, #8B5CF6, #6D28D9);
+    color: #FFFFFF;
+    border: 1px solid #A78BFA;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.btn-comp-analyze:hover {
+    background: linear-gradient(135deg, #A78BFA, #7C3AED);
+    transform: translateY(-1px);
+}
+.monitor-status {
+    margin-top: 6px;
+    font-size: 10.5px;
+    color: #A4ADC2;
+    min-height: 16px;
+}
+.monitor-status.success { color: #34D399; }
+.monitor-status.error { color: #F87171; }
+
 /* ACTIONS */
 .actions-bar {
     display: flex; justify-content: space-between; align-items: center;
@@ -3633,6 +3685,1761 @@ body {
 .doc-tab-content { display: none; }
 .doc-tab-content.active { display: block; }
 
+/* === Comprehensive Analysis Modal === */
+.comp-content {
+    background: #0F172A;
+    padding: 24px 32px;
+    overflow-y: auto;
+    max-height: calc(100vh - 80px);
+    color: #E2E8F0;
+}
+.comp-hosp-header {
+    background: linear-gradient(135deg, #1E293B, #0F172A);
+    border: 1px solid #334155;
+    border-right: 4px solid #8B5CF6;
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-bottom: 20px;
+}
+.comp-hosp-header h3 {
+    color: #F1F5F9;
+    font-size: 22px;
+    font-weight: 800;
+    margin: 0 0 6px;
+}
+.comp-hosp-header .sub {
+    color: #94A3B8;
+    font-size: 13px;
+}
+.comp-section {
+    background: #1E293B;
+    border: 1px solid #334155;
+    border-radius: 10px;
+    padding: 18px 22px;
+    margin-bottom: 18px;
+}
+.comp-section h4 {
+    color: #F1F5F9;
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0 0 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #334155;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.comp-section h4::before {
+    content: '';
+    width: 4px;
+    height: 16px;
+    background: #8B5CF6;
+    border-radius: 2px;
+}
+.comp-kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 18px;
+}
+.comp-kpi {
+    background: #0F172A;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 14px 16px;
+}
+.comp-kpi .l {
+    font-size: 11px;
+    color: #94A3B8;
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+.comp-kpi .v {
+    font-size: 28px;
+    font-weight: 800;
+    color: #F1F5F9;
+    line-height: 1;
+}
+.comp-kpi .sub {
+    font-size: 11px;
+    color: #64748B;
+    margin-top: 6px;
+}
+.comp-kpi.good .v { color: #34D399; }
+.comp-kpi.warn .v { color: #FBBF24; }
+.comp-kpi.bad .v { color: #F87171; }
+
+.comp-heat {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 2px;
+    table-layout: fixed;
+}
+.comp-heat th {
+    background: transparent;
+    color: #94A3B8;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 6px 0;
+    text-align: center;
+}
+.comp-heat .hh-corner {
+    background: #334155;
+    color: #FFFFFF;
+    border-radius: 6px;
+    text-align: right;
+    padding-right: 12px;
+    width: 140px;
+    font-size: 12px;
+}
+.comp-heat .hh-name {
+    background: #0F172A;
+    color: #E2E8F0;
+    font-weight: 600;
+    text-align: right;
+    padding: 8px 12px;
+    font-size: 12px;
+    border-radius: 5px;
+    border: 1px solid #334155;
+}
+.comp-heat .hh-cell {
+    padding: 3px 1px;
+    text-align: center;
+    border-radius: 4px;
+    line-height: 1.1;
+    height: 42px;
+}
+.comp-heat .hh-cell.empty {
+    border: 1px dashed #334155;
+    background: #0F172A;
+}
+.comp-heat .hh-pct {
+    font-weight: 700;
+    font-size: 11.5px;
+    line-height: 1;
+}
+.comp-heat .hh-cnt {
+    font-weight: 400;
+    font-size: 9.5px;
+    opacity: 0.85;
+    margin-top: 2px;
+}
+
+.comp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+.comp-table thead th {
+    background: #0F172A;
+    color: #CBD5E1;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 10px 12px;
+    text-align: right;
+    border-bottom: 2px solid #334155;
+}
+.comp-table thead th.num { text-align: center; }
+.comp-table tbody tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+.comp-table tbody td {
+    padding: 9px 12px;
+    border-bottom: 1px solid #334155;
+    color: #E2E8F0;
+}
+.comp-table tbody td.num {
+    text-align: center;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+}
+.comp-table .rank {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    background: #334155;
+    color: #F1F5F9;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 12px;
+}
+.comp-table .rank.gold { background: #EAB308; color: #1F2937; }
+.comp-table .rank.silver { background: #CBD5E1; color: #1F2937; }
+.comp-table .rank.bronze { background: #B45309; color: #FFFFFF; }
+.comp-table .ok { color: #34D399; font-weight: 700; }
+.comp-table .warn { color: #FBBF24; font-weight: 700; }
+.comp-table .bad { color: #F87171; font-weight: 700; }
+.comp-empty {
+    color: #94A3B8;
+    text-align: center;
+    padding: 30px;
+    background: #0F172A;
+    border: 1px dashed #334155;
+    border-radius: 8px;
+}
+
+/* === V2: Hero & Executive Summary === */
+.comp-hero {
+    position: relative;
+    background: linear-gradient(135deg, #1E1B4B 0%, #312E81 50%, #4C1D95 100%);
+    border-radius: 14px;
+    padding: 32px 40px;
+    margin-bottom: 22px;
+    overflow: hidden;
+    border: 1px solid #6D28D9;
+}
+.comp-hero-bg {
+    position: absolute;
+    top: -50%; right: -10%;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.4) 0%, transparent 70%);
+    pointer-events: none;
+}
+.comp-hero-content { position: relative; z-index: 1; }
+.comp-hero-tag {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.15);
+    color: #E9D5FF;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 5px 14px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+    margin-bottom: 14px;
+}
+.comp-hero-title {
+    color: #FFFFFF;
+    font-size: 32px;
+    font-weight: 800;
+    margin: 0 0 6px;
+    line-height: 1.2;
+}
+.comp-hero-sub {
+    color: #C4B5FD;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 18px;
+    direction: ltr;
+    text-align: right;
+}
+.comp-hero-meta {
+    display: flex;
+    gap: 22px;
+    flex-wrap: wrap;
+    color: #DDD6FE;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* Executive summary */
+.comp-exec .exec-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 24px;
+    margin-bottom: 22px;
+    align-items: center;
+}
+.exec-main-kpi {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+.exec-circle {
+    width: 130px; height: 130px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+.exec-circle-inner {
+    width: 100px; height: 100px;
+    background: #1E293B;
+    border-radius: 50%;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+}
+.exec-circle-value {
+    font-size: 30px;
+    font-weight: 900;
+    line-height: 1;
+}
+.exec-circle-label {
+    font-size: 11px;
+    color: #94A3B8;
+    margin-top: 4px;
+    font-weight: 600;
+}
+.exec-main-info { flex: 1; }
+.exec-main-title {
+    color: #F1F5F9;
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+.exec-main-desc {
+    color: #94A3B8;
+    font-size: 13px;
+    line-height: 1.5;
+}
+.exec-stages {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.exec-stage { display: grid; grid-template-columns: 1fr 60px; gap: 10px; align-items: center; }
+.exec-stage-head {
+    grid-column: 1 / -1;
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 4px;
+}
+.exec-stage-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+}
+.exec-stage-name {
+    color: #E2E8F0;
+    font-size: 13px;
+    font-weight: 700;
+    flex: 1;
+}
+.exec-stage-target {
+    color: #94A3B8;
+    font-size: 11px;
+    background: #0F172A;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+.exec-stage-bar {
+    grid-column: 1;
+    height: 8px;
+    background: #0F172A;
+    border-radius: 4px;
+    overflow: hidden;
+}
+.exec-stage-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.4s;
+}
+.exec-stage-pct {
+    grid-column: 2;
+    font-size: 14px;
+    font-weight: 800;
+    color: #F1F5F9;
+    text-align: left;
+    direction: ltr;
+}
+.exec-numbers {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    padding-top: 18px;
+    border-top: 1px solid #334155;
+}
+.exec-num {
+    text-align: center;
+    background: #0F172A;
+    border: 1px solid #334155;
+    padding: 12px 8px;
+    border-radius: 8px;
+}
+.exec-num-label {
+    font-size: 11px;
+    color: #94A3B8;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+.exec-num-value {
+    font-size: 22px;
+    font-weight: 800;
+    color: #F1F5F9;
+}
+
+/* Stage section with color */
+.stage-section {
+    border-right: 4px solid var(--stage-color, #8B5CF6) !important;
+}
+.stage-header {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #334155;
+}
+.stage-icon-big {
+    font-size: 32px;
+    width: 56px; height: 56px;
+    background: var(--stage-color, #8B5CF6);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+.stage-title-block { flex: 1; }
+.stage-title-block h4 {
+    margin: 0 0 4px;
+    padding: 0;
+    border: none;
+    color: #F1F5F9;
+    font-size: 18px;
+}
+.stage-title-block h4::before { display: none; }
+.stage-sub {
+    color: #94A3B8;
+    font-size: 13px;
+    margin: 0;
+}
+.comp-sub-title {
+    color: #CBD5E1;
+    font-size: 14px;
+    font-weight: 700;
+    margin: 14px 0 10px;
+    display: flex; align-items: center; gap: 8px;
+}
+.comp-section-desc {
+    color: #94A3B8;
+    font-size: 12.5px;
+    margin: 0 0 12px;
+    line-height: 1.6;
+}
+
+/* Heatmap insights */
+.heatmap-insights {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin: 14px 0 18px;
+}
+.hm-insight {
+    background: #0F172A;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 12px 14px;
+    text-align: center;
+}
+.hm-insight-label {
+    font-size: 11px;
+    color: #94A3B8;
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+.hm-insight-value {
+    font-size: 20px;
+    font-weight: 800;
+    color: #F1F5F9;
+    line-height: 1;
+}
+.hm-insight-sub {
+    font-size: 11px;
+    color: #64748B;
+    margin-top: 4px;
+}
+.heatmap-legend {
+    margin-top: 12px;
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    font-size: 11.5px;
+    color: #94A3B8;
+}
+.heatmap-legend .lg-dot {
+    display: inline-block;
+    width: 12px; height: 12px;
+    border-radius: 2px;
+    vertical-align: middle;
+    margin-left: 4px;
+}
+.heatmap-legend .lg-dot.lg-empty {
+    background: #1E293B;
+    border: 1px dashed #334155;
+}
+
+/* Summary compliance table */
+.comp-table-summary thead th { background: #312E81 !important; color: #FFF; }
+.comp-table-summary tbody td { padding: 12px; font-size: 13px; }
+.stage-icon { display: inline-block; margin-left: 6px; font-size: 16px; }
+.staff-cell {
+    direction: rtl;
+    font-weight: 600;
+    color: #F1F5F9;
+}
+
+/* Footer */
+.comp-footer {
+    background: #0F172A;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 14px 22px;
+    text-align: center;
+    margin-top: 22px;
+    color: #94A3B8;
+    font-size: 12px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/* PDF light-mode override */
+.pdf-light-mode * { color: #1A2433 !important; }
+.pdf-light-mode .comp-section {
+    background: #FFFFFF !important;
+    border: 1px solid #E2E8F0 !important;
+    border-right: 4px solid var(--stage-color, #8B5CF6) !important;
+}
+.pdf-light-mode .comp-section h4 { color: #063A58 !important; border-bottom-color: #E2E8F0 !important; }
+.pdf-light-mode .comp-section h4::before { background: #8B5CF6; }
+.pdf-light-mode .stage-title-block h4 { color: #063A58 !important; }
+.pdf-light-mode .stage-sub { color: #4A5A6B !important; }
+.pdf-light-mode .comp-hero {
+    background: linear-gradient(135deg, #063A58 0%, #0E5C7E 100%) !important;
+    border: none !important;
+}
+.pdf-light-mode .comp-hero * { color: #FFFFFF !important; }
+.pdf-light-mode .comp-hero-tag { background: rgba(255,255,255,0.2) !important; }
+.pdf-light-mode .comp-hero-sub { color: #BFDBFE !important; }
+.pdf-light-mode .comp-hero-meta { color: #DBEAFE !important; }
+.pdf-light-mode .comp-kpi {
+    background: #F7FAFC !important;
+    border: 1px solid #E2E8F0 !important;
+}
+.pdf-light-mode .comp-kpi .l { color: #6B7280 !important; }
+.pdf-light-mode .comp-kpi .v { color: #1A2433 !important; }
+.pdf-light-mode .comp-kpi .sub { color: #6B7280 !important; }
+.pdf-light-mode .comp-kpi.good .v { color: #047857 !important; }
+.pdf-light-mode .comp-kpi.warn .v { color: #B45309 !important; }
+.pdf-light-mode .comp-kpi.bad .v { color: #B91C1C !important; }
+.pdf-light-mode .comp-table thead th { background: #063A58 !important; color: #FFFFFF !important; }
+.pdf-light-mode .comp-table-summary thead th { background: #4C1D95 !important; color: #FFFFFF !important; }
+.pdf-light-mode .comp-table tbody tr:nth-child(even) { background: #F7FAFC !important; }
+.pdf-light-mode .comp-table tbody td { border-bottom-color: #E2E8F0 !important; color: #1A2433 !important; }
+.pdf-light-mode .comp-table .ok { color: #047857 !important; }
+.pdf-light-mode .comp-table .warn { color: #B45309 !important; }
+.pdf-light-mode .comp-table .bad { color: #B91C1C !important; }
+.pdf-light-mode .comp-heat .hh-corner { background: #334155 !important; color: #FFFFFF !important; }
+.pdf-light-mode .comp-heat .hh-name {
+    background: #F7FAFC !important;
+    color: #1A2433 !important;
+    border: 1px solid #E2E8F0 !important;
+}
+.pdf-light-mode .comp-heat .hh-cell.empty { background: #F7FAFC !important; border: 1px dashed #CBD5E0 !important; }
+.pdf-light-mode .exec-circle-inner { background: #F7FAFC !important; }
+.pdf-light-mode .exec-circle-label { color: #6B7280 !important; }
+.pdf-light-mode .exec-main-desc { color: #4A5A6B !important; }
+.pdf-light-mode .exec-stage-target { background: #F1F5F9 !important; color: #4A5A6B !important; }
+.pdf-light-mode .exec-stage-bar { background: #E2E8F0 !important; }
+.pdf-light-mode .exec-num {
+    background: #F7FAFC !important;
+    border: 1px solid #E2E8F0 !important;
+}
+.pdf-light-mode .exec-num-label { color: #6B7280 !important; }
+.pdf-light-mode .hm-insight {
+    background: #F7FAFC !important;
+    border: 1px solid #E2E8F0 !important;
+}
+.pdf-light-mode .hm-insight-label { color: #6B7280 !important; }
+.pdf-light-mode .hm-insight-sub { color: #6B7280 !important; }
+.pdf-light-mode .heatmap-legend { color: #4A5A6B !important; }
+.pdf-light-mode .heatmap-legend .lg-empty { background: #F7FAFC !important; border: 1px dashed #CBD5E0 !important; }
+.pdf-light-mode .comp-footer {
+    background: #F7FAFC !important;
+    border: 1px solid #E2E8F0 !important;
+    color: #4A5A6B !important;
+}
+.pdf-light-mode .comp-sub-title { color: #1A2433 !important; }
+.pdf-light-mode .comp-section-desc { color: #4A5A6B !important; }
+.pdf-light-mode .staff-cell { color: #1A2433 !important; }
+
+/* ========================================
+   V5 — Professional PDF-style multi-page report
+   ======================================== */
+
+/* تبديل خلفية المحتوى لأبيض للتقرير الاحترافي */
+.comp-content {
+    background: #F1F5F9 !important;
+    padding: 30px !important;
+}
+
+.rep-doc {
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    align-items: center;
+}
+
+.rep-page {
+    background: #FFFFFF;
+    width: 800px;
+    min-height: 1130px;
+    padding: 40px 50px;
+    box-sizing: border-box;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    color: #1A2433;
+    font-family: 'Cairo', 'Tajawal', sans-serif;
+    direction: rtl;
+    page-break-after: always;
+    position: relative;
+}
+
+/* الرأس */
+.rep-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 14px;
+    border-bottom: 2px solid #E5EAF0;
+    margin-bottom: 22px;
+}
+.rep-header-right {
+    text-align: right;
+}
+.rep-header-hosp-ar {
+    color: #063A58;
+    font-size: 17px;
+    font-weight: 800;
+}
+.rep-header-hosp-en {
+    color: #6B7280;
+    font-size: 11px;
+    direction: ltr;
+    text-align: right;
+}
+.rep-header-logo-mark {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, #063A58, #0E5C7E);
+    color: #FFFFFF;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+}
+
+/* الجسم */
+.rep-body {
+    flex: 1;
+}
+
+.rep-section-title {
+    color: #063A58;
+    font-size: 26px;
+    font-weight: 800;
+    margin: 0 0 6px;
+    padding-right: 14px;
+    border-right: 4px solid #063A58;
+}
+.rep-section-sub {
+    color: #6B7280;
+    font-size: 13px;
+    margin: 0 0 24px;
+    padding-right: 18px;
+    line-height: 1.6;
+}
+.rep-subsection-title {
+    color: #1A2433;
+    font-size: 16px;
+    font-weight: 800;
+    margin: 0 0 4px;
+}
+.rep-subsection-desc {
+    color: #6B7280;
+    font-size: 12px;
+    margin: 0 0 12px;
+}
+
+/* التذييل */
+.rep-page-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 14px;
+    margin-top: auto;
+    border-top: 1px solid #E5EAF0;
+    color: #6B7280;
+    font-size: 11px;
+}
+.rep-footer-left {
+    background: #063A58;
+    color: #FFFFFF;
+    padding: 3px 12px;
+    border-radius: 4px;
+    font-weight: 700;
+}
+
+/* ===== صفحة الغلاف ===== */
+.rep-cover {
+    justify-content: space-between;
+    background: #FFFFFF;
+}
+.rep-cover-logo {
+    padding-top: 10px;
+}
+.logo-mark {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.logo-icon {
+    width: 56px; height: 56px;
+    background: linear-gradient(135deg, #063A58, #0E5C7E);
+    color: #FFFFFF;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+}
+.logo-text {
+    text-align: right;
+}
+.logo-ar {
+    color: #063A58;
+    font-size: 17px;
+    font-weight: 800;
+}
+.logo-en {
+    color: #6B7280;
+    font-size: 11px;
+    direction: ltr;
+    text-align: right;
+    margin-top: 2px;
+}
+
+.rep-cover-main {
+    text-align: center;
+    margin: 60px 0 50px;
+}
+.rep-cover-tag {
+    color: #6B7280;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+.rep-cover-title {
+    color: #063A58;
+    font-size: 52px;
+    font-weight: 900;
+    margin: 0 0 6px;
+    line-height: 1.1;
+}
+.rep-cover-en {
+    color: #6B7280;
+    font-size: 16px;
+    direction: ltr;
+    margin-bottom: 22px;
+}
+.rep-cover-date {
+    display: inline-block;
+    background: #F0F4F8;
+    color: #063A58;
+    padding: 6px 22px;
+    border: 1px solid #D5DEE7;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.rep-cover-kpis {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 40px;
+}
+.rep-cover-kpi {
+    background: #F8FAFC;
+    border: 1px solid #E5EAF0;
+    border-radius: 12px;
+    padding: 20px 18px;
+    text-align: center;
+}
+.rep-cover-kpi.highlight {
+    background: linear-gradient(135deg, #FEF2F2, #FFFBEB);
+    border-color: #FECACA;
+}
+.rck-label {
+    color: #6B7280;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+.rck-value {
+    color: #063A58;
+    font-size: 44px;
+    font-weight: 900;
+    line-height: 1;
+}
+.rck-unit {
+    font-size: 22px;
+    font-weight: 700;
+    color: #6B7280;
+    margin-right: 4px;
+}
+.rck-sub {
+    color: #6B7280;
+    font-size: 11px;
+    margin-top: 10px;
+}
+
+.rep-cover-toc {
+    margin-top: 20px;
+}
+
+/* Staff summary row on cover */
+.rep-cover-staff-summary {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 26px;
+    background: linear-gradient(135deg, #F0F4F8, #F8FAFC);
+    border: 1px solid #D5DEE7;
+    border-radius: 10px;
+    padding: 18px 20px;
+}
+.rcss-item {
+    text-align: center;
+    padding: 6px 10px;
+    border-right: 1px solid #D5DEE7;
+}
+.rcss-item:last-child { border-right: none; }
+.rcss-value {
+    color: #063A58;
+    font-size: 32px;
+    font-weight: 900;
+    line-height: 1;
+}
+.rcss-label {
+    color: #6B7280;
+    font-size: 12px;
+    margin-top: 6px;
+    font-weight: 600;
+}
+
+/* Criteria box on cover */
+.rep-cover-criteria {
+    background: #FFFBEB;
+    border: 1px solid #FDE68A;
+    border-right: 4px solid #F59E0B;
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 22px;
+}
+.rcc-title {
+    color: #92400E;
+    font-size: 13px;
+    font-weight: 800;
+    margin-bottom: 8px;
+}
+.rcc-list {
+    margin: 0;
+    padding-right: 18px;
+    color: #1F2937;
+    font-size: 11.5px;
+    line-height: 1.85;
+}
+.rcc-list li {
+    margin-bottom: 2px;
+}
+.rcc-list b {
+    color: #92400E;
+    font-weight: 800;
+}
+.rep-toc-title {
+    color: #063A58;
+    font-size: 17px;
+    font-weight: 800;
+    margin-bottom: 14px;
+    text-align: right;
+}
+.rep-toc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+.rep-toc-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #F8FAFC;
+    border: 1px solid #E5EAF0;
+    border-radius: 6px;
+    padding: 10px 14px;
+}
+.rt-num {
+    background: #063A58;
+    color: #FFFFFF;
+    width: 24px; height: 24px;
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    font-weight: 800;
+    flex-shrink: 0;
+}
+.rt-text {
+    color: #1A2433;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* ===== KPI Boxes ===== */
+.rep-kpis-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin-bottom: 22px;
+}
+.rep-kpi-box {
+    background: #F8FAFC;
+    border: 1px solid #E5EAF0;
+    border-radius: 10px;
+    padding: 14px 12px;
+    text-align: center;
+}
+.rep-kpi-box.green { background: linear-gradient(135deg, #ECFDF5, #F0FDF4); border-color: #BBF7D0; }
+.rep-kpi-box.amber { background: linear-gradient(135deg, #FFFBEB, #FEF3C7); border-color: #FDE68A; }
+.rep-kpi-box.red { background: linear-gradient(135deg, #FEF2F2, #FFE4E6); border-color: #FECACA; }
+.rep-kpi-box.navy { background: linear-gradient(135deg, #EFF6FF, #DBEAFE); border-color: #BFDBFE; }
+.rkb-label {
+    color: #6B7280;
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+.rkb-value {
+    color: #063A58;
+    font-size: 28px;
+    font-weight: 900;
+    line-height: 1;
+}
+.rkb-unit {
+    font-size: 13px;
+    font-weight: 600;
+    color: #6B7280;
+    margin-right: 3px;
+}
+.rkb-sub {
+    color: #6B7280;
+    font-size: 10px;
+    margin-top: 6px;
+}
+
+/* ===== أعمدة ===== */
+.rep-two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 18px;
+}
+.rep-col {
+    background: #F8FAFC;
+    border: 1px solid #E5EAF0;
+    border-radius: 10px;
+    padding: 16px 18px;
+}
+
+/* ===== Donut Chart ===== */
+.rep-donut {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+.rep-donut-svg {
+    position: relative;
+    width: 180px;
+    height: 180px;
+    flex-shrink: 0;
+}
+.rep-donut-center {
+    position: absolute;
+    inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+}
+.rdc-value {
+    color: #063A58;
+    font-size: 32px;
+    font-weight: 900;
+    line-height: 1;
+}
+.rdc-label {
+    color: #6B7280;
+    font-size: 11px;
+    margin-top: 4px;
+}
+.rep-donut-legend {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.rep-leg-item {
+    display: grid;
+    grid-template-columns: 14px 1fr auto auto;
+    gap: 8px;
+    padding: 6px 10px;
+    background: #FFFFFF;
+    border: 1px solid #E5EAF0;
+    border-radius: 5px;
+    font-size: 11px;
+}
+.rep-leg-dot {
+    width: 12px; height: 12px;
+    border-radius: 3px;
+}
+.rep-leg-name {
+    color: #1A2433;
+    font-weight: 600;
+}
+.rep-leg-pct {
+    font-weight: 800;
+    color: #063A58;
+    direction: ltr;
+}
+.rep-leg-n {
+    color: #6B7280;
+    font-size: 10px;
+    direction: ltr;
+}
+
+/* ===== Compliance Bars ===== */
+.rep-comp-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+.rep-cb-item {
+    background: #FFFFFF;
+    border: 1px solid #E5EAF0;
+    border-radius: 8px;
+    padding: 10px 14px;
+}
+.rep-cb-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+.rep-cb-label {
+    color: #1A2433;
+    font-size: 12px;
+    font-weight: 700;
+}
+.rep-cb-pct {
+    font-size: 18px;
+    font-weight: 900;
+    direction: ltr;
+}
+.rep-cb-sub {
+    color: #6B7280;
+    font-size: 10px;
+    margin: 4px 0 6px;
+}
+.rep-cb-bar {
+    position: relative;
+    height: 8px;
+    background: #E5EAF0;
+    border-radius: 4px;
+    overflow: visible;
+}
+.rep-cb-fill {
+    height: 100%;
+    border-radius: 4px;
+}
+.rep-cb-target {
+    position: absolute;
+    top: -3px;
+    width: 2px;
+    height: 14px;
+    background: #6B7280;
+}
+.rep-cb-target-label {
+    color: #6B7280;
+    font-size: 9px;
+    margin-top: 4px;
+    text-align: left;
+    direction: ltr;
+}
+
+/* ===== Compliance Standards Cards ===== */
+.rep-compliance-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+}
+.rep-comp-card {
+    background: #F8FAFC;
+    border: 1px solid #E5EAF0;
+    border-radius: 10px;
+    padding: 16px 20px;
+}
+.rep-comp-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #E5EAF0;
+}
+.rep-comp-title {
+    color: #063A58;
+    font-size: 15px;
+    font-weight: 800;
+    margin: 0;
+}
+.rep-comp-target {
+    background: #FFFFFF;
+    border: 1px solid #E5EAF0;
+    padding: 3px 10px;
+    border-radius: 4px;
+    color: #6B7280;
+    font-size: 11px;
+    font-weight: 700;
+}
+.rep-comp-stats {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin-bottom: 12px;
+}
+.rep-comp-pct {
+    font-size: 32px;
+    font-weight: 900;
+    line-height: 1;
+    direction: ltr;
+}
+.rep-comp-detail {
+    color: #6B7280;
+    font-size: 12px;
+}
+.rep-buckets {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+.rep-bucket-row {
+    display: grid;
+    grid-template-columns: 80px 1fr 100px;
+    align-items: center;
+    gap: 10px;
+    font-size: 11px;
+}
+.rb-label {
+    color: #4A5A6B;
+    font-weight: 700;
+    text-align: right;
+    direction: ltr;
+}
+.rb-bar {
+    height: 6px;
+    background: #E5EAF0;
+    border-radius: 3px;
+    overflow: hidden;
+}
+.rb-fill {
+    height: 100%;
+    border-radius: 3px;
+}
+.rb-pct {
+    font-weight: 700;
+    text-align: left;
+    direction: ltr;
+    font-size: 11px;
+}
+
+/* ===== Heatmap Table ===== */
+.rep-heatmap-table-wrap {
+    overflow-x: auto;
+}
+.rep-heatmap-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 2px;
+    table-layout: fixed;
+}
+.rep-heatmap-table .rh-corner-empty { background: transparent; width: 130px; }
+.rep-heatmap-table .rh-hour {
+    color: #6B7280;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 4px 0;
+    text-align: center;
+}
+.rh-stage {
+    background: #063A58;
+    color: #FFFFFF;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 8px 10px;
+    border-radius: 5px;
+    text-align: right;
+}
+.rh-cell {
+    text-align: center;
+    border-radius: 4px;
+    height: 44px;
+    line-height: 1.1;
+    padding: 2px;
+}
+.rh-cell.empty {
+    background: #F3F4F6;
+    border: 1px dashed #CBD5E0;
+}
+.rh-pct {
+    font-size: 11px;
+    font-weight: 800;
+    direction: ltr;
+}
+.rh-cnt {
+    font-size: 9px;
+    opacity: 0.9;
+    direction: ltr;
+}
+
+.rep-heat-legend {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid #E5EAF0;
+    font-size: 11px;
+    color: #4A5A6B;
+}
+.rhl-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.rhl-dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+}
+
+/* ===== Volume Chart ===== */
+.rep-chart-box {
+    background: #F8FAFC;
+    border: 1px solid #E5EAF0;
+    border-radius: 10px;
+    padding: 18px 22px;
+    margin-bottom: 18px;
+}
+.rep-chart-title {
+    color: #1A2433;
+    font-size: 15px;
+    font-weight: 800;
+    margin: 0 0 4px;
+}
+.rep-chart-sub {
+    color: #6B7280;
+    font-size: 11px;
+    margin-bottom: 12px;
+}
+.rep-svg-chart {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+.rep-chart-axis {
+    text-align: center;
+    color: #6B7280;
+    font-size: 11px;
+    margin-top: 4px;
+}
+
+.rep-shifts {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.rep-shift-row {}
+.rep-shift-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+.rep-shift-name {
+    color: #1A2433;
+    font-size: 12px;
+    font-weight: 700;
+}
+.rep-shift-val {
+    color: #063A58;
+    font-size: 14px;
+    font-weight: 800;
+    direction: ltr;
+}
+.rep-shift-val .muted { color: #6B7280; font-weight: 600; font-size: 11px; }
+.rep-shift-sub {
+    color: #6B7280;
+    font-size: 10px;
+    margin: 3px 0 5px;
+}
+.rep-shift-bar {
+    height: 6px;
+    background: #E5EAF0;
+    border-radius: 3px;
+    overflow: hidden;
+}
+.rep-shift-fill {
+    height: 100%;
+    border-radius: 3px;
+}
+
+.rep-peak-box {
+    background: linear-gradient(135deg, #FFFBEB, #FEF3C7);
+    border: 1px solid #FDE68A;
+    border-radius: 10px;
+    padding: 22px 20px;
+    text-align: center;
+}
+.rep-peak-time {
+    color: #B45309;
+    font-size: 42px;
+    font-weight: 900;
+    line-height: 1;
+    direction: ltr;
+}
+.rep-peak-count {
+    color: #92400E;
+    font-size: 14px;
+    font-weight: 700;
+    margin: 10px 0;
+}
+.rep-peak-note {
+    color: #78350F;
+    font-size: 11px;
+    line-height: 1.6;
+    margin-top: 8px;
+}
+
+/* ===== Tables ===== */
+.rep-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+    margin-bottom: 10px;
+}
+.rep-table thead th {
+    background: #063A58;
+    color: #FFFFFF;
+    font-weight: 700;
+    padding: 8px 10px;
+    text-align: right;
+    font-size: 11px;
+    border: 1px solid #052D44;
+}
+.rep-table thead th.num { text-align: center; }
+.rep-table tbody td {
+    padding: 7px 10px;
+    border: 1px solid #E5EAF0;
+    color: #1A2433;
+    text-align: right;
+    font-size: 11px;
+}
+.rep-table tbody td.num {
+    text-align: center;
+    font-weight: 700;
+    font-family: 'Cairo', sans-serif;
+}
+.rep-table tbody tr:nth-child(even) { background: #F8FAFC; }
+.rep-table .staff-cell {
+    direction: rtl;
+    font-weight: 600;
+}
+.rep-table .ok { color: #047857; font-weight: 800; }
+.rep-table .warn { color: #B45309; font-weight: 800; }
+.rep-table .bad { color: #B91C1C; font-weight: 800; }
+.rep-table .sample-id-cell {
+    font-family: 'JetBrains Mono', monospace;
+    color: #6D28D9;
+    font-weight: 800;
+    direction: ltr;
+}
+.rep-table .mono-cell {
+    font-family: 'JetBrains Mono', monospace;
+    direction: ltr;
+    color: #6B7280;
+    font-size: 10px;
+}
+
+/* ===== Rank Bars ===== */
+.rep-rank-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+.rep-rank-item {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    align-items: center;
+    background: #F8FAFC;
+    border: 1px solid #E5EAF0;
+    border-radius: 6px;
+    padding: 10px 14px;
+}
+.rep-rank-name {
+    color: #1A2433;
+    font-size: 12px;
+    font-weight: 700;
+}
+.rep-rank-meta {
+    color: #6B7280;
+    font-size: 10px;
+    margin-top: 3px;
+}
+.rep-rank-bar-wrap {
+    display: grid;
+    grid-template-columns: 1fr 50px;
+    gap: 8px;
+    align-items: center;
+}
+.rep-rank-bar {
+    height: 8px;
+    background: #E5EAF0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+.rep-rank-fill {
+    height: 100%;
+    border-radius: 4px;
+}
+.rep-rank-pct {
+    font-size: 13px;
+    font-weight: 800;
+    color: #063A58;
+    direction: ltr;
+    text-align: left;
+}
+
+/* ===== Delay Block ===== */
+.rep-delay-block {
+    margin-bottom: 16px;
+}
+.rep-delay-title {
+    color: #063A58;
+    font-size: 13px;
+    font-weight: 800;
+    margin: 0 0 8px;
+    padding: 8px 14px;
+    background: #F0F4F8;
+    border-right: 4px solid #063A58;
+    border-radius: 4px;
+}
+.rep-table-delay { font-size: 10px; }
+.rep-table-delay thead th { padding: 6px 8px; font-size: 10px; }
+.rep-table-delay tbody td { padding: 6px 8px; font-size: 10px; }
+.rep-empty {
+    color: #6B7280;
+    text-align: center;
+    padding: 20px;
+    background: #F8FAFC;
+    border: 1px dashed #CBD5E0;
+    border-radius: 6px;
+    font-size: 12px;
+}
+
+/* === V3 NEW ELEMENTS === */
+/* Executive Stage Cards */
+.exec-stage-card {
+    display: grid;
+    grid-template-columns: 44px 1fr;
+    gap: 12px;
+    align-items: center;
+    padding: 10px 12px;
+    background: #0F172A;
+    border: 1px solid #334155;
+    border-radius: 10px;
+    margin-bottom: 8px;
+}
+.esc-icon {
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+}
+.esc-body { min-width: 0; }
+.esc-name {
+    color: #F1F5F9;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    display: flex; align-items: center; gap: 8px;
+}
+.esc-target {
+    background: #1E293B;
+    color: #94A3B8;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+.esc-bar {
+    height: 8px;
+    background: #1E293B;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 6px;
+}
+.esc-fill {
+    height: 100%;
+    border-radius: 4px;
+}
+.esc-stats {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+}
+.esc-pct {
+    font-size: 16px;
+    font-weight: 800;
+    direction: ltr;
+}
+.esc-detail {
+    color: #94A3B8;
+    font-size: 11px;
+}
+
+/* Executive Number Cards */
+.exec-num {
+    display: flex !important;
+    align-items: center;
+    gap: 10px;
+    text-align: right !important;
+}
+.exec-num-icon {
+    font-size: 28px;
+    width: 50px;
+    text-align: center;
+}
+.exec-num-body { flex: 1; }
+.exec-num-value {
+    font-size: 22px;
+    font-weight: 800;
+    color: #F1F5F9;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+.exec-num-label {
+    font-size: 11px;
+    color: #94A3B8;
+    font-weight: 600;
+}
+
+/* TAT Distribution */
+.tat-dist-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
+    margin: 18px 0;
+}
+.tat-bucket {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+.tat-bar-wrap {
+    height: 140px;
+    width: 100%;
+    background: #0F172A;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+}
+.tat-bar {
+    width: 100%;
+    min-height: 4px;
+    transition: height 0.5s;
+    border-radius: 0 0 6px 6px;
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 6px;
+}
+.tat-bar-count {
+    color: #FFFFFF;
+    font-size: 14px;
+    font-weight: 800;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+.tat-bucket-label {
+    font-size: 12px;
+    color: #CBD5E1;
+    font-weight: 700;
+    direction: ltr;
+}
+.tat-bucket-pct {
+    font-size: 18px;
+    font-weight: 800;
+    direction: ltr;
+}
+.tat-summary {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 14px;
+    padding: 14px 18px;
+    background: #0F172A;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    color: #CBD5E1;
+    font-size: 13px;
+}
+
+/* Heatmap Per Stage */
+.heatmap-stage-block {
+    background: #0F172A;
+    border: 1px solid #334155;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+}
+.heatmap-stage-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #334155;
+}
+.hsh-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.hsh-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+}
+.hsh-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: #F1F5F9;
+}
+.hsh-right {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    font-size: 12px;
+    color: #94A3B8;
+}
+.hsh-stat b {
+    color: #F1F5F9;
+    font-weight: 800;
+    margin-right: 4px;
+}
+
+/* Delayed Samples Block */
+.delayed-block {
+    background: #0F172A;
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 16px;
+}
+.delayed-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+.delayed-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+}
+.delayed-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #F1F5F9;
+    flex: 1;
+}
+.delayed-target {
+    font-size: 11px;
+    color: #94A3B8;
+    background: #1E293B;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+.sample-id {
+    font-family: 'JetBrains Mono', monospace !important;
+    color: #A78BFA !important;
+    font-weight: 700 !important;
+    direction: ltr;
+}
+.mono {
+    font-family: 'JetBrains Mono', monospace !important;
+    font-size: 11px !important;
+    direction: ltr;
+    color: #94A3B8;
+}
+
+/* PDF Light Mode for new elements */
+.pdf-light-mode .exec-stage-card {
+    background: #F7FAFC !important;
+    border: 1px solid #E2E8F0 !important;
+}
+.pdf-light-mode .esc-name { color: #1A2433 !important; }
+.pdf-light-mode .esc-target { background: #E2E8F0 !important; color: #4A5A6B !important; }
+.pdf-light-mode .esc-bar { background: #E2E8F0 !important; }
+.pdf-light-mode .esc-detail { color: #4A5A6B !important; }
+.pdf-light-mode .exec-num-value { color: #1A2433 !important; }
+.pdf-light-mode .exec-num-label { color: #6B7280 !important; }
+.pdf-light-mode .tat-bar-wrap {
+    background: #F7FAFC !important;
+    border: 1px solid #E2E8F0 !important;
+}
+.pdf-light-mode .tat-bucket-label { color: #1A2433 !important; }
+.pdf-light-mode .tat-summary {
+    background: #F7FAFC !important;
+    border: 1px solid #E2E8F0 !important;
+    color: #1A2433 !important;
+}
+.pdf-light-mode .heatmap-stage-block {
+    background: #F7FAFC !important;
+    border: 1px solid #E2E8F0 !important;
+}
+.pdf-light-mode .heatmap-stage-header { border-bottom-color: #E2E8F0 !important; }
+.pdf-light-mode .hsh-name { color: #1A2433 !important; }
+.pdf-light-mode .hsh-right { color: #4A5A6B !important; }
+.pdf-light-mode .hsh-stat b { color: #1A2433 !important; }
+.pdf-light-mode .delayed-block {
+    background: #F7FAFC !important;
+    border-right: 4px solid var(--stage-color, #8B5CF6) !important;
+}
+.pdf-light-mode .delayed-title { color: #1A2433 !important; }
+.pdf-light-mode .delayed-target { background: #E2E8F0 !important; color: #4A5A6B !important; }
+.pdf-light-mode .sample-id { color: #6D28D9 !important; }
+.pdf-light-mode .mono { color: #4A5A6B !important; }
+
+/* Color strips replacing icons */
+.stage-color-strip {
+    width: 6px;
+    height: 56px;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+.hsh-color-bar {
+    display: inline-block;
+    width: 6px;
+    height: 22px;
+    border-radius: 3px;
+    vertical-align: middle;
+    margin-left: 8px;
+}
+.pdf-light-mode .stage-color-strip,
+.pdf-light-mode .hsh-color-bar {
+    /* keep colors as-is */
+}
+
 /* معاينة السلايد - خلفية بشكل خانات (لإظهار الشفافية) */
 .hajj-preview-wrap {
     background:
@@ -4349,6 +6156,20 @@ body {
     </div>
 </div>
 
+<!-- Comprehensive Analysis Modal (per hospital) -->
+<div class="promise-modal" id="compModal">
+    <div class="promise-content">
+        <div class="promise-toolbar">
+            <h2 id="compModalTitle">التحليل الشامل</h2>
+            <div class="exec-toolbar-actions">
+                <button class="btn" id="btnCompExportPdf">📄 تصدير PDF</button>
+                <button class="btn btn-close" id="btnCompClose">إغلاق</button>
+            </div>
+        </div>
+        <div class="comp-content" id="compContent"></div>
+    </div>
+</div>
+
 <div class="loading-overlay" id="loadingOverlay">
     <div class="loader"></div>
     <div class="loading-text" id="loadingText">جاري المعالجة...</div>
@@ -4382,6 +6203,8 @@ const STATE = {
     rawData: {}, 
     processed: {},      // الناتج بعد الفلترة (هذا اللي يعرض في الواجهة)
     rawProcessed: {},   // الناتج الكامل بدون فلترة (المرجع الأصلي)
+    monitorFiles: {},   // ملفات Lab Monitor لكل مستشفى (للتحليل الشامل)
+    monitorData: {},    // البيانات المُحلَّلة من Monitor + نتائج التحليل الشامل
     dateRange: { min: null, max: null, from: null, to: null }
 };
 Object.keys(HOSPITALS).forEach(k => { 
@@ -4389,6 +6212,8 @@ Object.keys(HOSPITALS).forEach(k => {
     STATE.rawData[k] = null; 
     STATE.processed[k] = null;
     STATE.rawProcessed[k] = null;
+    STATE.monitorFiles[k] = null;
+    STATE.monitorData[k] = null;
 });
 
 const TARGET_TOTAL = 60;
@@ -4464,14 +6289,33 @@ function renderUploadCards() {
             </div>
             <div class="upload-input-wrap">
                 <input type="file" class="upload-input" data-hospital="${key}" accept=".xlsx,.xls">
-                <div class="upload-label">اختر ملف اكسل</div>
+                <div class="upload-label">اختر ملف اكسل (KPI)</div>
             </div>
             <div class="upload-status" data-status="${key}">لم يتم الرفع</div>
+
+            <!-- Lab Monitor upload + comprehensive analysis -->
+            <div class="monitor-block">
+                <div class="upload-input-wrap monitor-wrap">
+                    <input type="file" class="monitor-input" data-hospital-monitor="${key}" accept=".xlsx,.xls">
+                    <div class="upload-label monitor-label">+ ملف Lab Monitor (للتحليل الشامل)</div>
+                </div>
+                <button class="btn-comp-analyze" data-comp-analyze="${key}" style="display:none;">التحليل الشامل</button>
+                <div class="monitor-status" data-monitor-status="${key}"></div>
+            </div>
         </div>
     `).join('');
 
     document.querySelectorAll('.upload-input').forEach(input => {
         input.addEventListener('change', handleUpload);
+    });
+    document.querySelectorAll('.monitor-input').forEach(input => {
+        input.addEventListener('change', handleMonitorUpload);
+    });
+    document.querySelectorAll('.btn-comp-analyze').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const hkey = btn.dataset.compAnalyze;
+            openComprehensiveAnalysis(hkey);
+        });
     });
 }
 
@@ -7564,31 +9408,1208 @@ async function readKpiDirectly(file) {
         return [];
     }
 
+    // اكتشاف ديناميكي للأعمدة من الـ headers في الصف 1
+    // يدعم صيغتين:
+    //   الصيغة 1 (المعتاد): A=Patient ID, B=episode_key, C=Patient Type, H=SampleID, M=Sample Status
+    //   الصيغة 2 (الملك فهد): A=MRN, B=Sample ID, C=OrderKey, G=Patient Type
+    const cols = {};
+    const headerMap = {
+        'patient id': 'patientId',
+        'mrn': 'patientId',
+        'episode_key': 'episodeKey',
+        'orderkey': 'episodeKey',
+        'patient type': 'patientType',
+        'sampleid': 'sampleId',
+        'sample id': 'sampleId',
+        'sample status': 'sampleStatus'
+    };
+
+    // نمسح الصف 1 وأول 30 عمود لتحديد المواقع
+    for (let c = 0; c < 50; c++) {
+        const colLetter = XLSX.utils.encode_col(c);
+        const cell = ws[colLetter + '1'];
+        if (!cell || cell.v == null) continue;
+        const h = String(cell.v).trim().toLowerCase();
+        const mapped = headerMap[h];
+        if (mapped && !cols[mapped]) {
+            cols[mapped] = colLetter;
+        }
+    }
+
+    console.log('[readKpiDirectly] Detected columns:', cols);
+
+    if (!cols.patientId || !cols.sampleId || !cols.patientType) {
+        console.error('[readKpiDirectly] Missing required columns. Found:', cols);
+        return [];
+    }
+
     const rows = [];
     for (let r = 2; r <= endRow; r++) {
-        const patientIdCell = ws['A' + r];
-        const episodeKeyCell = ws['B' + r];
-        const patientTypeCell = ws['C' + r];
-        const sampleIdCell = ws['H' + r];
-        const sampleStatusCell = ws['M' + r];
+        const get = (key) => {
+            if (!cols[key]) return null;
+            const cell = ws[cols[key] + r];
+            return cell ? cell.v : null;
+        };
 
-        const patientId = patientIdCell ? patientIdCell.v : null;
-        const episodeKey = episodeKeyCell ? episodeKeyCell.v : null;
-        const patientType = patientTypeCell ? patientTypeCell.v : null;
-        const sampleId = sampleIdCell ? sampleIdCell.v : null;
-        const sampleStatus = sampleStatusCell ? sampleStatusCell.v : null;
+        let patientId = get('patientId');
+        if (patientId != null) {
+            // ننظف الـ quotes ('806750' → 806750)
+            patientId = String(patientId).replace(/^['"]|['"]$/g, '').trim();
+        }
 
-        if (patientId == null && sampleId == null) continue;
+        let patientType = get('patientType');
+        if (patientType != null) {
+            patientType = String(patientType).replace(/^['"]|['"]$/g, '').trim();
+        }
+
+        const episodeKey = get('episodeKey');
+        const sampleId = get('sampleId');
+        const sampleStatus = get('sampleStatus');
+
+        if (!patientId && sampleId == null) continue;
         rows.push({ patientId, episodeKey, patientType, sampleId, sampleStatus });
     }
 
     console.log('[readKpiDirectly] Built rows:', rows.length);
     if (rows.length > 0) {
         console.log('[readKpiDirectly] First row:', rows[0]);
-        console.log('[readKpiDirectly] Last row:', rows[rows.length - 1]);
     }
     return rows;
 }
+
+
+// =====================================
+// التحليل الشامل لكل مستشفى — Lab Monitor + KPI
+// =====================================
+
+async function handleMonitorUpload(e) {
+    const file = e.target.files[0];
+    const hkey = e.target.dataset.hospitalMonitor;
+    if (!file) return;
+
+    const labelEl = e.target.parentElement.querySelector('.monitor-label');
+    const statusEl = document.querySelector(`[data-monitor-status="${hkey}"]`);
+    const btnEl = document.querySelector(`[data-comp-analyze="${hkey}"]`);
+
+    labelEl.textContent = '✓ ' + (file.name.length > 28 ? file.name.slice(0, 26) + '…' : file.name);
+    labelEl.classList.add('loaded');
+    statusEl.textContent = 'جاري معالجة الملف...';
+    statusEl.className = 'monitor-status';
+
+    try {
+        const monitorRows = await readMonitorForStages(file);
+        STATE.monitorFiles[hkey] = file;
+        STATE.monitorData[hkey] = { monitorRows, results: null };
+        statusEl.textContent = `✓ ${monitorRows.length.toLocaleString()} سجل جاهز`;
+        statusEl.className = 'monitor-status success';
+        btnEl.style.display = 'block';
+    } catch (err) {
+        console.error(err);
+        statusEl.textContent = '❌ فشل: ' + err.message;
+        statusEl.className = 'monitor-status error';
+        STATE.monitorFiles[hkey] = null;
+        STATE.monitorData[hkey] = null;
+        btnEl.style.display = 'none';
+    }
+}
+
+// عند الضغط على "تحليل شامل" لمستشفى معينة
+async function openComprehensiveAnalysis(hkey) {
+    const info = HOSPITALS[hkey];
+    const monitorData = STATE.monitorData[hkey];
+
+    if (!monitorData || !monitorData.monitorRows) {
+        alert('يرجى رفع ملف Lab Monitor لهذه المستشفى أولاً');
+        return;
+    }
+
+    // نحتاج kpi لتحديد عينات الطوارئ — هل المستشفى رفع KPI؟
+    const kpiRaw = STATE.rawData[hkey];
+    if (!kpiRaw) {
+        alert('يرجى رفع ملف Lab KPI لهذه المستشفى أولاً (الزر الأول)');
+        return;
+    }
+
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.classList.add('active');
+    document.getElementById('loadingText').textContent = 'جاري التحليل الشامل...';
+    await new Promise(r => setTimeout(r, 50));
+
+    try {
+        // قراءة KPI من الـ file مباشرة
+        const kpiRows = await readKpiDirectly(STATE.files[hkey]);
+
+        // استخراج Sample IDs لعينات الطوارئ من KPI
+        const erSampleIds = new Set();
+        kpiRows.forEach(r => {
+            if (isErType(r.patientType) && r.sampleId != null) {
+                const sid = normalizeSampleId(r.sampleId);
+                if (sid) erSampleIds.add(sid);
+            }
+        });
+
+        if (erSampleIds.size === 0) {
+            overlay.classList.remove('active');
+            alert('لم يتم العثور على عينات طوارئ في ملف KPI');
+            return;
+        }
+
+        // فلترة Monitor على عينات الطوارئ فقط
+        const erMonitorAll = monitorData.monitorRows.filter(row => {
+            const sid = normalizeSampleId(row.sampleId);
+            return sid && erSampleIds.has(sid);
+        });
+
+        // استثناء العينات غير المكتملة: عمود S (Completed By) لازم يكون فيه اسم
+        const erMonitor = erMonitorAll.filter(row => {
+            const cb = row.completedBy;
+            return cb != null && String(cb).trim() !== '';
+        });
+
+        const excludedIncomplete = erMonitorAll.length - erMonitor.length;
+        console.log(`[Comp Analysis] ER Monitor total: ${erMonitorAll.length}, Completed (S has name): ${erMonitor.length}, Excluded (incomplete): ${excludedIncomplete}`);
+
+        if (erMonitor.length === 0) {
+            overlay.classList.remove('active');
+            alert(`لم يتم العثور على عينات مكتملة. الإجمالي: ${erMonitorAll.length}، غير مكتملة (عمود S فاضي): ${excludedIncomplete}`);
+            return;
+        }
+
+        // التحاليل
+        const promiseResult = computeDoctorAnalysis(kpiRows, erMonitor, hkey);
+        const orderResult = computeStageAnalysis(erMonitor, 'order', hkey);
+        const nursingResult = computeStageAnalysis(erMonitor, 'nursing', hkey);
+        const labResult = computeStageAnalysis(erMonitor, 'lab', hkey);
+        const heatmapData = computeHeatmap(erMonitor);
+
+        // عدد العينات الفريدة المكتملة (Sample IDs uniques)
+        const uniqueCompletedSamples = new Set();
+        erMonitor.forEach(row => {
+            const sid = normalizeSampleId(row.sampleId);
+            if (sid) uniqueCompletedSamples.add(sid);
+        });
+
+        STATE.monitorData[hkey].results = {
+            hkey, info,
+            erSamples: erSampleIds.size,
+            matched: uniqueCompletedSamples.size,  // العينات المكتملة الفريدة (Sample IDs)
+            matchedRows: erMonitor.length,         // عدد الصفوف (للمرجع)
+            matchedAll: erMonitorAll.length,
+            excludedIncomplete: excludedIncomplete,
+            promise: promiseResult,
+            order: orderResult,
+            nursing: nursingResult,
+            lab: labResult,
+            heatmap: heatmapData
+        };
+
+        __compCurrentMonitor = erMonitor;  // عشان نحسب TAT والـ heatmap والـ delayed samples
+        renderComprehensiveAnalysis(STATE.monitorData[hkey].results);
+        document.getElementById('compModalTitle').textContent = `التحليل الشامل — ${info.ar}`;
+        document.getElementById('compModal').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    } catch (err) {
+        console.error(err);
+        alert('فشل التحليل: ' + err.message);
+    } finally {
+        overlay.classList.remove('active');
+    }
+}
+
+// خريطة حرارية: ساعات × نسبة الالتزام بالـ TAT
+function computeHeatmap(monitorRows) {
+    // نحسب لكل ساعة من 0-23: عدد العينات + نسبة الالتزام بالإجمالي (60 د من الطلب إلى النتيجة)
+    const hours = Array.from({ length: 24 }, () => ({ count: 0, onTime: 0 }));
+
+    monitorRows.forEach(row => {
+        if (!row.orderDateTime || !(row.orderDateTime instanceof Date)) return;
+        const h = row.orderDateTime.getHours();
+
+        // نحسب الـ TAT الإجمالي (من Order إلى Complete)
+        let totalMin = null;
+        if (row.completeDateTime instanceof Date) {
+            totalMin = (row.completeDateTime - row.orderDateTime) / 60000;
+            if (totalMin < 0 || totalMin > 24 * 60) totalMin = null;
+        }
+
+        if (totalMin == null) return;
+        hours[h].count++;
+        if (totalMin <= 60) hours[h].onTime++;
+    });
+
+    return hours.map((h, idx) => ({
+        hour: idx,
+        count: h.count,
+        comp: h.count > 0 ? (h.onTime / h.count) * 100 : null
+    }));
+}
+
+// ============================================================
+// التحليل الشامل V6 — التقرير الاحترافي الكامل
+// كل البيانات: الأطباء، الممرضين، فنيي المختبر، الخريطة الحرارية، الالتزام، أعلى ١٠ ملفات
+// ============================================================
+
+let __compCurrentMonitor = null;
+let __compCurrentResults = null;
+let __compCurrentMergedRows = null;  // الصفوف المدموجة: عينات KPI ER + أسماء من Monitor
+
+function renderComprehensiveAnalysis(R) {
+    const container = document.getElementById('compContent');
+    __compCurrentResults = R;
+
+    // التاريخ بالعربي
+    const today = new Date();
+    const arMonths = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+    const arNum = (n) => String(n).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+    const dateAr = `${arNum(today.getDate())} ${arMonths[today.getMonth()]} ${arNum(today.getFullYear())}`;
+
+    const stats = computeOverallStats(R);
+
+    container.innerHTML = `
+    <div class="rep-doc">
+        ${renderCoverPage(R, dateAr, stats)}
+        ${renderExecutiveSummaryPage(R, stats)}
+        ${renderComplianceStandardsPage(R)}
+        ${renderHeatmapPage(R)}
+        ${renderVolumeDistributionPage(R)}
+        ${R.promise ? renderDoctorsPerformancePage(R.promise) : renderEmptyStaffPage('أداء الأطباء — الوعد التنفيذي', 'لا توجد بيانات للأطباء', 5)}
+        ${R.order ? renderOrderingDoctorsPage(R.order) : renderEmptyStaffPage('الأطباء الطالبون للعينات', 'لا توجد بيانات', 6)}
+        ${R.nursing ? renderNursingPerformancePage(R.nursing) : renderEmptyStaffPage('أداء التمريض', 'لا توجد بيانات للتمريض', 7)}
+        ${R.lab ? renderLabTechPerformancePage(R.lab) : renderEmptyStaffPage('أداء فنيي المختبر', 'لا توجد بيانات لفنيي المختبر', 8)}
+        ${renderTop10DelayedPage(R)}
+    </div>
+    `;
+}
+
+function renderEmptyStaffPage(title, msg, pageNum) {
+    return `
+    <div class="rep-page">
+        ${renderPageHeader(__compCurrentResults, title)}
+        <div class="rep-body">
+            <h2 class="rep-section-title">${title}</h2>
+            <div class="rep-empty" style="margin-top:40px;">${msg}</div>
+        </div>
+        ${renderPageFooter(__compCurrentResults, pageNum)}
+    </div>`;
+}
+
+function computeOverallStats(R) {
+    const stages = [];
+    if (R.order) stages.push(R.order);
+    if (R.nursing) stages.push(R.nursing);
+    if (R.lab) stages.push(R.lab);
+
+    // الالتزام الكلي = نسبة العينات التي ظهرت نتيجتها خلال ٦٠ دقيقة من الطلب
+    let totalDur = 0, totalCnt = 0, onTime60 = 0;
+    const seen = new Set();
+    if (__compCurrentMonitor) {
+        __compCurrentMonitor.forEach(row => {
+            const sid = normalizeSampleId(row.sampleId);
+            if (!sid || seen.has(sid)) return;
+            if (!(row.orderDateTime instanceof Date) || !(row.completeDateTime instanceof Date)) return;
+            const diff = (row.completeDateTime - row.orderDateTime) / 60000;
+            if (diff < 0 || diff > 24 * 60) return;
+            seen.add(sid);
+            totalDur += diff;
+            totalCnt++;
+            if (diff <= 60) onTime60++;
+        });
+    }
+    const avgTotal = totalCnt > 0 ? totalDur / totalCnt : 0;
+    // الالتزام الكلي بـ ٦٠ دقيقة (المؤشر الرسمي)
+    const overall = totalCnt > 0 ? (onTime60 / totalCnt) * 100 : 0;
+
+    return {
+        overall,
+        totalSamples: R.matched,
+        avgTotal,
+        countWithFullTime: totalCnt,
+        onTime60,
+        orderPct: R.order ? R.order.overallCompliance : null,
+        nursingPct: R.nursing ? R.nursing.overallCompliance : null,
+        labPct: R.lab ? R.lab.overallCompliance : null,
+        orderCount: R.order ? R.order.totalSamples : 0,
+        nursingCount: R.nursing ? R.nursing.totalSamples : 0,
+        labCount: R.lab ? R.lab.totalSamples : 0,
+        doctorCount: R.promise ? R.promise.totalDoctors : 0,
+        nurseCount: R.nursing ? R.nursing.totalStaff : 0,
+        techCount: R.lab ? R.lab.totalStaff : 0
+    };
+}
+
+// ============= صفحة الغلاف =============
+function renderCoverPage(R, dateAr, stats) {
+    const arNum = (n) => String(n).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+    return `
+    <div class="rep-page rep-cover">
+        <div class="rep-cover-logo">
+            <div class="logo-mark">
+                <div class="logo-icon"></div>
+                <div class="logo-text">
+                    <div class="logo-ar">تجمع المدينة المنورة الصحي</div>
+                    <div class="logo-en">Madinah Health Cluster</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="rep-cover-main">
+            <div class="rep-cover-tag">التقرير التفصيلي الشامل لمؤشرات المختبر في الطوارئ</div>
+            <h1 class="rep-cover-title">${R.info.ar}</h1>
+            <div class="rep-cover-en">${R.info.en}</div>
+            <div class="rep-cover-date">${dateAr}</div>
+        </div>
+
+        <div class="rep-cover-kpis">
+            <div class="rep-cover-kpi">
+                <div class="rck-label">عدد العينات</div>
+                <div class="rck-value">${arNum(R.matched.toLocaleString())}</div>
+                <div class="rck-sub">عينة طوارئ</div>
+            </div>
+            <div class="rep-cover-kpi highlight">
+                <div class="rck-label">الالتزام الكلي (≤ ٦٠ د)</div>
+                <div class="rck-value" style="color:${stats.overall >= 90 ? '#10B981' : stats.overall >= 70 ? '#F59E0B' : '#EF4444'};">${arNum(Math.round(stats.overall))}<span class="rck-unit">٪</span></div>
+                <div class="rck-sub">من الطلب إلى ظهور النتيجة</div>
+            </div>
+            <div class="rep-cover-kpi">
+                <div class="rck-label">متوسط الزمن الكلي</div>
+                <div class="rck-value">${arNum(Math.round(stats.avgTotal))}<span class="rck-unit">د</span></div>
+                <div class="rck-sub">من الطلب إلى النتيجة</div>
+            </div>
+        </div>
+
+        <div class="rep-cover-staff-summary">
+            <div class="rcss-item">
+                <div class="rcss-value">${arNum(stats.doctorCount)}</div>
+                <div class="rcss-label">أطباء</div>
+            </div>
+            <div class="rcss-item">
+                <div class="rcss-value">${arNum(stats.nurseCount)}</div>
+                <div class="rcss-label">تمريض</div>
+            </div>
+            <div class="rcss-item">
+                <div class="rcss-value">${arNum(stats.techCount)}</div>
+                <div class="rcss-label">فنيي مختبر</div>
+            </div>
+        </div>
+
+        <div class="rep-cover-toc">
+            <div class="rep-toc-title">محتويات التقرير</div>
+            <div class="rep-toc-grid">
+                <div class="rep-toc-item"><span class="rt-num">١</span><span class="rt-text">الملخص التنفيذي وتوزيع العينات</span></div>
+                <div class="rep-toc-item"><span class="rt-num">٢</span><span class="rt-text">الالتزام بالمعايير الزمنية</span></div>
+                <div class="rep-toc-item"><span class="rt-num">٣</span><span class="rt-text">الخريطة الحرارية على مدار اليوم</span></div>
+                <div class="rep-toc-item"><span class="rt-num">٤</span><span class="rt-text">حجم العينات وتوزيعها</span></div>
+                <div class="rep-toc-item"><span class="rt-num">٥</span><span class="rt-text">الوعد التنفيذي للأطباء</span></div>
+                <div class="rep-toc-item"><span class="rt-num">٦</span><span class="rt-text">أداء الأطباء الطالبين</span></div>
+                <div class="rep-toc-item"><span class="rt-num">٧</span><span class="rt-text">أداء التمريض</span></div>
+                <div class="rep-toc-item"><span class="rt-num">٨</span><span class="rt-text">أداء فنيي المختبر</span></div>
+                <div class="rep-toc-item"><span class="rt-num">٩</span><span class="rt-text">أعلى ١٠ ملفات متأخرة</span></div>
+            </div>
+        </div>
+    </div>`;
+}
+
+// ============= صفحة الملخص التنفيذي =============
+function renderExecutiveSummaryPage(R, stats) {
+    const arNum = (n) => String(n).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+
+    const kpis = [
+        { label: 'عدد العينات', value: arNum(R.matched.toLocaleString()), unit: 'عينة', color: 'navy' },
+        { label: 'متوسط الزمن الكلي', value: arNum(Math.round(stats.avgTotal)), unit: 'د', subLabel: 'من الطلب إلى النتيجة' },
+        { label: 'الالتزام من الطلب إلى السحب', value: stats.orderPct != null ? arNum(Math.round(stats.orderPct)) + '٪' : '—', subLabel: 'المستهدف ١٠ دقائق', color: stats.orderPct == null ? '' : stats.orderPct >= 90 ? 'green' : stats.orderPct >= 70 ? 'amber' : 'red' },
+        { label: 'الالتزام من السحب إلى الإرسال', value: stats.nursingPct != null ? arNum(Math.round(stats.nursingPct)) + '٪' : '—', subLabel: 'المستهدف ١٠ دقائق', color: stats.nursingPct == null ? '' : stats.nursingPct >= 90 ? 'green' : stats.nursingPct >= 70 ? 'amber' : 'red' },
+        { label: 'الالتزام من الاستقبال إلى النتيجة', value: stats.labPct != null ? arNum(Math.round(stats.labPct)) + '٪' : '—', subLabel: 'المستهدف ٤٠ دقيقة', color: stats.labPct == null ? '' : stats.labPct >= 90 ? 'green' : stats.labPct >= 70 ? 'amber' : 'red' }
+    ];
+
+    return `
+    <div class="rep-page">
+        ${renderPageHeader(R, 'الملخص التنفيذي')}
+        <div class="rep-body">
+            <h2 class="rep-section-title">الملخص التنفيذي</h2>
+            <p class="rep-section-sub">نظرة شاملة على أداء قسم المختبر في الطوارئ ليوم التقرير</p>
+
+            <div class="rep-kpis-row">
+                ${kpis.map(k => `
+                    <div class="rep-kpi-box ${k.color || ''}">
+                        <div class="rkb-label">${k.label}</div>
+                        <div class="rkb-value">${k.value}${k.unit ? `<span class="rkb-unit">${k.unit}</span>` : ''}</div>
+                        ${k.subLabel ? `<div class="rkb-sub">${k.subLabel}</div>` : ''}
+                    </div>
+                `).join('')}
+            </div>
+
+            <div class="rep-two-col">
+                <div class="rep-col">
+                    <h3 class="rep-subsection-title">توزيع العينات حسب اكتمال البيانات</h3>
+                    <div class="rep-subsection-desc">العينات حسب توافر بياناتها في المراحل الثلاث</div>
+                    ${renderStagesDonut(R)}
+                </div>
+                <div class="rep-col">
+                    <h3 class="rep-subsection-title">مؤشر الالتزام لكل مرحلة</h3>
+                    <div class="rep-subsection-desc">نسبة الالتزام مقابل المستهدف ٨٥٪</div>
+                    ${renderComplianceBars(stats)}
+                </div>
+            </div>
+        </div>
+        ${renderPageFooter(R, 1)}
+    </div>`;
+}
+
+function renderStagesDonut(R) {
+    const arNum = (n) => String(n).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+
+    // نحسب توزيع حقيقي: كم عينة لها كل مرحلة
+    // عشان ما يكون مضلل (المجموع يساوي 3×total)
+    if (!__compCurrentMonitor) return '<div class="rep-empty">لا توجد بيانات</div>';
+
+    let hasAll3 = 0, hasOrderOnly = 0, missingNursing = 0, missingLab = 0, partial = 0;
+    const seen = new Set();
+    __compCurrentMonitor.forEach(row => {
+        const sid = normalizeSampleId(row.sampleId);
+        if (!sid || seen.has(sid)) return;
+        seen.add(sid);
+
+        const hasOrder = (row.orderDateTime instanceof Date) && (row.collectDateTime instanceof Date) && row.orderedBy;
+        const hasNursing = (row.collectDateTime instanceof Date) && (row.dispatchDateTime instanceof Date) && row.collectedBy;
+        const hasLab = (row.receiveDateTime instanceof Date) && (row.completeDateTime instanceof Date) && row.receivedBy;
+
+        if (hasOrder && hasNursing && hasLab) hasAll3++;
+        else if (hasOrder && hasLab && !hasNursing) missingNursing++;
+        else if (hasOrder && !hasLab) missingLab++;
+        else partial++;
+    });
+
+    const data = [];
+    if (hasAll3 > 0) data.push({ name: 'مكتملة المراحل الثلاث', count: hasAll3, color: '#10B981' });
+    if (missingNursing > 0) data.push({ name: 'ينقصها بيانات التمريض', count: missingNursing, color: '#F59E0B' });
+    if (missingLab > 0) data.push({ name: 'ينقصها بيانات المختبر', count: missingLab, color: '#EF4444' });
+    if (partial > 0) data.push({ name: 'بيانات ناقصة', count: partial, color: '#94A3B8' });
+
+    const sum = data.reduce((s, x) => s + x.count, 0);
+    if (sum === 0) return '<div class="rep-empty">لا توجد بيانات</div>';
+
+    const cx = 110, cy = 110, R_OUT = 95, R_IN = 60;
+    let acc = 0;
+    const slices = data.map(d => {
+        const start = (acc / sum) * 2 * Math.PI - Math.PI / 2;
+        acc += d.count;
+        const end = (acc / sum) * 2 * Math.PI - Math.PI / 2;
+        return { ...d, start, end };
+    });
+
+    const arcPath = (sa, ea) => {
+        const x1 = cx + R_OUT * Math.cos(sa), y1 = cy + R_OUT * Math.sin(sa);
+        const x2 = cx + R_OUT * Math.cos(ea), y2 = cy + R_OUT * Math.sin(ea);
+        const x3 = cx + R_IN * Math.cos(ea), y3 = cy + R_IN * Math.sin(ea);
+        const x4 = cx + R_IN * Math.cos(sa), y4 = cy + R_IN * Math.sin(sa);
+        const largeArc = (ea - sa) > Math.PI ? 1 : 0;
+        return `M ${x1} ${y1} A ${R_OUT} ${R_OUT} 0 ${largeArc} 1 ${x2} ${y2}
+                L ${x3} ${y3} A ${R_IN} ${R_IN} 0 ${largeArc} 0 ${x4} ${y4} Z`;
+    };
+
+    const slicesSvg = slices.length === 1
+        ? `<circle cx="${cx}" cy="${cy}" r="${(R_OUT + R_IN) / 2}" fill="none" stroke="${slices[0].color}" stroke-width="${R_OUT - R_IN}"/>`
+        : slices.map(s => `<path d="${arcPath(s.start, s.end)}" fill="${s.color}" stroke="#FFFFFF" stroke-width="2"/>`).join('');
+
+    return `
+    <div class="rep-donut">
+        <div class="rep-donut-svg">
+            <svg viewBox="0 0 220 220" width="180" height="180">${slicesSvg}</svg>
+            <div class="rep-donut-center">
+                <div class="rdc-value">${arNum(sum.toLocaleString())}</div>
+                <div class="rdc-label">عينة</div>
+            </div>
+        </div>
+        <div class="rep-donut-legend">
+            ${slices.map(s => `
+                <div class="rep-leg-item">
+                    <span class="rep-leg-dot" style="background:${s.color};"></span>
+                    <span class="rep-leg-name">${s.name}</span>
+                    <span class="rep-leg-pct">${arNum(Math.round(s.count / sum * 100))}٪</span>
+                    <span class="rep-leg-n">${arNum(s.count)}</span>
+                </div>
+            `).join('')}
+        </div>
+    </div>`;
+}
+
+function renderComplianceBars(stats) {
+    const arNum = (n) => String(n).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+    const bars = [
+        { label: 'المرحلة ١ · الطلب → السحب', sub: 'المستهدف: ١٠د · أطباء الطوارئ', pct: stats.orderPct },
+        { label: 'المرحلة ٢ · السحب → الإرسال', sub: 'المستهدف: ١٠د · فريق التمريض', pct: stats.nursingPct },
+        { label: 'المرحلة ٣ · الاستقبال → النتيجة', sub: 'المستهدف: ٤٠د · فنيي المختبر', pct: stats.labPct }
+    ].filter(b => b.pct != null);
+
+    return `
+    <div class="rep-comp-bars">
+        ${bars.map(b => {
+            const color = b.pct >= 90 ? '#10B981' : b.pct >= 70 ? '#F59E0B' : '#EF4444';
+            return `
+            <div class="rep-cb-item">
+                <div class="rep-cb-head">
+                    <div class="rep-cb-label">${b.label}</div>
+                    <div class="rep-cb-pct" style="color:${color};">${arNum(Math.round(b.pct))}٪</div>
+                </div>
+                <div class="rep-cb-sub">${b.sub}</div>
+                <div class="rep-cb-bar">
+                    <div class="rep-cb-fill" style="width:${b.pct}%; background:${color};"></div>
+                    <div class="rep-cb-target" style="right:85%;"></div>
+                </div>
+            </div>`;
+        }).join('')}
+    </div>`;
+}
+
+// ============= صفحة الالتزام بالمعايير الزمنية =============
+function renderComplianceStandardsPage(R) {
+    const arNum = (n) => String(n).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+    const fmtMin = (m) => arNum(m.toFixed(1)) + ' د';
+    const fmtPct = (p) => arNum(p.toFixed(0)) + '٪';
+
+    const stages = [];
+    if (R.order) stages.push({ key: 'order', title: 'المرحلة ١ · من الطلب إلى السحب', who: 'الأطباء', target: 10, data: R.order });
+    if (R.nursing) stages.push({ key: 'nursing', title: 'المرحلة ٢ · من السحب إلى الإرسال', who: 'التمريض', target: 10, data: R.nursing });
+    if (R.lab) stages.push({ key: 'lab', title: 'المرحلة ٣ · من الاستقبال إلى النتيجة', who: 'فنيي المختبر', target: 40, data: R.lab });
+
+    return `
+    <div class="rep-page">
+        ${renderPageHeader(R, 'الالتزام بالمعايير الزمنية')}
+        <div class="rep-body">
+            <h2 class="rep-section-title">الالتزام بالمعايير الزمنية</h2>
+            <p class="rep-section-sub">تحليل المراحل الثلاث لقياس زمن خدمة المختبر في الطوارئ</p>
+
+            <div class="rep-compliance-grid">
+                ${stages.map(stage => {
+                    const buckets = computeStageBuckets(stage.key, stage.target);
+                    const total = stage.data.totalSamples;
+                    const color = stage.data.overallCompliance >= 90 ? '#10B981' : stage.data.overallCompliance >= 70 ? '#F59E0B' : '#EF4444';
+                    return `
+                    <div class="rep-comp-card">
+                        <div class="rep-comp-head">
+                            <h3 class="rep-comp-title">${stage.title}</h3>
+                            <div class="rep-comp-target">${stage.who} · المستهدف ≤ ${arNum(stage.target)} د</div>
+                        </div>
+                        <div class="rep-comp-stats">
+                            <div class="rep-comp-pct" style="color:${color};">${fmtPct(stage.data.overallCompliance)}</div>
+                            <div class="rep-comp-detail">${arNum((total - stage.data.totalDelayed).toLocaleString())} من ${arNum(total.toLocaleString())} عينة ضمن المعيار · المتوسط ${fmtMin(stage.data.overallAvg)}</div>
+                        </div>
+                        <div class="rep-buckets">
+                            ${buckets.map(b => `
+                                <div class="rep-bucket-row">
+                                    <div class="rb-label">${b.label}</div>
+                                    <div class="rb-bar">
+                                        <div class="rb-fill" style="width:${b.pct}%; background:${b.color};"></div>
+                                    </div>
+                                    <div class="rb-pct" style="color:${b.color};">${arNum(b.pct.toFixed(0))}٪ · ${arNum(b.count.toLocaleString())}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>`;
+                }).join('')}
+            </div>
+        </div>
+        ${renderPageFooter(R, 2)}
+    </div>`;
+}
+
+function computeStageBuckets(mode, target) {
+    if (!__compCurrentMonitor) return [];
+    const startField = { 'order': 'orderDateTime', 'nursing': 'collectDateTime', 'lab': 'receiveDateTime' }[mode];
+    const endField = { 'order': 'collectDateTime', 'nursing': 'dispatchDateTime', 'lab': 'completeDateTime' }[mode];
+
+    const buckets = [
+        { label: `≤ ${target}`, max: target, count: 0, color: '#10B981' },
+        { label: `${target + 1}–${target * 2}`, max: target * 2, count: 0, color: '#F59E0B' },
+        { label: `${target * 2 + 1}–${target * 4}`, max: target * 4, count: 0, color: '#FB923C' },
+        { label: `> ${target * 4}`, max: Infinity, count: 0, color: '#EF4444' }
+    ];
+
+    let total = 0;
+    const seen = new Set();  // dedupe بـ Sample ID
+    __compCurrentMonitor.forEach(row => {
+        const sid = normalizeSampleId(row.sampleId);
+        if (!sid || seen.has(sid)) return;
+        const start = row[startField];
+        const end = row[endField];
+        if (!(start instanceof Date) || !(end instanceof Date)) return;
+        const diff = (end - start) / 60000;
+        if (diff < 0 || diff > 24 * 60) return;
+        seen.add(sid);
+        total++;
+        for (const b of buckets) {
+            if (diff <= b.max) { b.count++; break; }
+        }
+    });
+    buckets.forEach(b => { b.pct = total > 0 ? (b.count / total) * 100 : 0; });
+    return buckets;
+}
+
+// ============= صفحة الخريطة الحرارية =============
+function renderHeatmapPage(R) {
+    const arNum = (n) => String(n).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+    const stages = [];
+    if (R.order) stages.push({ key: 'order', target: 10, name: 'الطلب → السحب' });
+    if (R.nursing) stages.push({ key: 'nursing', target: 10, name: 'السحب → الإرسال' });
+    if (R.lab) stages.push({ key: 'lab', target: 40, name: 'الاستقبال → النتيجة' });
+
+    const heatColor = (v) => {
+        if (v == null) return '#F3F4F6';
+        if (v >= 95) return '#10B981';
+        if (v >= 85) return '#F59E0B';
+        return '#EF4444';
+    };
+
+    return `
+    <div class="rep-page">
+        ${renderPageHeader(R, 'الخريطة الحرارية على مدار اليوم')}
+        <div class="rep-body">
+            <h2 class="rep-section-title">الخريطة الحرارية على مدار اليوم</h2>
+            <p class="rep-section-sub">نسبة الالتزام في كل ساعة · الرقم العلوي: نسبة العينات المنجزة ضمن المعيار · الرقم السفلي: عدد العينات</p>
+
+            <div class="rep-heatmap-table-wrap">
+                <table class="rep-heatmap-table">
+                    <thead>
+                        <tr>
+                            <th class="rh-corner-empty"></th>
+                            ${Array.from({length: 24}, (_, h) => `<th class="rh-hour">${String(h).padStart(2, '0')}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${stages.map(stage => {
+                            const hours = computeHeatmapForStage(stage.key, stage.target);
+                            return `
+                            <tr>
+                                <td class="rh-stage">${stage.name}</td>
+                                ${hours.map(h => {
+                                    if (h.count === 0) return `<td class="rh-cell empty"></td>`;
+                                    const bg = heatColor(h.comp);
+                                    return `<td class="rh-cell" style="background:${bg}; color:#FFFFFF;">
+                                        <div class="rh-pct">${arNum(Math.round(h.comp))}٪</div>
+                                        <div class="rh-cnt">${arNum(h.count)}</div>
+                                    </td>`;
+                                }).join('')}
+                            </tr>`;
+                        }).join('')}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="rep-heat-legend">
+                <span class="rhl-item"><span class="rhl-dot" style="background:#10B981;"></span>الالتزام ٩٥٪ فأكثر</span>
+                <span class="rhl-item"><span class="rhl-dot" style="background:#F59E0B;"></span>الالتزام ٨٥–٩٤٪</span>
+                <span class="rhl-item"><span class="rhl-dot" style="background:#EF4444;"></span>الالتزام أقل من ٨٥٪</span>
+                <span class="rhl-item"><span class="rhl-dot" style="background:#F3F4F6; border:1px dashed #CBD5E0;"></span>لا توجد عينات</span>
+            </div>
+        </div>
+        ${renderPageFooter(R, 3)}
+    </div>`;
+}
+
+function computeHeatmapForStage(mode, targetMin) {
+    if (!__compCurrentMonitor) return Array.from({length: 24}, (_, i) => ({hour: i, count: 0, comp: null}));
+    const startField = { 'order': 'orderDateTime', 'nursing': 'collectDateTime', 'lab': 'receiveDateTime' }[mode];
+    const endField = { 'order': 'collectDateTime', 'nursing': 'dispatchDateTime', 'lab': 'completeDateTime' }[mode];
+
+    const hours = Array.from({ length: 24 }, () => ({ count: 0, onTime: 0 }));
+    const seen = new Set();
+    __compCurrentMonitor.forEach(row => {
+        const sid = normalizeSampleId(row.sampleId);
+        if (!sid || seen.has(sid)) return;
+        const start = row[startField];
+        const end = row[endField];
+        if (!(start instanceof Date) || !(end instanceof Date)) return;
+        const diff = (end - start) / 60000;
+        if (diff < 0 || diff > 24 * 60) return;
+        seen.add(sid);
+        const h = start.getHours();
+        hours[h].count++;
+        if (diff <= targetMin) hours[h].onTime++;
+    });
+    return hours.map((h, idx) => ({
+        hour: idx,
+        count: h.count,
+        comp: h.count > 0 ? (h.onTime / h.count) * 100 : null
+    }));
+}
+
+// ============= صفحة حجم العينات =============
+function renderVolumeDistributionPage(R) {
+    const arNum = (n) => String(n).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+
+    const hours = Array(24).fill(0);
+    if (__compCurrentMonitor) {
+        const seen = new Set();
+        __compCurrentMonitor.forEach(row => {
+            const sid = normalizeSampleId(row.sampleId);
+            if (!sid || seen.has(sid)) return;
+            if (!(row.orderDateTime instanceof Date)) return;
+            seen.add(sid);
+            hours[row.orderDateTime.getHours()]++;
+        });
+    }
+    const total = hours.reduce((s, x) => s + x, 0);
+    const maxVal = total > 0 ? Math.max(...hours) : 0;
+    let peakHour = total > 0 ? hours.indexOf(maxVal) : 0;
+    if (peakHour < 0) peakHour = 0;
+
+    let morning = 0, evening = 0, night = 0;
+    for (let h = 0; h < 24; h++) {
+        if (h >= 7 && h < 15) morning += hours[h];
+        else if (h >= 15 && h < 23) evening += hours[h];
+        else night += hours[h];
+    }
+
+    const chartW = 800, chartH = 240, padL = 40, padR = 20, padT = 20, padB = 30;
+    const innerW = chartW - padL - padR;
+    const innerH = chartH - padT - padB;
+    const xStep = innerW / 23;
+    const points = hours.map((v, i) => ({
+        x: padL + i * xStep,
+        y: padT + innerH - (maxVal > 0 ? (v / maxVal) * innerH : 0),
+        val: v, hour: i
+    }));
+    const pathD = points.map((p, i) => (i === 0 ? 'M' : 'L') + ` ${p.x} ${p.y}`).join(' ');
+    const areaD = pathD + ` L ${padL + innerW} ${padT + innerH} L ${padL} ${padT + innerH} Z`;
+
+    return `
+    <div class="rep-page">
+        ${renderPageHeader(R, 'حجم العينات على مدار اليوم')}
+        <div class="rep-body">
+            <h2 class="rep-section-title">حجم العينات على مدار اليوم</h2>
+            <p class="rep-section-sub">توزيع العينات على ٢٤ ساعة · يكشف ساعات الذروة وفترات الهدوء</p>
+
+            <div class="rep-chart-box">
+                <h3 class="rep-chart-title">منحنى توزيع العينات بحسب الساعة</h3>
+                <div class="rep-chart-sub">الخط البرتقالي المتقطع يشير إلى ساعة الذروة · الإجمالي: ${arNum(total)} عينة</div>
+                <svg viewBox="0 0 ${chartW} ${chartH}" class="rep-svg-chart">
+                    <line x1="${padL}" y1="${padT + innerH}" x2="${padL + innerW}" y2="${padT + innerH}" stroke="#E2E8F0" stroke-width="1"/>
+                    <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT + innerH}" stroke="#E2E8F0" stroke-width="1"/>
+                    <path d="${areaD}" fill="rgba(59, 130, 246, 0.15)"/>
+                    <path d="${pathD}" fill="none" stroke="#3B82F6" stroke-width="2"/>
+                    ${points.map(p => `<circle cx="${p.x}" cy="${p.y}" r="3" fill="#3B82F6"/>`).join('')}
+                    <line x1="${points[peakHour].x}" y1="${padT}" x2="${points[peakHour].x}" y2="${padT + innerH}" stroke="#F59E0B" stroke-width="1.5" stroke-dasharray="4,3"/>
+                    <text x="${points[peakHour].x}" y="${padT - 5}" text-anchor="middle" fill="#F59E0B" font-size="12" font-weight="bold">${arNum(maxVal)}</text>
+                    ${[0, 4, 8, 12, 16, 20].map(h => `<text x="${padL + h * xStep}" y="${chartH - 8}" text-anchor="middle" fill="#6B7280" font-size="10">${String(h).padStart(2, '0')}</text>`).join('')}
+                </svg>
+                <div class="rep-chart-axis">الساعة من اليوم</div>
+            </div>
+
+            <div class="rep-two-col">
+                <div class="rep-col">
+                    <h3 class="rep-subsection-title">توزيع العينات على المناوبات</h3>
+                    <div class="rep-subsection-desc">قياس عبء العمل في كل مناوبة</div>
+                    <div class="rep-shifts">
+                        ${[
+                            { name: 'المناوبة الصباحية', range: 'من ٧ صباحاً إلى ٣ عصراً', count: morning, color: '#3B82F6' },
+                            { name: 'المناوبة المسائية', range: 'من ٣ عصراً إلى ١١ مساءً', count: evening, color: '#8B5CF6' },
+                            { name: 'المناوبة الليلية', range: 'من ١١ مساءً إلى ٧ صباحاً', count: night, color: '#0891B2' }
+                        ].map(s => {
+                            const pct = total > 0 ? (s.count / total) * 100 : 0;
+                            return `
+                            <div class="rep-shift-row">
+                                <div class="rep-shift-head">
+                                    <span class="rep-shift-name">${s.name}</span>
+                                    <span class="rep-shift-val">${arNum(s.count)} <span class="muted">(${arNum(Math.round(pct))}٪)</span></span>
+                                </div>
+                                <div class="rep-shift-sub">${s.range}</div>
+                                <div class="rep-shift-bar"><div class="rep-shift-fill" style="width:${pct}%; background:${s.color};"></div></div>
+                            </div>`;
+                        }).join('')}
+                    </div>
+                </div>
+                <div class="rep-col">
+                    <h3 class="rep-subsection-title">ساعة الذروة</h3>
+                    <div class="rep-peak-box">
+                        <div class="rep-peak-time">${String(peakHour).padStart(2, '0')}:00</div>
+                        <div class="rep-peak-count">${arNum(maxVal)} عينة</div>
+                        <div class="rep-peak-note">تمثّل هذه الساعة أعلى عبء عمل خلال اليوم، ويستحسن تعزيز التشغيل خلالها لضمان الاستجابة السريعة.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        ${renderPageFooter(R, 4)}
+    </div>`;
+}
+
+// ============= صفحة الوعد التنفيذي (الأطباء) =============
+function renderDoctorsPerformancePage(P) {
+    const arNum = (n) => String(n).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+    const fmt2 = (v) => arNum(v.toFixed(2));
+    const avgClr = (v) => v <= 10 ? 'ok' : v <= 15 ? 'warn' : 'bad';
+
+    // الأكثر طلباً: نشترط مريضين على الأقل لاستبعاد حالات منفردة
+    const topByTotal = [...P.doctors].filter(d => d.patientCount >= 2).sort((a, b) => b.totalTests - a.totalTests).slice(0, 10);
+    const eligibleAvg = P.doctors.filter(d => d.patientCount >= 3);
+    const topByAvg = [...eligibleAvg].sort((a, b) => b.avgTestsPerPatient - a.avgTestsPerPatient).slice(0, 10);
+
+    return `
+    <div class="rep-page">
+        ${renderPageHeader(__compCurrentResults, 'الوعد التنفيذي للأطباء')}
+        <div class="rep-body">
+            <h2 class="rep-section-title">الوعد التنفيذي للأطباء</h2>
+            <p class="rep-section-sub">تحليل طلبات الأطباء للاختبارات · المستهدف: متوسط ≤ ١٠ اختبارات لكل مريض</p>
+
+            <div class="rep-kpis-row" style="grid-template-columns: repeat(4, 1fr);">
+                <div class="rep-kpi-box">
+                    <div class="rkb-label">إجمالي الأطباء</div>
+                    <div class="rkb-value">${arNum(P.totalDoctors)}</div>
+                </div>
+                <div class="rep-kpi-box">
+                    <div class="rkb-label">إجمالي الاختبارات</div>
+                    <div class="rkb-value">${arNum(P.totalErTests.toLocaleString())}</div>
+                    <div class="rkb-sub">على ${arNum(P.totalErPatients)} مريض</div>
+                </div>
+                <div class="rep-kpi-box ${P.overallAvg <= 10 ? 'green' : P.overallAvg <= 15 ? 'amber' : 'red'}">
+                    <div class="rkb-label">المتوسط العام</div>
+                    <div class="rkb-value">${fmt2(P.overallAvg)}</div>
+                    <div class="rkb-sub">اختبار/مريض</div>
+                </div>
+                <div class="rep-kpi-box red">
+                    <div class="rkb-label">أطباء فوق المستهدف</div>
+                    <div class="rkb-value">${arNum(P.doctorsAboveTarget)}</div>
+                    <div class="rkb-sub">متوسطهم > ١٠</div>
+                </div>
+            </div>
+
+            <h3 class="rep-subsection-title" style="margin-top:22px;">أكثر ١٠ أطباء طلباً للاختبارات</h3>
+            <div class="rep-subsection-desc">قائمة الأطباء مرتّبة حسب إجمالي عدد الاختبارات المطلوبة</div>
+            <table class="rep-table">
+                <thead><tr>
+                    <th class="num">#</th>
+                    <th>اسم الطبيب</th>
+                    <th class="num">عدد المرضى</th>
+                    <th class="num">إجمالي الاختبارات</th>
+                    <th class="num">المتوسط/مريض</th>
+                    <th class="num">مرضى > ١٠</th>
+                    <th class="num">أعلى اختبارات لمريض واحد</th>
+                </tr></thead>
+                <tbody>
+                    ${topByTotal.map((d, i) => `
+                        <tr>
+                            <td class="num">${arNum(i + 1)}</td>
+                            <td class="staff-cell">${escapeHtml(d.name)}</td>
+                            <td class="num">${arNum(d.patientCount)}</td>
+                            <td class="num"><strong>${arNum(d.totalTests.toLocaleString())}</strong></td>
+                            <td class="num ${avgClr(d.avgTestsPerPatient)}">${fmt2(d.avgTestsPerPatient)}</td>
+                            <td class="num">${arNum(d.patientsExceeding)}</td>
+                            <td class="num">${arNum(d.maxTestsOnePatient)}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+
+            ${topByAvg.length > 0 ? `
+            <h3 class="rep-subsection-title" style="margin-top:22px;">أعلى ١٠ أطباء في متوسط الاختبارات لكل مريض</h3>
+            <div class="rep-subsection-desc">مشروط بـ ٣ مرضى على الأقل · يكشف الأطباء الذين قد يفرطون في الطلب</div>
+            <table class="rep-table">
+                <thead><tr>
+                    <th class="num">#</th>
+                    <th>اسم الطبيب</th>
+                    <th class="num">المتوسط/مريض</th>
+                    <th class="num">عدد المرضى</th>
+                    <th class="num">إجمالي الاختبارات</th>
+                    <th class="num">مرضى > ١٠</th>
+                </tr></thead>
+                <tbody>
+                    ${topByAvg.map((d, i) => `
+                        <tr>
+                            <td class="num">${arNum(i + 1)}</td>
+                            <td class="staff-cell">${escapeHtml(d.name)}</td>
+                            <td class="num ${avgClr(d.avgTestsPerPatient)}"><strong>${fmt2(d.avgTestsPerPatient)}</strong></td>
+                            <td class="num">${arNum(d.patientCount)}</td>
+                            <td class="num">${arNum(d.totalTests)}</td>
+                            <td class="num">${arNum(d.patientsExceeding)}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>` : ''}
+        </div>
+        ${renderPageFooter(__compCurrentResults, 5)}
+    </div>`;
+}
+
+// ============= صفحة الأطباء الطالبون =============
+function renderOrderingDoctorsPage(O) {
+    return renderStaffPerformancePage(O, 'الأطباء الطالبون للعينات', 'الأطباء في مرحلة الطلب → السحب · المستهدف ١٠ دقائق', 'الطبيب', 6);
+}
+
+// ============= صفحة التمريض =============
+function renderNursingPerformancePage(N) {
+    return renderStaffPerformancePage(N, 'أداء التمريض', 'فريق التمريض في مرحلة السحب → الإرسال · المستهدف ١٠ دقائق', 'الممرض/الممرضة', 7);
+}
+
+// ============= صفحة المختبر =============
+function renderLabTechPerformancePage(L) {
+    return renderStaffPerformancePage(L, 'أداء فنيي المختبر', 'فنيي المختبر في مرحلة الاستقبال → النتيجة · المستهدف ٤٠ دقيقة', 'فني المختبر', 8);
+}
+
+function renderStaffPerformancePage(R, title, subtitle, staffLabel, pageNum) {
+    const arNum = (n) => String(n).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+    const fmtMin = (m) => arNum(m.toFixed(0)) + ' د';
+    const fmtPct = (p) => arNum(p.toFixed(0)) + '٪';
+    const cfg = R.cfg;
+
+    // ترتيب: من له ٣ عينات فأكثر، حسب الالتزام
+    const eligible = R.staffList.filter(s => s.totalSamples >= 3);
+    const topByCompliance = [...eligible].sort((a, b) => b.compliancePct - a.compliancePct).slice(0, 5);
+    // كل القائمة مرتبة حسب عدد العينات
+    const allByCount = [...R.staffList].sort((a, b) => b.totalSamples - a.totalSamples);
+
+    return `
+    <div class="rep-page">
+        ${renderPageHeader(__compCurrentResults, title)}
+        <div class="rep-body">
+            <h2 class="rep-section-title">${title}</h2>
+            <p class="rep-section-sub">${subtitle}</p>
+
+            <div class="rep-kpis-row" style="grid-template-columns: repeat(4, 1fr);">
+                <div class="rep-kpi-box">
+                    <div class="rkb-label">عدد ${staffLabel}</div>
+                    <div class="rkb-value">${arNum(R.totalStaff)}</div>
+                </div>
+                <div class="rep-kpi-box">
+                    <div class="rkb-label">إجمالي العينات</div>
+                    <div class="rkb-value">${arNum(R.totalSamples.toLocaleString())}</div>
+                </div>
+                <div class="rep-kpi-box red">
+                    <div class="rkb-label">العينات المتأخرة</div>
+                    <div class="rkb-value">${arNum(R.totalDelayed.toLocaleString())}</div>
+                </div>
+                <div class="rep-kpi-box ${R.overallCompliance >= 90 ? 'green' : R.overallCompliance >= 70 ? 'amber' : 'red'}">
+                    <div class="rkb-label">الالتزام الكلي</div>
+                    <div class="rkb-value">${fmtPct(R.overallCompliance)}</div>
+                </div>
+            </div>
+
+            ${topByCompliance.length > 0 ? `
+            <h3 class="rep-subsection-title" style="margin-top:20px;">أعلى ٥ في الالتزام (٣ عينات فأكثر)</h3>
+            <div class="rep-rank-bars">
+                ${topByCompliance.map(s => `
+                    <div class="rep-rank-item">
+                        <div class="rep-rank-info">
+                            <div class="rep-rank-name">${escapeHtml(s.name)}</div>
+                            <div class="rep-rank-meta">${arNum(s.totalSamples)} عينة · متوسط ${fmtMin(s.avgMinutes)}</div>
+                        </div>
+                        <div class="rep-rank-bar-wrap">
+                            <div class="rep-rank-bar">
+                                <div class="rep-rank-fill" style="width:${s.compliancePct}%; background:${s.compliancePct >= 90 ? '#10B981' : s.compliancePct >= 70 ? '#F59E0B' : '#EF4444'};"></div>
+                            </div>
+                            <div class="rep-rank-pct">${fmtPct(s.compliancePct)}</div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>` : ''}
+
+            <h3 class="rep-subsection-title" style="margin-top:18px;">${staffLabel} مرتبين حسب عدد العينات</h3>
+            <div class="rep-subsection-desc">قائمة كاملة بكل من شارك في هذه المرحلة</div>
+            <table class="rep-table">
+                <thead><tr>
+                    <th>الاسم</th>
+                    <th class="num">عدد العينات</th>
+                    <th class="num">المتأخرة</th>
+                    <th class="num">متوسط الزمن</th>
+                    <th class="num">أعلى زمن</th>
+                    <th class="num">الالتزام</th>
+                </tr></thead>
+                <tbody>
+                    ${allByCount.map(s => {
+                        const cls = s.compliancePct >= 90 ? 'ok' : s.compliancePct >= 70 ? 'warn' : 'bad';
+                        return `
+                        <tr>
+                            <td class="staff-cell">${escapeHtml(s.name)}</td>
+                            <td class="num"><strong>${arNum(s.totalSamples)}</strong></td>
+                            <td class="num bad">${arNum(s.delayedCount)}</td>
+                            <td class="num">${fmtMin(s.avgMinutes)}</td>
+                            <td class="num">${fmtMin(s.maxMinutes)}</td>
+                            <td class="num ${cls}"><strong>${fmtPct(s.compliancePct)}</strong></td>
+                        </tr>`;
+                    }).join('')}
+                </tbody>
+            </table>
+        </div>
+        ${renderPageFooter(__compCurrentResults, pageNum)}
+    </div>`;
+}
+
+// ============= صفحة أعلى ١٠ ملفات متأخرة =============
+function renderTop10DelayedPage(R) {
+    const arNum = (n) => String(n).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+    const fmtTime = (d) => {
+        if (!(d instanceof Date)) return '—';
+        const pad = n => String(n).padStart(2, '0');
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    };
+
+    const stages = [];
+    if (R.order) stages.push({ key: 'order', target: 10, title: 'المرحلة ١ · من الطلب إلى السحب', staffLabel: 'الطبيب الطالب' });
+    if (R.nursing) stages.push({ key: 'nursing', target: 10, title: 'المرحلة ٢ · من السحب إلى الإرسال', staffLabel: 'الممرض/الممرضة' });
+    if (R.lab) stages.push({ key: 'lab', target: 40, title: 'المرحلة ٣ · من الاستقبال إلى النتيجة', staffLabel: 'فني المختبر' });
+
+    let totalDelayed = 0;
+    stages.forEach(s => {
+        const dat = (s.key === 'order' ? R.order : s.key === 'nursing' ? R.nursing : R.lab);
+        if (dat) totalDelayed += dat.totalDelayed;
+    });
+
+    return `
+    <div class="rep-page">
+        ${renderPageHeader(R, 'أعلى ١٠ ملفات متأخرة')}
+        <div class="rep-body">
+            <h2 class="rep-section-title">أعلى ١٠ ملفات متأخرة</h2>
+            <p class="rep-section-sub">العينات الأكثر تأخراً في كل مرحلة · إجمالي التأخرات: ${arNum(totalDelayed.toLocaleString())} عينة</p>
+
+            ${stages.map(stage => {
+                const items = computeTopDelayed(stage.key, stage.target);
+                return `
+                <div class="rep-delay-block">
+                    <div class="rep-delay-title">${stage.title} (تجاوز ${arNum(stage.target)} دقيقة)</div>
+                    ${items.length === 0 ? '<div class="rep-empty">لا توجد عينات متأخرة</div>' : `
+                    <table class="rep-table rep-table-delay">
+                        <thead><tr>
+                            <th class="num">رقم العينة</th>
+                            <th>${stage.staffLabel}</th>
+                            <th class="num">الزمن الفعلي</th>
+                            <th class="num">التجاوز</th>
+                            <th class="num">وقت الطلب</th>
+                        </tr></thead>
+                        <tbody>
+                            ${items.map(it => `
+                                <tr>
+                                    <td class="num sample-id-cell">${arNum(it.sampleId)}</td>
+                                    <td class="staff-cell">${escapeHtml(it.staff)}</td>
+                                    <td class="num"><strong>${arNum(Math.round(it.duration))} د</strong></td>
+                                    <td class="num bad"><strong>+${arNum(Math.round(it.over))} د</strong></td>
+                                    <td class="num mono-cell">${fmtTime(it.startTime)}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>`}
+                </div>`;
+            }).join('')}
+        </div>
+        ${renderPageFooter(R, 9)}
+    </div>`;
+}
+
+function computeTopDelayed(mode, targetMin) {
+    if (!__compCurrentMonitor) return [];
+    const startField = { 'order': 'orderDateTime', 'nursing': 'collectDateTime', 'lab': 'receiveDateTime' }[mode];
+    const endField = { 'order': 'collectDateTime', 'nursing': 'dispatchDateTime', 'lab': 'completeDateTime' }[mode];
+    const staffField = { 'order': 'orderedBy', 'nursing': 'collectedBy', 'lab': 'receivedBy' }[mode];
+
+    const items = [];
+    const seen = new Set();
+    __compCurrentMonitor.forEach(row => {
+        const sid = normalizeSampleId(row.sampleId);
+        if (!sid || seen.has(sid)) return;
+        const start = row[startField];
+        const end = row[endField];
+        if (!(start instanceof Date) || !(end instanceof Date)) return;
+        const diff = (end - start) / 60000;
+        if (diff < 0 || diff > 24 * 60) return;
+        if (diff <= targetMin) return;
+        seen.add(sid);
+        items.push({
+            sampleId: sid,
+            staff: row[staffField] ? String(row[staffField]).trim() : '—',
+            duration: diff,
+            over: diff - targetMin,
+            startTime: start
+        });
+    });
+    return items.sort((a, b) => b.duration - a.duration).slice(0, 10);
+}
+
+// ============= رأس وتذييل =============
+function renderPageHeader(R, pageTitle) {
+    return `
+    <div class="rep-page-header">
+        <div class="rep-header-right">
+            <div class="rep-header-hosp-ar">${R.info.ar}</div>
+            <div class="rep-header-hosp-en">${R.info.en}</div>
+        </div>
+        <div class="rep-header-left">
+            <div class="rep-header-logo-mark"></div>
+        </div>
+    </div>`;
+}
+
+function renderPageFooter(R, pageNum) {
+    const arNum = (n) => String(n).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+    return `
+    <div class="rep-page-footer">
+        <div class="rep-footer-right">تجمع المدينة المنورة الصحي · إدارة الخدمات الصحية المساندة</div>
+        <div class="rep-footer-left">صفحة ${arNum(pageNum)}</div>
+    </div>`;
+}
+
+function closeComp() {
+    document.getElementById('compModal').classList.remove('active');
+    document.body.style.overflow = '';
+    __compCurrentMonitor = null;
+    __compCurrentResults = null;
+    __compCurrentMergedRows = null;
+}
+
+async function exportCompPdf() {
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.classList.add('active');
+    document.getElementById('loadingText').textContent = 'جاري تصدير PDF...';
+    await new Promise(r => setTimeout(r, 50));
+
+    try {
+        const pages = document.querySelectorAll('.rep-page');
+        if (pages.length === 0) throw new Error('لا توجد صفحات للتصدير');
+
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+        const pageW = pdf.internal.pageSize.getWidth();
+        const pageH = pdf.internal.pageSize.getHeight();
+
+        for (let i = 0; i < pages.length; i++) {
+            document.getElementById('loadingText').textContent = `جاري تصدير الصفحة ${i + 1} من ${pages.length}...`;
+            await new Promise(r => setTimeout(r, 30));
+
+            const canvas = await html2canvas(pages[i], {
+                scale: 2,
+                backgroundColor: '#FFFFFF',
+                useCORS: true,
+                logging: false
+            });
+
+            if (i > 0) pdf.addPage();
+            const imgH = (canvas.height * pageW) / canvas.width;
+            pdf.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, pageW, Math.min(imgH, pageH));
+        }
+
+        const title = document.getElementById('compModalTitle').textContent;
+        const hospitalAr = title.replace('التحليل الشامل — ', '').replace(/\s+/g, '_');
+        const dateStr = new Date().toISOString().slice(0, 10);
+        pdf.save(`${hospitalAr}_${dateStr}.pdf`);
+    } catch (err) {
+        console.error(err);
+        alert('فشل التصدير: ' + err.message);
+    } finally {
+        overlay.classList.remove('active');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const btnCompClose = document.getElementById('btnCompClose');
+    if (btnCompClose) btnCompClose.addEventListener('click', closeComp);
+    const btnCompExportPdf = document.getElementById('btnCompExportPdf');
+    if (btnCompExportPdf) btnCompExportPdf.addEventListener('click', exportCompPdf);
+});
+
+
+
+
+
+
+
+
+
 
 async function analyzeDoctors() {
     const status = document.getElementById('docStatus');
@@ -7979,6 +11000,10 @@ function computeStageAnalysis(monitorRows, mode, hospitalKey) {
     let processedCount = 0;
     let validDurationCount = 0;
 
+    // ⚠️ مهم: نزيل التكرار بـ Sample ID — كل عينة تُحسب مرة واحدة
+    // لو نفس الـ sample id له عدة اختبارات (rows في Monitor)، نأخذ الأول فقط
+    const seenSamples = new Set();
+
     monitorRows.forEach(row => {
         const start = row[startField];
         const end = row[endField];
@@ -7986,6 +11011,12 @@ function computeStageAnalysis(monitorRows, mode, hospitalKey) {
 
         if (!start || !end || !staff) return;
         if (!(start instanceof Date) || !(end instanceof Date)) return;
+
+        // dedupe بـ Sample ID
+        const sid = normalizeSampleId(row.sampleId);
+        if (!sid) return;
+        if (seenSamples.has(sid)) return;
+        seenSamples.add(sid);
 
         const diffMs = end - start;
         if (diffMs < 0 || diffMs > 24 * 60 * 60 * 1000) return; // نتجاهل الأخطاء الكبيرة (>24س أو سالب)
@@ -8242,6 +11273,26 @@ function computeDoctorAnalysis(kpiRows, monitorRows, hospitalKey) {
     let unmatched = 0;
     let matched = 0;
 
+    // اكتشاف: هل episodeKey فعلياً episode أم هو OrderKey (فريد لكل اختبار)؟
+    // إذا عدد episode_keys الفريدة قريب من عدد الصفوف → هو OrderKey، نستخدم patientId فقط
+    const episodesPerPatient = new Map();
+    erRows.forEach(r => {
+        if (!r.patientId) return;
+        const pid = String(r.patientId);
+        if (!episodesPerPatient.has(pid)) episodesPerPatient.set(pid, new Set());
+        episodesPerPatient.get(pid).add(r.episodeKey != null ? r.episodeKey : 'noep');
+    });
+    // متوسط episodes لكل مريض
+    let totalEp = 0, patientWithMultiple = 0;
+    episodesPerPatient.forEach(eps => {
+        totalEp += eps.size;
+        if (eps.size > 3) patientWithMultiple++;
+    });
+    const avgEpPerPatient = episodesPerPatient.size > 0 ? totalEp / episodesPerPatient.size : 0;
+    // لو متوسط episodes/مريض > 3 → هو OrderKey وليس episode حقيقي
+    const useEpisode = avgEpPerPatient <= 3;
+    console.log(`[Doctor analysis] avg episodes/patient = ${avgEpPerPatient.toFixed(2)}, useEpisode = ${useEpisode}`);
+
     erRows.forEach(row => {
         const sid = normalizeSampleId(row.sampleId);
         if (!sid) return;
@@ -8251,8 +11302,10 @@ function computeDoctorAnalysis(kpiRows, monitorRows, hospitalKey) {
 
         const patientId = row.patientId;
         if (!patientId) return;
-        const episode = row.episodeKey != null ? row.episodeKey : 'noep';
-        const patientKey = `${patientId}|${episode}`;
+        // نستخدم Patient ID فقط إذا episodeKey فيه قيمة لكل اختبار (OrderKey)
+        const patientKey = useEpisode
+            ? `${patientId}|${row.episodeKey != null ? row.episodeKey : 'noep'}`
+            : String(patientId);
 
         if (!doctorMap.has(doctor)) {
             doctorMap.set(doctor, { patients: new Map(), totalTests: 0 });
@@ -8261,7 +11314,7 @@ function computeDoctorAnalysis(kpiRows, monitorRows, hospitalKey) {
         docEntry.totalTests++;
 
         if (!docEntry.patients.has(patientKey)) {
-            docEntry.patients.set(patientKey, { count: 0, patientId, episode });
+            docEntry.patients.set(patientKey, { count: 0, patientId, episode: row.episodeKey });
         }
         docEntry.patients.get(patientKey).count++;
     });
@@ -8288,7 +11341,9 @@ function computeDoctorAnalysis(kpiRows, monitorRows, hospitalKey) {
     const totalDoctors = doctors.length;
     const totalErTests = erRows.length;
     const totalErPatients = new Set(
-        erRows.filter(r => r.patientId).map(r => `${r.patientId}|${r.episodeKey != null ? r.episodeKey : 'noep'}`)
+        erRows.filter(r => r.patientId).map(r => useEpisode
+            ? `${r.patientId}|${r.episodeKey != null ? r.episodeKey : 'noep'}`
+            : String(r.patientId))
     ).size;
     const overallAvg = totalErPatients > 0 ? (totalErTests / totalErPatients) : 0;
     const doctorsAboveTarget = doctors.filter(d => d.avgTestsPerPatient > 10).length;
