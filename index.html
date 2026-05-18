@@ -9276,23 +9276,38 @@ function parseMonDate(v) {
         return isNaN(d.getTime()) ? null : d;
     }
     if (typeof v === 'string') {
-        // "5/5/2026, 4:34 AM" أو "5/5/2026 4:34" أو ISO
         const s = v.trim();
         if (!s) return null;
-        // نجرّب parse مباشر أولاً
-        let d = new Date(s);
-        if (!isNaN(d.getTime())) return d;
-        // نتعامل مع "M/D/YYYY, HH:MM AM/PM"
-        const m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})[,\s]+(\d{1,2}):(\d{2})\s*(AM|PM)?/i);
+
+        // 1) صيغة "M/D/YYYY, H:MM AM/PM" أو "M/D/YYYY H:MM AM/PM"
+        let m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})[,\s]+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?\s*(AM|PM)?/i);
         if (m) {
             let hour = parseInt(m[4], 10);
             const min = parseInt(m[5], 10);
-            const ampm = (m[6] || '').toUpperCase();
+            const sec = m[6] ? parseInt(m[6], 10) : 0;
+            const ampm = (m[7] || '').toUpperCase();
             if (ampm === 'PM' && hour < 12) hour += 12;
             if (ampm === 'AM' && hour === 12) hour = 0;
-            d = new Date(parseInt(m[3]), parseInt(m[1])-1, parseInt(m[2]), hour, min);
+            const d = new Date(parseInt(m[3]), parseInt(m[1])-1, parseInt(m[2]), hour, min, sec);
             return isNaN(d.getTime()) ? null : d;
         }
+
+        // 2) صيغة ISO "YYYY-MM-DD HH:MM:SS" أو "YYYY-MM-DDTHH:MM:SS"
+        m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})[T\s]+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?\s*(AM|PM)?/i);
+        if (m) {
+            let hour = parseInt(m[4], 10);
+            const min = parseInt(m[5], 10);
+            const sec = m[6] ? parseInt(m[6], 10) : 0;
+            const ampm = (m[7] || '').toUpperCase();
+            if (ampm === 'PM' && hour < 12) hour += 12;
+            if (ampm === 'AM' && hour === 12) hour = 0;
+            const d = new Date(parseInt(m[1]), parseInt(m[2])-1, parseInt(m[3]), hour, min, sec);
+            return isNaN(d.getTime()) ? null : d;
+        }
+
+        // 3) fallback: new Date()
+        const d = new Date(s);
+        if (!isNaN(d.getTime())) return d;
         return null;
     }
     return null;
@@ -9308,7 +9323,7 @@ function parseMonDate(v) {
 //   AB=SampleID, AH=Hospital
 async function readMonitorForStages(file) {
     const buffer = await file.arrayBuffer();
-    const wb = XLSX.read(new Uint8Array(buffer), { type: 'array' });
+    const wb = XLSX.read(new Uint8Array(buffer), { type: 'array', cellDates: true });
     const sheetName = wb.SheetNames[0];
     const ws = wb.Sheets[sheetName];
 
@@ -9350,7 +9365,7 @@ async function readMonitorForStages(file) {
 // indices: I=8 (Ordered By), AB=27 (Sample ID), AH=33 (Hospital)
 async function readMonitorDirectly(file) {
     const buffer = await file.arrayBuffer();
-    const wb = XLSX.read(new Uint8Array(buffer), { type: 'array' });
+    const wb = XLSX.read(new Uint8Array(buffer), { type: 'array', cellDates: true });
     const sheetName = wb.SheetNames[0];
     const ws = wb.Sheets[sheetName];
 
@@ -9392,7 +9407,7 @@ async function readMonitorDirectly(file) {
 // قراءة Lab KPI: header في الصف الأول، البيانات من الثاني
 async function readKpiDirectly(file) {
     const buffer = await file.arrayBuffer();
-    const wb = XLSX.read(new Uint8Array(buffer), { type: 'array' });
+    const wb = XLSX.read(new Uint8Array(buffer), { type: 'array', cellDates: true });
     const sheetName = wb.SheetNames[0];
     const ws = wb.Sheets[sheetName];
 
@@ -11256,7 +11271,7 @@ function computeDoctorAnalysis(kpiRows, monitorRows, hospitalKey) {
     const erRows = kpiRows.filter(r => {
         if (!isErType(r.patientType)) return false;
         const status = String(r.sampleStatus || '').toLowerCase().trim();
-        if (status === 'rejected' || status === 'canceled' || status === 'cancelled') return false;
+        if (status === 'rejected' || status === 'reject' || status === 'canceled' || status === 'cancelled' || status === 'pending') return false;
         return true;
     });
 
