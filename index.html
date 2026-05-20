@@ -10290,12 +10290,27 @@ function findMaxRowFromKeys(ws) {
 // parser مرن للتواريخ في ملف Monitor (يقبل string أو Date أو Excel serial)
 function parseMonDate(v) {
     if (v == null) return null;
-    if (v instanceof Date) return isNaN(v.getTime()) ? null : v;
+    if (v instanceof Date) {
+        if (isNaN(v.getTime())) return null;
+        // طبّع: لو Date من XLSX UTC، نحوله لـ local wall-clock
+        if (v.getUTCHours() !== v.getHours() ||
+            v.getUTCDate() !== v.getDate() ||
+            v.getUTCMonth() !== v.getMonth()) {
+            return new Date(
+                v.getUTCFullYear(), v.getUTCMonth(), v.getUTCDate(),
+                v.getUTCHours(), v.getUTCMinutes(), v.getUTCSeconds()
+            );
+        }
+        return v;
+    }
     if (typeof v === 'number') {
-        // Excel serial date
-        const ms = (v - 25569) * 86400 * 1000;
-        const d = new Date(ms);
-        return isNaN(d.getTime()) ? null : d;
+        // Excel serial date - يكون UTC، نطبّعه لـ local wall-clock
+        const utcMs = (v - 25569) * 86400 * 1000;
+        const utcDate = new Date(utcMs);
+        return new Date(
+            utcDate.getUTCFullYear(), utcDate.getUTCMonth(), utcDate.getUTCDate(),
+            utcDate.getUTCHours(), utcDate.getUTCMinutes(), utcDate.getUTCSeconds()
+        );
     }
     if (typeof v === 'string') {
         const s = v.trim();
@@ -10510,46 +10525,8 @@ async function readKpiDirectly(file) {
         const sampleStatus = get('sampleStatus');
 
         // Order DateTime (للمطابقة عند غياب Sample ID)
-        let orderDt = get('orderDt');
-        if (orderDt != null) {
-            if (typeof orderDt === 'number') {
-                // Excel serial - نحوله محافظين على الـ wall-clock time
-                // الـ formula الافتراضية تنتج Date بصيغة UTC، لكن نريد wall-clock
-                const totalDays = orderDt - 25569;
-                const wholeDays = Math.floor(totalDays);
-                const fractionDay = totalDays - wholeDays;
-                const totalSeconds = Math.round(fractionDay * 86400);
-                const hours = Math.floor(totalSeconds / 3600);
-                const minutes = Math.floor((totalSeconds % 3600) / 60);
-                const seconds = totalSeconds % 60;
-                // نبني التاريخ من UTC ثم نأخذ المركبات
-                const utcMs = wholeDays * 86400 * 1000;
-                const utcDate = new Date(utcMs);
-                // نأخذ المركبات من UTC ونبني Date local بنفس الأرقام
-                orderDt = new Date(
-                    utcDate.getUTCFullYear(),
-                    utcDate.getUTCMonth(),
-                    utcDate.getUTCDate(),
-                    hours, minutes, seconds
-                );
-            } else if (typeof orderDt === 'string') {
-                const parsed = parseMonDate(orderDt);
-                if (parsed) orderDt = parsed;
-            } else if (orderDt instanceof Date) {
-                // XLSX مع cellDates يرجع Date object - لكن قد يكون في UTC
-                // نطبّع: نأخذ مركبات UTC ونبني Date local بنفس الأرقام
-                // هذا يضمن أن getHours() يعيد القيمة الأصلية من الـ Excel
-                const utcY = orderDt.getUTCFullYear();
-                const utcM = orderDt.getUTCMonth();
-                const utcD = orderDt.getUTCDate();
-                const utcH = orderDt.getUTCHours();
-                const utcMin = orderDt.getUTCMinutes();
-                const utcS = orderDt.getUTCSeconds();
-                orderDt = new Date(utcY, utcM, utcD, utcH, utcMin, utcS);
-            }
-            // إذا لم يصبح Date، نلغيه
-            if (!(orderDt instanceof Date) || isNaN(orderDt.getTime())) orderDt = null;
-        }
+        // parseMonDate يتعامل مع Date/string/number ويطبّعها لـ wall-clock local
+        const orderDt = parseMonDate(get('orderDt'));
 
         if (!patientId && sampleId == null) continue;
         rows.push({ patientId, episodeKey, patientType, sampleId, sampleStatus, orderDt });
@@ -14048,6 +14025,7 @@ function normalizeMrn(mrn) {
 }
 
 // مفتاح موحد لمطابقة MRN+OrderDateTime بدقة الدقيقة
+// نستخدم local components - يفترض أن كل Date يحفظ wall-clock time في local
 function buildMrnTimeKey(mrn, dt) {
     const m = normalizeMrn(mrn);
     if (!m || !(dt instanceof Date) || isNaN(dt.getTime())) return null;
@@ -14057,6 +14035,23 @@ function buildMrnTimeKey(mrn, dt) {
     const h = String(dt.getHours()).padStart(2, '0');
     const min = String(dt.getMinutes()).padStart(2, '0');
     return `${m}|${Y}-${M}-${D} ${h}:${min}`;
+}
+
+// تحويل Date محتمل أنه UTC إلى Date local يحفظ wall-clock
+// (يستخدم لـ KPI Excel dates التي تأتي بـ UTC representation)
+function normalizeXlsxDate(dt) {
+    if (!(dt instanceof Date) || isNaN(dt.getTime())) return null;
+    // إذا الـ Date عنده UTC components مختلفة عن local، فهو من XLSX (UTC)
+    // نحوله: نأخذ UTC components ونبني Date local بنفس الأرقام (wall-clock preservation)
+    if (dt.getUTCHours() !== dt.getHours() ||
+        dt.getUTCDate() !== dt.getDate() ||
+        dt.getUTCMonth() !== dt.getMonth()) {
+        return new Date(
+            dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate(),
+            dt.getUTCHours(), dt.getUTCMinutes(), dt.getUTCSeconds()
+        );
+    }
+    return dt;
 }
 
 // تحقق من صحة اسم الموظف: يستثني الأسماء الرمزية مثل "-" أو "—" أو "?" أو الرموز فقط
