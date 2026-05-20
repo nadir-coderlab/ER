@@ -5286,7 +5286,7 @@ body {
     text-align: right;
 }
 .rep-header-logo-mark {
-    width: 56px; height: 56px;
+    width: 42px; height: 42px;
     background-image: var(--cluster-logo);
     background-size: contain;
     background-position: center;
@@ -5358,7 +5358,7 @@ body {
     gap: 12px;
 }
 .logo-icon {
-    width: 90px; height: 90px;
+    width: 64px; height: 64px;
     background-image: var(--cluster-logo);
     background-size: contain;
     background-position: center;
@@ -10290,27 +10290,12 @@ function findMaxRowFromKeys(ws) {
 // parser مرن للتواريخ في ملف Monitor (يقبل string أو Date أو Excel serial)
 function parseMonDate(v) {
     if (v == null) return null;
-    if (v instanceof Date) {
-        if (isNaN(v.getTime())) return null;
-        // طبّع: لو Date من XLSX UTC، نحوله لـ local wall-clock
-        if (v.getUTCHours() !== v.getHours() ||
-            v.getUTCDate() !== v.getDate() ||
-            v.getUTCMonth() !== v.getMonth()) {
-            return new Date(
-                v.getUTCFullYear(), v.getUTCMonth(), v.getUTCDate(),
-                v.getUTCHours(), v.getUTCMinutes(), v.getUTCSeconds()
-            );
-        }
-        return v;
-    }
+    if (v instanceof Date) return isNaN(v.getTime()) ? null : v;
     if (typeof v === 'number') {
-        // Excel serial date - يكون UTC، نطبّعه لـ local wall-clock
-        const utcMs = (v - 25569) * 86400 * 1000;
-        const utcDate = new Date(utcMs);
-        return new Date(
-            utcDate.getUTCFullYear(), utcDate.getUTCMonth(), utcDate.getUTCDate(),
-            utcDate.getUTCHours(), utcDate.getUTCMinutes(), utcDate.getUTCSeconds()
-        );
+        // Excel serial date
+        const ms = (v - 25569) * 86400 * 1000;
+        const d = new Date(ms);
+        return isNaN(d.getTime()) ? null : d;
     }
     if (typeof v === 'string') {
         const s = v.trim();
@@ -10525,8 +10510,11 @@ async function readKpiDirectly(file) {
         const sampleStatus = get('sampleStatus');
 
         // Order DateTime (للمطابقة عند غياب Sample ID)
-        // parseMonDate يتعامل مع Date/string/number ويطبّعها لـ wall-clock local
-        const orderDt = parseMonDate(get('orderDt'));
+        let orderDt = get('orderDt');
+        if (orderDt && typeof orderDt === 'string') {
+            const parsed = parseMonDate(orderDt);
+            if (parsed) orderDt = parsed;
+        }
 
         if (!patientId && sampleId == null) continue;
         rows.push({ patientId, episodeKey, patientType, sampleId, sampleStatus, orderDt });
@@ -10615,16 +10603,13 @@ async function openComprehensiveAnalysis(hkey) {
                         }
                         // محاولة 2 (fallback): MRN + Order DateTime
                         if (r.patientId && r.orderDt instanceof Date) {
-                            const key = buildMrnTimeKey(r.patientId, r.orderDt);
-                            if (key) erMrnTimeKeys.add(key);
+                            const dt = r.orderDt;
+                            const key = `${r.patientId}|${dt.getFullYear()}-${dt.getMonth()}-${dt.getDate()} ${dt.getHours()}:${dt.getMinutes()}`;
+                            erMrnTimeKeys.add(key);
                         }
                     }
                 });
                 console.log(`[Comp Analysis] KPI ER: ${erSampleIds.size} Sample IDs, ${erMrnTimeKeys.size} MRN+Time keys`);
-                // عرض أول ٥ مفاتيح للتشخيص
-                if (erMrnTimeKeys.size > 0) {
-                    console.log('[Comp Analysis] First 5 KPI keys:', Array.from(erMrnTimeKeys).slice(0, 5));
-                }
 
                 if (erSampleIds.size === 0 && erMrnTimeKeys.size === 0) {
                     console.warn('No ER samples found in KPI - falling back to all completed samples');
@@ -10653,16 +10638,20 @@ async function openComprehensiveAnalysis(hkey) {
             if (erMonitorAll.length === 0 && erMrnTimeKeys && erMrnTimeKeys.size > 0) {
                 console.warn('No matches by Sample ID, trying MRN+Time fallback');
                 erMonitorAll = allMonitor.filter(row => {
-                    const key = buildMrnTimeKey(row.mrn, row.orderDateTime);
-                    return key != null && erMrnTimeKeys.has(key);
+                    if (!row.mrn || !(row.orderDateTime instanceof Date)) return false;
+                    const dt = row.orderDateTime;
+                    const key = `${String(row.mrn).trim()}|${dt.getFullYear()}-${dt.getMonth()}-${dt.getDate()} ${dt.getHours()}:${dt.getMinutes()}`;
+                    return erMrnTimeKeys.has(key);
                 });
                 matchMethod = 'mrn_time';
             }
         } else if (erMrnTimeKeys && erMrnTimeKeys.size > 0) {
             // طريقة 2: مطابقة بـ MRN + Order DateTime (للملفات بدون Sample ID)
             erMonitorAll = allMonitor.filter(row => {
-                const key = buildMrnTimeKey(row.mrn, row.orderDateTime);
-                return key != null && erMrnTimeKeys.has(key);
+                if (!row.mrn || !(row.orderDateTime instanceof Date)) return false;
+                const dt = row.orderDateTime;
+                const key = `${String(row.mrn).trim()}|${dt.getFullYear()}-${dt.getMonth()}-${dt.getDate()} ${dt.getHours()}:${dt.getMinutes()}`;
+                return erMrnTimeKeys.has(key);
             });
             matchMethod = 'mrn_time';
         } else {
@@ -10674,47 +10663,18 @@ async function openComprehensiveAnalysis(hkey) {
         }
 
         // استثناء العينات غير المكتملة: عمود S (Completed By) لازم يكون فيه اسم
-        const erMonitorCompleted = erMonitorAll.filter(row => {
+        const erMonitor = erMonitorAll.filter(row => {
             const cb = row.completedBy;
             return cb != null && String(cb).trim() !== '';
         });
 
-        // فلتر إضافي: إذا كان للمستشفى قائمة فنيين معتمدة، نستثني العينات التي استقبلها فني غير معتمد
-        // (مثلاً فني من مركز نجود الذي يستخدم مختبر الملك فهد كمختبر مرجعي)
-        let erMonitor;
-        let excludedNonApproved = 0;
-        if (APPROVED_LAB_TECHS[hkey]) {
-            erMonitor = erMonitorCompleted.filter(row => {
-                const rb = row.receivedBy;
-                // إذا ما فيه receivedBy، نستثني (لازم يكون فني استقبل)
-                if (!rb || !String(rb).trim()) return false;
-                return matchesApprovedTech(rb, hkey);
-            });
-            excludedNonApproved = erMonitorCompleted.length - erMonitor.length;
-            console.log(`[Comp Analysis] Filtered by approved techs (${hkey}): kept ${erMonitor.length}, excluded ${excludedNonApproved} (non-approved techs/centers)`);
-        } else {
-            erMonitor = erMonitorCompleted;
-        }
-
-        const excludedIncomplete = erMonitorAll.length - erMonitorCompleted.length;
+        const excludedIncomplete = erMonitorAll.length - erMonitor.length;
         console.log(`[Comp Analysis] Match method: ${matchMethod}`);
-        console.log(`[Comp Analysis] Total: ${erMonitorAll.length}, Completed: ${erMonitorCompleted.length}, Excluded incomplete: ${excludedIncomplete}, Non-approved: ${excludedNonApproved}, Final: ${erMonitor.length}`);
-        // تشخيص: نعرض أول ٥ مفاتيح Monitor مطابقة أو غير مطابقة
-        if (matchMethod === 'mrn_time' && erMrnTimeKeys && allMonitor.length > 0) {
-            const monKeysSample = [];
-            for (let i = 0; i < Math.min(10, allMonitor.length); i++) {
-                const k = buildMrnTimeKey(allMonitor[i].mrn, allMonitor[i].orderDateTime);
-                if (k) monKeysSample.push({ key: k, matched: erMrnTimeKeys.has(k) });
-            }
-            console.log('[Comp Analysis] Sample Monitor keys (first 10):', monKeysSample);
-        }
+        console.log(`[Comp Analysis] Total: ${erMonitorAll.length}, Completed: ${erMonitor.length}, Excluded: ${excludedIncomplete}`);
 
         if (erMonitor.length === 0) {
             overlay.classList.remove('active');
-            const msg = APPROVED_LAB_TECHS[hkey]
-                ? `لم يتم العثور على عينات استقبلها فني معتمد من قائمة المستشفى.\nالإجمالي: ${erMonitorAll.length}\nغير مكتملة: ${excludedIncomplete}\nغير معتمد (مراكز خارجية): ${excludedNonApproved}`
-                : `لم يتم العثور على عينات مكتملة. الإجمالي: ${erMonitorAll.length}، غير مكتملة (عمود S فاضي): ${excludedIncomplete}`;
-            alert(msg);
+            alert(`لم يتم العثور على عينات مكتملة. الإجمالي: ${erMonitorAll.length}، غير مكتملة (عمود S فاضي): ${excludedIncomplete}`);
             return;
         }
 
@@ -11801,8 +11761,9 @@ async function computeFullComp(hkey) {
                                 if (sid) erSampleIds.add(sid);
                             }
                             if (r.patientId && r.orderDt instanceof Date) {
-                                const key = buildMrnTimeKey(r.patientId, r.orderDt);
-                                if (key) erMrnTimeKeys.add(key);
+                                const dt = r.orderDt;
+                                const key = `${r.patientId}|${dt.getFullYear()}-${dt.getMonth()}-${dt.getDate()} ${dt.getHours()}:${dt.getMinutes()}`;
+                                erMrnTimeKeys.add(key);
                             }
                         }
                     });
@@ -11828,14 +11789,18 @@ async function computeFullComp(hkey) {
             // fallback لو ما لقى
             if (erMonitorAll.length === 0 && erMrnTimeKeys && erMrnTimeKeys.size > 0) {
                 erMonitorAll = monitorData.monitorRows.filter(row => {
-                    const key = buildMrnTimeKey(row.mrn, row.orderDateTime);
-                    return key != null && erMrnTimeKeys.has(key);
+                    if (!row.mrn || !(row.orderDateTime instanceof Date)) return false;
+                    const dt = row.orderDateTime;
+                    const key = `${String(row.mrn).trim()}|${dt.getFullYear()}-${dt.getMonth()}-${dt.getDate()} ${dt.getHours()}:${dt.getMinutes()}`;
+                    return erMrnTimeKeys.has(key);
                 });
             }
         } else if (erMrnTimeKeys && erMrnTimeKeys.size > 0) {
             erMonitorAll = monitorData.monitorRows.filter(row => {
-                const key = buildMrnTimeKey(row.mrn, row.orderDateTime);
-                return key != null && erMrnTimeKeys.has(key);
+                if (!row.mrn || !(row.orderDateTime instanceof Date)) return false;
+                const dt = row.orderDateTime;
+                const key = `${String(row.mrn).trim()}|${dt.getFullYear()}-${dt.getMonth()}-${dt.getDate()} ${dt.getHours()}:${dt.getMinutes()}`;
+                return erMrnTimeKeys.has(key);
             });
         } else {
             erMonitorAll = monitorData.monitorRows.filter(row => {
@@ -11844,24 +11809,10 @@ async function computeFullComp(hkey) {
             });
         }
 
-        const erMonitorCompleted = erMonitorAll.filter(row => {
+        const erMonitor = erMonitorAll.filter(row => {
             const cb = row.completedBy;
             return cb != null && String(cb).trim() !== '';
         });
-
-        // فلتر فنيي المختبر المعتمدين
-        let erMonitor;
-        if (APPROVED_LAB_TECHS[hkey]) {
-            erMonitor = erMonitorCompleted.filter(row => {
-                const rb = row.receivedBy;
-                if (!rb || !String(rb).trim()) return false;
-                return matchesApprovedTech(rb, hkey);
-            });
-            console.log(`[Bulk] ${hkey}: ${erMonitorCompleted.length} completed → ${erMonitor.length} after approved-tech filter`);
-        } else {
-            erMonitor = erMonitorCompleted;
-        }
-
         if (erMonitor.length === 0) return null;
 
         const promiseResult = useRows.length > 0
@@ -14010,50 +13961,6 @@ function normalizeSampleId(sid) {
     return s || null;
 }
 
-// تنظيف MRN موحد بين KPI و Monitor
-function normalizeMrn(mrn) {
-    if (mrn == null || mrn === '') return null;
-    if (typeof mrn === 'number') return String(Math.trunc(mrn));
-    let s = String(mrn).trim();
-    // نزيل quotes في البداية والنهاية
-    s = s.replace(/^['"`]+|['"`]+$/g, '').trim();
-    // نزيل المسافات داخل الرقم
-    s = s.replace(/\s+/g, '');
-    // نزيل .0 ملحقة
-    s = s.replace(/\.0+$/, '');
-    return s || null;
-}
-
-// مفتاح موحد لمطابقة MRN+OrderDateTime بدقة الدقيقة
-// نستخدم local components - يفترض أن كل Date يحفظ wall-clock time في local
-function buildMrnTimeKey(mrn, dt) {
-    const m = normalizeMrn(mrn);
-    if (!m || !(dt instanceof Date) || isNaN(dt.getTime())) return null;
-    const Y = dt.getFullYear();
-    const M = String(dt.getMonth() + 1).padStart(2, '0');
-    const D = String(dt.getDate()).padStart(2, '0');
-    const h = String(dt.getHours()).padStart(2, '0');
-    const min = String(dt.getMinutes()).padStart(2, '0');
-    return `${m}|${Y}-${M}-${D} ${h}:${min}`;
-}
-
-// تحويل Date محتمل أنه UTC إلى Date local يحفظ wall-clock
-// (يستخدم لـ KPI Excel dates التي تأتي بـ UTC representation)
-function normalizeXlsxDate(dt) {
-    if (!(dt instanceof Date) || isNaN(dt.getTime())) return null;
-    // إذا الـ Date عنده UTC components مختلفة عن local، فهو من XLSX (UTC)
-    // نحوله: نأخذ UTC components ونبني Date local بنفس الأرقام (wall-clock preservation)
-    if (dt.getUTCHours() !== dt.getHours() ||
-        dt.getUTCDate() !== dt.getDate() ||
-        dt.getUTCMonth() !== dt.getMonth()) {
-        return new Date(
-            dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate(),
-            dt.getUTCHours(), dt.getUTCMinutes(), dt.getUTCSeconds()
-        );
-    }
-    return dt;
-}
-
 // تحقق من صحة اسم الموظف: يستثني الأسماء الرمزية مثل "-" أو "—" أو "?" أو الرموز فقط
 function isValidStaffName(name) {
     if (!name) return false;
@@ -14067,87 +13974,24 @@ function isValidStaffName(name) {
     return true;
 }
 
-// ============= قائمة فنيي المختبر المعتمدين لكل مستشفى =============
-// عند وجود قائمة فنيين معتمدة، يتم استثناء العينات التي استقبلها أي شخص خارج هذه القائمة
-// (مثل فنيي المراكز الصحية التي تستخدم المستشفى كمختبر مرجعي)
-const APPROVED_LAB_TECHS = {
-    kfh: [
-        "Abdullah saud shuwaykan",
-        "ABDULLAH HASSAN ABUAMER",
-        "Belal abdurab al rasoul al mearfy",
-        "Hussain rabeh al mukhalfy",
-        "Bander Saud Alenezi",
-        "RAWAN SALEH ALTHUBYANI",
-        "Fatma Marei Asiri",
-        "Mohammed Saud Al Rashidi",
-        "MOHAMMED SAUD Alhujaili ALHEJAILI",
-        "AHMAD HAMUD ALSAADI",
-        "MOHAMMED REDHA ABDULKARIM ALHAJUJ",
-        "Reda maqnas maqnas",
-        "Safaa ahmed al hairy",
-        "Mohammed othman al qerafy",
-        "YASER SALEH BARRI"
-    ]
-    // ممكن إضافة مستشفيات أخرى لاحقاً
-};
-
-// نطبّع الاسم للمطابقة: lowercase + إزالة الرموز + كلمات ذات معنى فقط
-function normalizeTechName(name) {
-    if (!name) return new Set();
-    const s = String(name).toLowerCase().trim()
-        .replace(/[^\w\sءأإآا-ي]/g, ' ')
-        .replace(/\s+/g, ' ');
-    const stopwords = new Set(['al', 'el', 'the', 'bin', 'ibn', 'abu', 'um', 'abd']);
-    const words = s.split(' ').filter(w => w.length >= 2 && !stopwords.has(w));
-    return new Set(words);
-}
-
-// نتحقق إذا كان اسم الفني يطابق أحد المعتمدين (matching ذكي بكلمات)
-function matchesApprovedTech(name, hospitalKey) {
-    if (!hospitalKey || !APPROVED_LAB_TECHS[hospitalKey]) return true;  // لا فلتر = اعتبر الكل معتمد
-    const approvedList = APPROVED_LAB_TECHS[hospitalKey];
-    if (!name) return false;
-    const nameWords = normalizeTechName(name);
-    if (nameWords.size === 0) return false;
-
-    for (const approved of approvedList) {
-        const appWords = normalizeTechName(approved);
-        if (appWords.size === 0) continue;
-        const common = new Set([...nameWords].filter(w => appWords.has(w)));
-        const smaller = Math.min(nameWords.size, appWords.size);
-        if (smaller === 0) continue;
-        const overlap = common.size / smaller;
-        if (overlap >= 0.7) return true;
-    }
-    return false;
-}
-
 function computeDoctorAnalysis(kpiRows, monitorRows, hospitalKey) {
-    // الخطوة 1: نبني خرائط من Lab Monitor
-    // - sampleToDoc: Sample ID → الطبيب (الطريقة المعتادة)
-    // - mrnTimeToDoc: MRN+OrderDateTime → الطبيب (fallback للملفات بدون Sample ID)
+    // الخطوة 1: نبني خريطة Sample ID → اسم الطبيب من Lab Monitor
     const sampleToDoc = new Map();
-    const mrnTimeToDoc = new Map();
     monitorRows.forEach(row => {
+        const sid = normalizeSampleId(row.sampleId);
+        if (!sid) return;
         const doctor = row.orderedBy;
         if (!doctor || String(doctor).trim() === '') return;
-        if (!isValidStaffName(doctor)) return;
-
-        const sid = normalizeSampleId(row.sampleId);
-        if (sid && !sampleToDoc.has(sid)) {
+        if (!isValidStaffName(doctor)) return;  // استثناء أسماء رمزية
+        if (!sampleToDoc.has(sid)) {
             sampleToDoc.set(sid, String(doctor).trim());
-        }
-
-        const mtKey = buildMrnTimeKey(row.mrn, row.orderDateTime);
-        if (mtKey && !mrnTimeToDoc.has(mtKey)) {
-            mrnTimeToDoc.set(mtKey, String(doctor).trim());
         }
     });
 
     console.log('Sample-to-doctor map size:', sampleToDoc.size);
-    console.log('MRN+Time-to-doctor map size:', mrnTimeToDoc.size);
+    console.log('First 5 sample IDs from Monitor:', Array.from(sampleToDoc.entries()).slice(0, 5));
 
-    if (sampleToDoc.size === 0 && mrnTimeToDoc.size === 0) return null;
+    if (sampleToDoc.size === 0) return null;
 
     // الخطوة 2: نفلتر Lab KPI على ER فقط + غير الملغية
     const erRows = kpiRows.filter(r => {
@@ -14158,16 +14002,19 @@ function computeDoctorAnalysis(kpiRows, monitorRows, hospitalKey) {
     });
 
     console.log('ER rows in KPI:', erRows.length);
+    console.log('First 3 ER samples from KPI:', erRows.slice(0, 3).map(r => ({
+        sid: r.sampleId, normalized: normalizeSampleId(r.sampleId), pt: r.patientType
+    })));
 
     if (erRows.length === 0) return null;
 
-    // الخطوة 3: لكل صف ER، نربط مع الطبيب (Sample ID أولاً، ثم MRN+Time)
+    // الخطوة 3: لكل صف ER، نربط Sample ID مع الطبيب
     const doctorMap = new Map();
     let unmatched = 0;
     let matched = 0;
-    let matchedBySid = 0, matchedByMrn = 0;
 
     // اكتشاف: هل episodeKey فعلياً episode أم هو OrderKey (فريد لكل اختبار)؟
+    // إذا عدد episode_keys الفريدة قريب من عدد الصفوف → هو OrderKey، نستخدم patientId فقط
     const episodesPerPatient = new Map();
     erRows.forEach(r => {
         if (!r.patientId) return;
@@ -14175,36 +14022,27 @@ function computeDoctorAnalysis(kpiRows, monitorRows, hospitalKey) {
         if (!episodesPerPatient.has(pid)) episodesPerPatient.set(pid, new Set());
         episodesPerPatient.get(pid).add(r.episodeKey != null ? r.episodeKey : 'noep');
     });
+    // متوسط episodes لكل مريض
     let totalEp = 0, patientWithMultiple = 0;
     episodesPerPatient.forEach(eps => {
         totalEp += eps.size;
         if (eps.size > 3) patientWithMultiple++;
     });
     const avgEpPerPatient = episodesPerPatient.size > 0 ? totalEp / episodesPerPatient.size : 0;
+    // لو متوسط episodes/مريض > 3 → هو OrderKey وليس episode حقيقي
     const useEpisode = avgEpPerPatient <= 3;
     console.log(`[Doctor analysis] avg episodes/patient = ${avgEpPerPatient.toFixed(2)}, useEpisode = ${useEpisode}`);
 
     erRows.forEach(row => {
-        // محاولة 1: Sample ID
-        let doctor = null;
         const sid = normalizeSampleId(row.sampleId);
-        if (sid && sampleToDoc.has(sid)) {
-            doctor = sampleToDoc.get(sid);
-            matchedBySid++;
-        } else {
-            // محاولة 2: MRN + Order DateTime
-            const mtKey = buildMrnTimeKey(row.patientId, row.orderDt);
-            if (mtKey && mrnTimeToDoc.has(mtKey)) {
-                doctor = mrnTimeToDoc.get(mtKey);
-                matchedByMrn++;
-            }
-        }
-
+        if (!sid) return;
+        const doctor = sampleToDoc.get(sid);
         if (!doctor) { unmatched++; return; }
         matched++;
 
         const patientId = row.patientId;
         if (!patientId) return;
+        // نستخدم Patient ID فقط إذا episodeKey فيه قيمة لكل اختبار (OrderKey)
         const patientKey = useEpisode
             ? `${patientId}|${row.episodeKey != null ? row.episodeKey : 'noep'}`
             : String(patientId);
@@ -14221,7 +14059,7 @@ function computeDoctorAnalysis(kpiRows, monitorRows, hospitalKey) {
         docEntry.patients.get(patientKey).count++;
     });
 
-    console.log(`Matched: ${matched} (sid: ${matchedBySid}, mrn+time: ${matchedByMrn}), Unmatched: ${unmatched}, Doctors: ${doctorMap.size}`);
+    console.log('Matched:', matched, 'Unmatched:', unmatched, 'Doctors:', doctorMap.size);
 
     if (doctorMap.size === 0) return null;
 
