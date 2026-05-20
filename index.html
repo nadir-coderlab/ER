@@ -10513,12 +10513,39 @@ async function readKpiDirectly(file) {
         let orderDt = get('orderDt');
         if (orderDt != null) {
             if (typeof orderDt === 'number') {
-                // Excel serial
-                const d = new Date((orderDt - 25569) * 86400 * 1000);
-                if (!isNaN(d.getTime())) orderDt = d;
+                // Excel serial - نحوله محافظين على الـ wall-clock time
+                // الـ formula الافتراضية تنتج Date بصيغة UTC، لكن نريد wall-clock
+                const totalDays = orderDt - 25569;
+                const wholeDays = Math.floor(totalDays);
+                const fractionDay = totalDays - wholeDays;
+                const totalSeconds = Math.round(fractionDay * 86400);
+                const hours = Math.floor(totalSeconds / 3600);
+                const minutes = Math.floor((totalSeconds % 3600) / 60);
+                const seconds = totalSeconds % 60;
+                // نبني التاريخ من UTC ثم نأخذ المركبات
+                const utcMs = wholeDays * 86400 * 1000;
+                const utcDate = new Date(utcMs);
+                // نأخذ المركبات من UTC ونبني Date local بنفس الأرقام
+                orderDt = new Date(
+                    utcDate.getUTCFullYear(),
+                    utcDate.getUTCMonth(),
+                    utcDate.getUTCDate(),
+                    hours, minutes, seconds
+                );
             } else if (typeof orderDt === 'string') {
                 const parsed = parseMonDate(orderDt);
                 if (parsed) orderDt = parsed;
+            } else if (orderDt instanceof Date) {
+                // XLSX مع cellDates يرجع Date object - لكن قد يكون في UTC
+                // نطبّع: نأخذ مركبات UTC ونبني Date local بنفس الأرقام
+                // هذا يضمن أن getHours() يعيد القيمة الأصلية من الـ Excel
+                const utcY = orderDt.getUTCFullYear();
+                const utcM = orderDt.getUTCMonth();
+                const utcD = orderDt.getUTCDate();
+                const utcH = orderDt.getUTCHours();
+                const utcMin = orderDt.getUTCMinutes();
+                const utcS = orderDt.getUTCSeconds();
+                orderDt = new Date(utcY, utcM, utcD, utcH, utcMin, utcS);
             }
             // إذا لم يصبح Date، نلغيه
             if (!(orderDt instanceof Date) || isNaN(orderDt.getTime())) orderDt = null;
@@ -10617,6 +10644,10 @@ async function openComprehensiveAnalysis(hkey) {
                     }
                 });
                 console.log(`[Comp Analysis] KPI ER: ${erSampleIds.size} Sample IDs, ${erMrnTimeKeys.size} MRN+Time keys`);
+                // عرض أول ٥ مفاتيح للتشخيص
+                if (erMrnTimeKeys.size > 0) {
+                    console.log('[Comp Analysis] First 5 KPI keys:', Array.from(erMrnTimeKeys).slice(0, 5));
+                }
 
                 if (erSampleIds.size === 0 && erMrnTimeKeys.size === 0) {
                     console.warn('No ER samples found in KPI - falling back to all completed samples');
@@ -10691,6 +10722,15 @@ async function openComprehensiveAnalysis(hkey) {
         const excludedIncomplete = erMonitorAll.length - erMonitorCompleted.length;
         console.log(`[Comp Analysis] Match method: ${matchMethod}`);
         console.log(`[Comp Analysis] Total: ${erMonitorAll.length}, Completed: ${erMonitorCompleted.length}, Excluded incomplete: ${excludedIncomplete}, Non-approved: ${excludedNonApproved}, Final: ${erMonitor.length}`);
+        // تشخيص: نعرض أول ٥ مفاتيح Monitor مطابقة أو غير مطابقة
+        if (matchMethod === 'mrn_time' && erMrnTimeKeys && allMonitor.length > 0) {
+            const monKeysSample = [];
+            for (let i = 0; i < Math.min(10, allMonitor.length); i++) {
+                const k = buildMrnTimeKey(allMonitor[i].mrn, allMonitor[i].orderDateTime);
+                if (k) monKeysSample.push({ key: k, matched: erMrnTimeKeys.has(k) });
+            }
+            console.log('[Comp Analysis] Sample Monitor keys (first 10):', monKeysSample);
+        }
 
         if (erMonitor.length === 0) {
             overlay.classList.remove('active');
@@ -11784,9 +11824,8 @@ async function computeFullComp(hkey) {
                                 if (sid) erSampleIds.add(sid);
                             }
                             if (r.patientId && r.orderDt instanceof Date) {
-                                const dt = r.orderDt;
-                                const key = `${r.patientId}|${dt.getFullYear()}-${dt.getMonth()}-${dt.getDate()} ${dt.getHours()}:${dt.getMinutes()}`;
-                                erMrnTimeKeys.add(key);
+                                const key = buildMrnTimeKey(r.patientId, r.orderDt);
+                                if (key) erMrnTimeKeys.add(key);
                             }
                         }
                     });
