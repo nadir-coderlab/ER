@@ -478,6 +478,17 @@ body {
     box-shadow: 0 4px 12px rgba(245,158,11,0.3);
 }
 
+.btn-fit-inline {
+    background: linear-gradient(135deg, #7C3AED, #5B21B6) !important;
+    border-color: transparent !important;
+    color: #fff !important;
+    font-weight: 800 !important;
+}
+.btn-fit-inline:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(124,58,237,0.3);
+}
+
 /* ============== Centers Analysis - Modern Design ============== */
 .centers-content {
     padding: 0;
@@ -5286,7 +5297,7 @@ body {
     text-align: right;
 }
 .rep-header-logo-mark {
-    width: 42px; height: 42px;
+    width: 56px; height: 56px;
     background-image: var(--cluster-logo);
     background-size: contain;
     background-position: center;
@@ -5358,7 +5369,7 @@ body {
     gap: 12px;
 }
 .logo-icon {
-    width: 64px; height: 64px;
+    width: 90px; height: 90px;
     background-image: var(--cluster-logo);
     background-size: contain;
     background-position: center;
@@ -6961,6 +6972,7 @@ body {
             <button class="btn btn-promise" id="btnPromise" disabled>الوعد التنفيذي</button>
             <button class="btn btn-bulk-comp-inline" id="btnBulkCompAnalysis" disabled>تحليل شامل لكل المستشفيات</button>
             <button class="btn btn-centers-inline" id="btnCentersAnalysis">تحليل المراكز</button>
+            <button class="btn btn-fit-inline" id="btnFitAnalysis">فحص FIT Test</button>
             <button class="btn btn-doctors" id="btnDoctors">تحليل الموظفين</button>
             <button class="btn btn-live" id="btnLive" disabled>وضع العرض المباشر</button>
             <button class="btn btn-hajj" id="btnHajj" disabled>سلايد اجتماع الحج</button>
@@ -7184,6 +7196,31 @@ body {
     </div>
 </div>
 
+<!-- FIT Test Modal -->
+<div class="promise-modal" id="fitModal">
+    <div class="promise-content">
+        <div class="promise-toolbar">
+            <h2>تحليل فحص FIT Test</h2>
+            <div class="exec-toolbar-actions">
+                <button class="btn" id="btnFitExportPdf" style="display:none;">تصدير PDF</button>
+                <button class="btn btn-close" id="btnFitClose">إغلاق</button>
+            </div>
+        </div>
+        <div class="centers-content" id="fitContent">
+            <div class="centers-upload-zone" id="fitUploadZone">
+                <h3 class="cuz-title">ارفع ملفات فحوصات FIT Test</h3>
+                <p class="cuz-desc">يمكنك رفع عدة ملفات في نفس الوقت · سيتم استخراج اسم المستشفى تلقائياً من العمود Hospital</p>
+                <div class="cuz-input-wrap">
+                    <input type="file" id="fitFileInput" accept=".xlsx,.xls,.csv" multiple>
+                    <div class="cuz-label">اختر ملفات (يمكن تحديد عدة)</div>
+                </div>
+                <p class="cuz-info">يحلل: وضع العينة (مكتملة / مستقبلة / مجموعة فقط) · زمن الجمع للاستقبال · زمن الجمع للنتيجة</p>
+            </div>
+            <div class="centers-report" id="fitReport" style="display:none;"></div>
+        </div>
+    </div>
+</div>
+
 <div class="loading-overlay" id="loadingOverlay">
     <div class="loader"></div>
     <div class="loading-text" id="loadingText">جاري المعالجة...</div>
@@ -7207,6 +7244,8 @@ const HOSPITALS = {
     wadi_fara:  { ar: 'مستشفى وادي الفرع',           en: 'Wadi Al-Fara Hospital',                schema: 'std' },
     yanbu:      { ar: 'مستشفى ينبع العام',           en: 'Yanbu General Hospital',               schema: 'std' },
     hanakiyah:  { ar: 'مستشفى الحناكية',             en: 'Al-Hanakiyah Hospital',                schema: 'std' },
+    badr:       { ar: 'مستشفى بدر',                  en: 'Badr Hospital',                        schema: 'std' },
+    unified_lab:{ ar: 'مركز الفحوصات الموحد',         en: 'Unified Lab Center',                   schema: 'std' },
     khaybar:    { ar: 'مستشفى خيبر',                 en: 'Khaybar Hospital',                     schema: 'std' },
     mental:     { ar: 'مستشفى الصحة النفسية',        en: 'Mental Health Hospital',               schema: 'std' }
 };
@@ -10290,12 +10329,27 @@ function findMaxRowFromKeys(ws) {
 // parser مرن للتواريخ في ملف Monitor (يقبل string أو Date أو Excel serial)
 function parseMonDate(v) {
     if (v == null) return null;
-    if (v instanceof Date) return isNaN(v.getTime()) ? null : v;
+    if (v instanceof Date) {
+        if (isNaN(v.getTime())) return null;
+        // طبّع: لو Date من XLSX UTC، نحوله لـ local wall-clock
+        if (v.getUTCHours() !== v.getHours() ||
+            v.getUTCDate() !== v.getDate() ||
+            v.getUTCMonth() !== v.getMonth()) {
+            return new Date(
+                v.getUTCFullYear(), v.getUTCMonth(), v.getUTCDate(),
+                v.getUTCHours(), v.getUTCMinutes(), v.getUTCSeconds()
+            );
+        }
+        return v;
+    }
     if (typeof v === 'number') {
-        // Excel serial date
-        const ms = (v - 25569) * 86400 * 1000;
-        const d = new Date(ms);
-        return isNaN(d.getTime()) ? null : d;
+        // Excel serial date - يكون UTC، نطبّعه لـ local wall-clock
+        const utcMs = (v - 25569) * 86400 * 1000;
+        const utcDate = new Date(utcMs);
+        return new Date(
+            utcDate.getUTCFullYear(), utcDate.getUTCMonth(), utcDate.getUTCDate(),
+            utcDate.getUTCHours(), utcDate.getUTCMinutes(), utcDate.getUTCSeconds()
+        );
     }
     if (typeof v === 'string') {
         const s = v.trim();
@@ -10510,11 +10564,8 @@ async function readKpiDirectly(file) {
         const sampleStatus = get('sampleStatus');
 
         // Order DateTime (للمطابقة عند غياب Sample ID)
-        let orderDt = get('orderDt');
-        if (orderDt && typeof orderDt === 'string') {
-            const parsed = parseMonDate(orderDt);
-            if (parsed) orderDt = parsed;
-        }
+        // parseMonDate يتعامل مع Date/string/number ويطبّعها لـ wall-clock local
+        const orderDt = parseMonDate(get('orderDt'));
 
         if (!patientId && sampleId == null) continue;
         rows.push({ patientId, episodeKey, patientType, sampleId, sampleStatus, orderDt });
@@ -10603,13 +10654,16 @@ async function openComprehensiveAnalysis(hkey) {
                         }
                         // محاولة 2 (fallback): MRN + Order DateTime
                         if (r.patientId && r.orderDt instanceof Date) {
-                            const dt = r.orderDt;
-                            const key = `${r.patientId}|${dt.getFullYear()}-${dt.getMonth()}-${dt.getDate()} ${dt.getHours()}:${dt.getMinutes()}`;
-                            erMrnTimeKeys.add(key);
+                            const key = buildMrnTimeKey(r.patientId, r.orderDt);
+                            if (key) erMrnTimeKeys.add(key);
                         }
                     }
                 });
                 console.log(`[Comp Analysis] KPI ER: ${erSampleIds.size} Sample IDs, ${erMrnTimeKeys.size} MRN+Time keys`);
+                // عرض أول ٥ مفاتيح للتشخيص
+                if (erMrnTimeKeys.size > 0) {
+                    console.log('[Comp Analysis] First 5 KPI keys:', Array.from(erMrnTimeKeys).slice(0, 5));
+                }
 
                 if (erSampleIds.size === 0 && erMrnTimeKeys.size === 0) {
                     console.warn('No ER samples found in KPI - falling back to all completed samples');
@@ -10638,20 +10692,16 @@ async function openComprehensiveAnalysis(hkey) {
             if (erMonitorAll.length === 0 && erMrnTimeKeys && erMrnTimeKeys.size > 0) {
                 console.warn('No matches by Sample ID, trying MRN+Time fallback');
                 erMonitorAll = allMonitor.filter(row => {
-                    if (!row.mrn || !(row.orderDateTime instanceof Date)) return false;
-                    const dt = row.orderDateTime;
-                    const key = `${String(row.mrn).trim()}|${dt.getFullYear()}-${dt.getMonth()}-${dt.getDate()} ${dt.getHours()}:${dt.getMinutes()}`;
-                    return erMrnTimeKeys.has(key);
+                    const key = buildMrnTimeKey(row.mrn, row.orderDateTime);
+                    return key != null && erMrnTimeKeys.has(key);
                 });
                 matchMethod = 'mrn_time';
             }
         } else if (erMrnTimeKeys && erMrnTimeKeys.size > 0) {
             // طريقة 2: مطابقة بـ MRN + Order DateTime (للملفات بدون Sample ID)
             erMonitorAll = allMonitor.filter(row => {
-                if (!row.mrn || !(row.orderDateTime instanceof Date)) return false;
-                const dt = row.orderDateTime;
-                const key = `${String(row.mrn).trim()}|${dt.getFullYear()}-${dt.getMonth()}-${dt.getDate()} ${dt.getHours()}:${dt.getMinutes()}`;
-                return erMrnTimeKeys.has(key);
+                const key = buildMrnTimeKey(row.mrn, row.orderDateTime);
+                return key != null && erMrnTimeKeys.has(key);
             });
             matchMethod = 'mrn_time';
         } else {
@@ -10663,18 +10713,47 @@ async function openComprehensiveAnalysis(hkey) {
         }
 
         // استثناء العينات غير المكتملة: عمود S (Completed By) لازم يكون فيه اسم
-        const erMonitor = erMonitorAll.filter(row => {
+        const erMonitorCompleted = erMonitorAll.filter(row => {
             const cb = row.completedBy;
             return cb != null && String(cb).trim() !== '';
         });
 
-        const excludedIncomplete = erMonitorAll.length - erMonitor.length;
+        // فلتر إضافي: إذا كان للمستشفى قائمة فنيين معتمدة، نستثني العينات التي استقبلها فني غير معتمد
+        // (مثلاً فني من مركز نجود الذي يستخدم مختبر الملك فهد كمختبر مرجعي)
+        let erMonitor;
+        let excludedNonApproved = 0;
+        if (APPROVED_LAB_TECHS[hkey]) {
+            erMonitor = erMonitorCompleted.filter(row => {
+                const rb = row.receivedBy;
+                // إذا ما فيه receivedBy، نستثني (لازم يكون فني استقبل)
+                if (!rb || !String(rb).trim()) return false;
+                return matchesApprovedTech(rb, hkey);
+            });
+            excludedNonApproved = erMonitorCompleted.length - erMonitor.length;
+            console.log(`[Comp Analysis] Filtered by approved techs (${hkey}): kept ${erMonitor.length}, excluded ${excludedNonApproved} (non-approved techs/centers)`);
+        } else {
+            erMonitor = erMonitorCompleted;
+        }
+
+        const excludedIncomplete = erMonitorAll.length - erMonitorCompleted.length;
         console.log(`[Comp Analysis] Match method: ${matchMethod}`);
-        console.log(`[Comp Analysis] Total: ${erMonitorAll.length}, Completed: ${erMonitor.length}, Excluded: ${excludedIncomplete}`);
+        console.log(`[Comp Analysis] Total: ${erMonitorAll.length}, Completed: ${erMonitorCompleted.length}, Excluded incomplete: ${excludedIncomplete}, Non-approved: ${excludedNonApproved}, Final: ${erMonitor.length}`);
+        // تشخيص: نعرض أول ٥ مفاتيح Monitor مطابقة أو غير مطابقة
+        if (matchMethod === 'mrn_time' && erMrnTimeKeys && allMonitor.length > 0) {
+            const monKeysSample = [];
+            for (let i = 0; i < Math.min(10, allMonitor.length); i++) {
+                const k = buildMrnTimeKey(allMonitor[i].mrn, allMonitor[i].orderDateTime);
+                if (k) monKeysSample.push({ key: k, matched: erMrnTimeKeys.has(k) });
+            }
+            console.log('[Comp Analysis] Sample Monitor keys (first 10):', monKeysSample);
+        }
 
         if (erMonitor.length === 0) {
             overlay.classList.remove('active');
-            alert(`لم يتم العثور على عينات مكتملة. الإجمالي: ${erMonitorAll.length}، غير مكتملة (عمود S فاضي): ${excludedIncomplete}`);
+            const msg = APPROVED_LAB_TECHS[hkey]
+                ? `لم يتم العثور على عينات استقبلها فني معتمد من قائمة المستشفى.\nالإجمالي: ${erMonitorAll.length}\nغير مكتملة: ${excludedIncomplete}\nغير معتمد (مراكز خارجية): ${excludedNonApproved}`
+                : `لم يتم العثور على عينات مكتملة. الإجمالي: ${erMonitorAll.length}، غير مكتملة (عمود S فاضي): ${excludedIncomplete}`;
+            alert(msg);
             return;
         }
 
@@ -11761,9 +11840,8 @@ async function computeFullComp(hkey) {
                                 if (sid) erSampleIds.add(sid);
                             }
                             if (r.patientId && r.orderDt instanceof Date) {
-                                const dt = r.orderDt;
-                                const key = `${r.patientId}|${dt.getFullYear()}-${dt.getMonth()}-${dt.getDate()} ${dt.getHours()}:${dt.getMinutes()}`;
-                                erMrnTimeKeys.add(key);
+                                const key = buildMrnTimeKey(r.patientId, r.orderDt);
+                                if (key) erMrnTimeKeys.add(key);
                             }
                         }
                     });
@@ -11789,18 +11867,14 @@ async function computeFullComp(hkey) {
             // fallback لو ما لقى
             if (erMonitorAll.length === 0 && erMrnTimeKeys && erMrnTimeKeys.size > 0) {
                 erMonitorAll = monitorData.monitorRows.filter(row => {
-                    if (!row.mrn || !(row.orderDateTime instanceof Date)) return false;
-                    const dt = row.orderDateTime;
-                    const key = `${String(row.mrn).trim()}|${dt.getFullYear()}-${dt.getMonth()}-${dt.getDate()} ${dt.getHours()}:${dt.getMinutes()}`;
-                    return erMrnTimeKeys.has(key);
+                    const key = buildMrnTimeKey(row.mrn, row.orderDateTime);
+                    return key != null && erMrnTimeKeys.has(key);
                 });
             }
         } else if (erMrnTimeKeys && erMrnTimeKeys.size > 0) {
             erMonitorAll = monitorData.monitorRows.filter(row => {
-                if (!row.mrn || !(row.orderDateTime instanceof Date)) return false;
-                const dt = row.orderDateTime;
-                const key = `${String(row.mrn).trim()}|${dt.getFullYear()}-${dt.getMonth()}-${dt.getDate()} ${dt.getHours()}:${dt.getMinutes()}`;
-                return erMrnTimeKeys.has(key);
+                const key = buildMrnTimeKey(row.mrn, row.orderDateTime);
+                return key != null && erMrnTimeKeys.has(key);
             });
         } else {
             erMonitorAll = monitorData.monitorRows.filter(row => {
@@ -11809,10 +11883,24 @@ async function computeFullComp(hkey) {
             });
         }
 
-        const erMonitor = erMonitorAll.filter(row => {
+        const erMonitorCompleted = erMonitorAll.filter(row => {
             const cb = row.completedBy;
             return cb != null && String(cb).trim() !== '';
         });
+
+        // فلتر فنيي المختبر المعتمدين
+        let erMonitor;
+        if (APPROVED_LAB_TECHS[hkey]) {
+            erMonitor = erMonitorCompleted.filter(row => {
+                const rb = row.receivedBy;
+                if (!rb || !String(rb).trim()) return false;
+                return matchesApprovedTech(rb, hkey);
+            });
+            console.log(`[Bulk] ${hkey}: ${erMonitorCompleted.length} completed → ${erMonitor.length} after approved-tech filter`);
+        } else {
+            erMonitor = erMonitorCompleted;
+        }
+
         if (erMonitor.length === 0) return null;
 
         const promiseResult = useRows.length > 0
@@ -12122,6 +12210,656 @@ function findCenterRef(phcName) {
     }
 
     return bestScore >= 0.5 ? best : null;
+}
+
+// ============= تحليل فحص FIT Test =============
+let __fitData = null;
+
+async function handleFitFiles(e) {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.classList.add('active');
+    document.getElementById('loadingText').textContent = `جاري قراءة ${files.length} ملف...`;
+    await new Promise(r => setTimeout(r, 50));
+
+    try {
+        // نقرأ كل الملفات ونجمع الصفوف
+        const allRows = [];
+        for (let i = 0; i < files.length; i++) {
+            document.getElementById('loadingText').textContent = `قراءة ملف ${i+1}/${files.length}: ${files[i].name}`;
+            await new Promise(r => setTimeout(r, 20));
+            const rows = await readFitFile(files[i]);
+            console.log(`[FIT] ${files[i].name}: ${rows.length} rows`);
+            allRows.push(...rows);
+        }
+
+        if (allRows.length === 0) {
+            throw new Error('لم يتم العثور على أي بيانات صالحة في الملفات');
+        }
+
+        console.log(`[FIT] إجمالي الصفوف: ${allRows.length}`);
+        document.getElementById('loadingText').textContent = 'جاري التحليل...';
+        await new Promise(r => setTimeout(r, 50));
+
+        __fitData = processFitData(allRows);
+        renderFitReport(__fitData);
+
+        document.getElementById('fitUploadZone').style.display = 'none';
+        document.getElementById('fitReport').style.display = 'block';
+        document.getElementById('btnFitExportPdf').style.display = '';
+    } catch (err) {
+        console.error('[FIT] Error:', err);
+        alert('فشل التحليل:\n' + err.message);
+    } finally {
+        overlay.classList.remove('active');
+    }
+}
+
+async function readFitFile(file) {
+    const isCSV = file.name.toLowerCase().endsWith('.csv');
+    let raw = [];
+
+    if (isCSV) {
+        const text = await file.text();
+        const wb = XLSX.read(text, { type: 'string', cellDates: true });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        raw = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null, raw: true, blankrows: false });
+    } else {
+        const buffer = await file.arrayBuffer();
+        const wb = XLSX.read(new Uint8Array(buffer), {
+            type: 'array', cellDates: true, cellNF: false, cellText: false
+        });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        if (!ws) return [];
+        raw = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null, raw: true, blankrows: false });
+    }
+
+    if (raw.length < 2) return [];
+
+    // اكتشاف ذكي: لو الصف الأول super-headers (مثل Patient Data, Order, Collection)
+    // والصف الثاني هو الـ headers الفعلية (MRN, DateTime, Collected By)
+    // نستخدم الصف الثاني كـ headers ونبدأ البيانات من الصف الثالث
+    let headerRowIdx = 0;
+    let dataStartIdx = 1;
+
+    const row1 = (raw[0] || []).map(h => String(h || '').trim().toLowerCase());
+    const row2 = (raw[1] || []).map(h => String(h || '').trim().toLowerCase());
+
+    // علامات super-header: عبارات عامة مثل "patient data", "order", "collection" مع cells فاضية
+    const row1NonEmpty = row1.filter(h => h !== '').length;
+    const row2NonEmpty = row2.filter(h => h !== '').length;
+    const row1HasSuper = row1.some(h =>
+        h === 'patient data' || h === 'order' || h === 'collection' ||
+        h === 'received' || h === 'complete' || h === 'samples' || h === 'comments'
+    );
+    // لو الصف الأول فيه super-headers والصف الثاني أكتر تفصيلاً → نستخدم الثاني
+    const useRow2 = row1HasSuper && row2NonEmpty > row1NonEmpty;
+
+    if (useRow2) {
+        headerRowIdx = 1;
+        dataStartIdx = 2;
+        console.log(`[FIT] ${file.name}: detected two-row headers, using row 2 as headers`);
+    }
+
+    const headers = (raw[headerRowIdx] || []).map(h => String(h || '').trim().toLowerCase());
+    console.log(`[FIT] Headers in ${file.name}:`, headers);
+
+    const findCol = (...patterns) => {
+        for (const pat of patterns) {
+            const lc = pat.toLowerCase();
+            const idx = headers.findIndex(h => h.includes(lc));
+            if (idx >= 0) return idx;
+        }
+        return -1;
+    };
+
+    // في ملفات Lab Monitor، الـ headers تكون عامة ('datetime', 'datetime', ...) 
+    // لذا نطابقها بالموقع (column letter) الذي يحدد المعنى
+    // الأعمدة في Lab Monitor std:
+    //   A=MRN, H=Order DateTime, I=Ordered By, L=Collection DateTime, M=Collected By,
+    //   P=Received DateTime, Q=Received By, R=Complete DateTime, S=Completed By,
+    //   AB=Sample ID, AE=Collection Status, AH=Hospital
+    let idx;
+    if (useRow2) {
+        // مع super-headers، نعتمد على المواقع الثابتة لأن الـ headers مكررة
+        idx = {
+            patientId: 0,      // A
+            orderDt: 7,        // H
+            collectDt: 11,     // L
+            receiveDt: 15,     // P
+            completeDt: 17,    // R
+            status: 30,        // AE = Collection Status
+            hospital: 33,      // AH
+            sampleId: 27,      // AB
+            testName: 34       // AI = Exam
+        };
+        console.log(`[FIT] Using fixed column positions for Lab Monitor format`);
+    } else {
+        idx = {
+            orderDt: findCol('order date', 'order time', 'date time', 'request date', 'request time'),
+            collectDt: findCol('collection date', 'collect date', 'sample collection', 'collected date'),
+            receiveDt: findCol('receive', 'received', 'arrival'),
+            completeDt: findCol('complete date', 'completed', 'result date', 'released date', 'release date'),
+            status: findCol('collection status', 'sample status', 'status'),
+            hospital: findCol('hospital', 'facility', 'مستشفى'),
+            patientId: findCol('patient id', 'mrn', 'patient'),
+            sampleId: findCol('sample id', 'sampleid'),
+            testName: findCol('test name', 'test', 'fit')
+        };
+    }
+
+    console.log(`[FIT] Columns detected for ${file.name}:`, idx);
+
+    const rows = [];
+    for (let i = dataStartIdx; i < raw.length; i++) {
+        const row = raw[i];
+        if (!row) continue;
+
+        const get = (key) => idx[key] >= 0 ? row[idx[key]] : null;
+
+        const hospital = String(get('hospital') || '').trim();
+        const status = String(get('status') || '').trim();
+        if (!hospital && !status) continue;
+
+        rows.push({
+            hospital: hospital || '(غير محدد)',
+            status: status.toLowerCase(),
+            statusRaw: status,
+            patientId: get('patientId'),
+            sampleId: get('sampleId'),
+            testName: get('testName'),
+            orderDt: parseMonDate(get('orderDt')),
+            collectDt: parseMonDate(get('collectDt')),
+            receiveDt: parseMonDate(get('receiveDt')),
+            completeDt: parseMonDate(get('completeDt')),
+            fileName: file.name
+        });
+    }
+
+    return rows;
+}
+
+function processFitData(rows) {
+    // تصنيف الحالة
+    const classifyStatus = (s) => {
+        const lc = String(s || '').toLowerCase().trim();
+        if (lc.includes('complet') || lc.includes('released') || lc.includes('result')) return 'completed';
+        if (lc.includes('receiv')) return 'received';
+        if (lc.includes('collect')) return 'collected';
+        if (lc.includes('order') || lc.includes('request') || lc.includes('pending')) return 'ordered';
+        if (lc.includes('cancel') || lc.includes('reject')) return 'cancelled';
+        return 'other';
+    };
+
+    // نجمع البيانات لكل مستشفى
+    const byHospital = new Map();
+    rows.forEach(r => {
+        const h = r.hospital;
+        if (!byHospital.has(h)) byHospital.set(h, []);
+        byHospital.get(h).push({ ...r, statusClass: classifyStatus(r.status) });
+    });
+
+    const hospitals = [];
+    byHospital.forEach((hRows, name) => {
+        const counts = {
+            total: hRows.length,
+            ordered: 0,
+            collected: 0,    // مجموعة لكن ما استقبلت
+            received: 0,     // مستقبلة لكن ما انتهت
+            completed: 0,    // كاملة بنتيجة
+            cancelled: 0,
+            other: 0
+        };
+
+        const durations = {
+            collectToReceive: [],  // الجمع → الاستقبال
+            collectToComplete: [], // الجمع → النتيجة
+            receiveToComplete: []  // الاستقبال → النتيجة
+        };
+
+        hRows.forEach(r => {
+            counts[r.statusClass]++;
+
+            if (r.collectDt && r.receiveDt) {
+                const d = (r.receiveDt - r.collectDt) / 60000;  // بالدقائق
+                if (d >= 0 && d <= 60 * 24 * 30) durations.collectToReceive.push(d);
+            }
+            if (r.collectDt && r.completeDt) {
+                const d = (r.completeDt - r.collectDt) / 60000;
+                if (d >= 0 && d <= 60 * 24 * 30) durations.collectToComplete.push(d);
+            }
+            if (r.receiveDt && r.completeDt) {
+                const d = (r.receiveDt - r.completeDt) / 60000 * -1;
+                if (d >= 0 && d <= 60 * 24 * 30) durations.receiveToComplete.push(d);
+            }
+        });
+
+        const avg = (arr) => arr.length > 0 ? arr.reduce((s, v) => s + v, 0) / arr.length : null;
+        const median = (arr) => {
+            if (arr.length === 0) return null;
+            const sorted = [...arr].sort((a, b) => a - b);
+            const mid = Math.floor(sorted.length / 2);
+            return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+        };
+
+        const now = new Date();
+
+        // عينات Received فقط (بدون مكتمل)
+        const receivedOnly = hRows.filter(r => r.statusClass === 'received');
+        // عينات Collected فقط (بدون استقبال ولا مكتمل)
+        const collectedOnly = hRows.filter(r => r.statusClass === 'collected');
+
+        // أيام عمر العينات (منذ أحدث timestamp)
+        const receivedDays = receivedOnly.map(r => {
+            const dt = r.receiveDt || r.collectDt;
+            if (!dt) return null;
+            return (now - dt) / 86400000;  // أيام
+        }).filter(d => d != null && d >= 0);
+
+        const collectedDays = collectedOnly.map(r => {
+            if (!r.collectDt) return null;
+            return (now - r.collectDt) / 86400000;
+        }).filter(d => d != null && d >= 0);
+
+        // أقدم/أحدث عينة received
+        const oldestReceived = receivedDays.length > 0 ? Math.max(...receivedDays) : null;
+        const newestReceived = receivedDays.length > 0 ? Math.min(...receivedDays) : null;
+        const avgReceivedDays = avg(receivedDays);
+
+        const oldestCollected = collectedDays.length > 0 ? Math.max(...collectedDays) : null;
+        const newestCollected = collectedDays.length > 0 ? Math.min(...collectedDays) : null;
+        const avgCollectedDays = avg(collectedDays);
+
+        // العينات المتعطلة (مجموعة من أكثر من ٤٨ ساعة بدون استقبال)
+        const stuck = hRows.filter(r => {
+            if (r.statusClass !== 'collected') return false;
+            if (!r.collectDt) return false;
+            const hours = (now - r.collectDt) / 3600000;
+            return hours > 48;
+        });
+
+        // العينات في المختبر بدون نتيجة (مستقبلة من أكثر من ٢٤ ساعة)
+        const noResult = hRows.filter(r => {
+            if (r.statusClass !== 'received') return false;
+            if (!r.receiveDt) return false;
+            const hours = (now - r.receiveDt) / 3600000;
+            return hours > 24;
+        });
+
+        hospitals.push({
+            name,
+            counts,
+            avgCollectToReceive: avg(durations.collectToReceive),
+            avgCollectToComplete: avg(durations.collectToComplete),
+            avgReceiveToComplete: avg(durations.receiveToComplete),
+            medCollectToReceive: median(durations.collectToReceive),
+            medCollectToComplete: median(durations.collectToComplete),
+            medReceiveToComplete: median(durations.receiveToComplete),
+            stuckCount: stuck.length,
+            stuckList: stuck.slice(0, 10),
+            noResultCount: noResult.length,
+            noResultList: noResult.slice(0, 10),
+            // المتطلبات الجديدة
+            receivedCount: receivedOnly.length,
+            collectedCount: collectedOnly.length,
+            oldestReceived, newestReceived, avgReceivedDays,
+            oldestCollected, newestCollected, avgCollectedDays,
+            rows: hRows
+        });
+    });
+
+    // ترتيب حسب الإجمالي
+    hospitals.sort((a, b) => b.counts.total - a.counts.total);
+
+    // إجماليات
+    const totals = {
+        total: 0, ordered: 0, collected: 0, received: 0, completed: 0, cancelled: 0, other: 0
+    };
+    hospitals.forEach(h => {
+        Object.keys(totals).forEach(k => totals[k] += h.counts[k]);
+    });
+
+    return { hospitals, totals, totalRows: rows.length };
+}
+
+function renderFitReport(data) {
+    const arNum = (n) => String(n).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+    const fmt = (n) => arNum(Math.round(n).toLocaleString('en').replace(/,/g, '،'));
+    const fmtTime = (min) => {
+        if (min == null) return '—';
+        if (min < 60) return arNum(Math.round(min)) + ' د';
+        const h = Math.floor(min / 60);
+        const m = Math.round(min % 60);
+        return arNum(h) + 'س ' + arNum(m) + 'د';
+    };
+    const pct = (n, total) => total > 0 ? arNum(Math.round(n / total * 100)) + '٪' : '٠٪';
+
+    let html = '';
+
+    // Hero
+    html += `
+    <div class="ctr-hero">
+        <div class="ctr-hero-bg"></div>
+        <div class="ctr-hero-content">
+            <div class="ctr-hero-title">تقرير فحص FIT Test</div>
+            <div class="ctr-hero-subtitle">تتبع وضع العينات من الجمع إلى ظهور النتيجة</div>
+            <div class="ctr-hero-meta">
+                <span>${arNum(data.hospitals.length)} مستشفى</span>
+                <span>${fmt(data.totalRows)} عينة</span>
+            </div>
+        </div>
+    </div>
+    `;
+
+    // KPIs إجمالية
+    const t = data.totals;
+    html += `
+    <div class="ctr-stat-grid">
+        <div class="ctr-stat-card ctr-stat-cyan">
+            <div class="ctr-stat-label">إجمالي العينات</div>
+            <div class="ctr-stat-value">${fmt(t.total)}</div>
+            <div class="ctr-stat-trend">عبر جميع المستشفيات</div>
+        </div>
+        <div class="ctr-stat-card ctr-stat-amber">
+            <div class="ctr-stat-label">مجموعة - بدون استقبال</div>
+            <div class="ctr-stat-value">${fmt(t.collected)}</div>
+            <div class="ctr-stat-trend">${pct(t.collected, t.total)} - لم ترسل للمختبر</div>
+        </div>
+        <div class="ctr-stat-card ctr-stat-purple">
+            <div class="ctr-stat-label">مستقبلة - بدون نتيجة</div>
+            <div class="ctr-stat-value">${fmt(t.received)}</div>
+            <div class="ctr-stat-trend">${pct(t.received, t.total)} - في المختبر</div>
+        </div>
+        <div class="ctr-stat-card ctr-stat-blue">
+            <div class="ctr-stat-label">مكتملة بنتيجة</div>
+            <div class="ctr-stat-value">${fmt(t.completed)}</div>
+            <div class="ctr-stat-trend">${pct(t.completed, t.total)} - النتيجة ظهرت</div>
+        </div>
+        ${t.cancelled > 0 ? `
+        <div class="ctr-stat-card ctr-stat-rose">
+            <div class="ctr-stat-label">ملغية / مرفوضة</div>
+            <div class="ctr-stat-value">${fmt(t.cancelled)}</div>
+            <div class="ctr-stat-trend">${pct(t.cancelled, t.total)}</div>
+        </div>` : ''}
+    </div>
+    `;
+
+    // جدول تفصيلي لكل مستشفى
+    html += `
+    <div class="ctr-card-modern">
+        <div class="ctr-card-header">
+            <div class="ctr-card-title-modern">تفصيل حالة العينات لكل مستشفى</div>
+            <div class="ctr-card-desc">عدد العينات في كل حالة · وأوقات المعالجة</div>
+        </div>
+        <table class="ctr-modern-table">
+            <thead>
+                <tr>
+                    <th>المستشفى</th>
+                    <th>الإجمالي</th>
+                    <th>مجموعة فقط</th>
+                    <th>مستقبلة</th>
+                    <th>مكتملة</th>
+                    <th>الجمع → الاستقبال</th>
+                    <th>الاستقبال → النتيجة</th>
+                    <th>الجمع → النتيجة</th>
+                </tr>
+            </thead>
+            <tbody>`;
+
+    data.hospitals.forEach(h => {
+        const c = h.counts;
+        // الحالة العامة
+        const completePct = c.total > 0 ? (c.completed / c.total * 100) : 0;
+        const stateClass = completePct >= 80 ? 'ctr-pill-success' : completePct >= 50 ? 'ctr-pill-warn' : 'ctr-pill-danger';
+
+        html += `
+            <tr>
+                <td class="ctr-name-cell">${h.name}</td>
+                <td><b style="color:#FCD34D;">${fmt(c.total)}</b></td>
+                <td>${c.collected > 0 ? `<span class="ctr-modern-pill ctr-pill-warn">${fmt(c.collected)}</span>` : '—'}</td>
+                <td>${c.received > 0 ? `<span class="ctr-modern-pill" style="background:rgba(167,139,250,0.15);color:#C4B5FD;">${fmt(c.received)}</span>` : '—'}</td>
+                <td>${c.completed > 0 ? `<span class="ctr-modern-pill ${stateClass}">${fmt(c.completed)} (${pct(c.completed, c.total)})</span>` : '—'}</td>
+                <td class="ctr-time-cell">${fmtTime(h.avgCollectToReceive)}</td>
+                <td class="ctr-time-cell">${fmtTime(h.avgReceiveToComplete)}</td>
+                <td class="ctr-time-cell">${fmtTime(h.avgCollectToComplete)}</td>
+            </tr>`;
+    });
+    html += `</tbody></table></div>`;
+
+    // تفاصيل لكل مستشفى
+    data.hospitals.forEach(h => {
+        const c = h.counts;
+        const total = c.total;
+        if (total === 0) return;
+
+        html += `
+        <div class="ctr-card-modern" style="border-color: rgba(124,58,237,0.2);">
+            <div class="ctr-card-header">
+                <div class="ctr-card-title-modern" style="color:#C4B5FD;">${h.name}</div>
+                <div class="ctr-card-desc">${fmt(total)} عينة - تفصيل كامل</div>
+            </div>
+
+            <div class="ctr-cat-stats" style="margin-bottom:18px;">
+                <div class="ctr-cat-stat-card">
+                    <div class="ctr-cat-stat-label">مجموعة فقط</div>
+                    <div class="ctr-cat-stat-value">${fmt(c.collected)}</div>
+                    <div class="ctr-cat-stat-sub">${pct(c.collected, total)} من الإجمالي</div>
+                </div>
+                <div class="ctr-cat-stat-card">
+                    <div class="ctr-cat-stat-label">مستقبلة</div>
+                    <div class="ctr-cat-stat-value">${fmt(c.received)}</div>
+                    <div class="ctr-cat-stat-sub">${pct(c.received, total)} من الإجمالي</div>
+                </div>
+                <div class="ctr-cat-stat-card">
+                    <div class="ctr-cat-stat-label">مكتملة</div>
+                    <div class="ctr-cat-stat-value">${fmt(c.completed)}</div>
+                    <div class="ctr-cat-stat-sub">${pct(c.completed, total)} من الإجمالي</div>
+                </div>
+                <div class="ctr-cat-stat-card">
+                    <div class="ctr-cat-stat-label">متوسط: الجمع → الاستقبال</div>
+                    <div class="ctr-cat-stat-value">${fmtTime(h.avgCollectToReceive)}</div>
+                    <div class="ctr-cat-stat-sub">الوسيط: ${fmtTime(h.medCollectToReceive)}</div>
+                </div>
+                <div class="ctr-cat-stat-card">
+                    <div class="ctr-cat-stat-label">متوسط: الاستقبال → النتيجة</div>
+                    <div class="ctr-cat-stat-value">${fmtTime(h.avgReceiveToComplete)}</div>
+                    <div class="ctr-cat-stat-sub">الوسيط: ${fmtTime(h.medReceiveToComplete)}</div>
+                </div>
+                <div class="ctr-cat-stat-card">
+                    <div class="ctr-cat-stat-label">متوسط: الجمع → النتيجة</div>
+                    <div class="ctr-cat-stat-value">${fmtTime(h.avgCollectToComplete)}</div>
+                    <div class="ctr-cat-stat-sub">الوسيط: ${fmtTime(h.medCollectToComplete)}</div>
+                </div>
+            </div>
+
+            ${h.stuckCount > 0 ? `
+            <div class="ctr-card-modern" style="background:rgba(220,38,38,0.08); border-color:rgba(220,38,38,0.3); margin:12px 0;">
+                <div class="ctr-card-title-modern" style="color:#FCA5A5; font-size:14px;">تنبيه: ${arNum(h.stuckCount)} عينة مجموعة منذ أكثر من ٤٨ ساعة بدون استقبال</div>
+                <div class="ctr-card-desc">أحدث ١٠ عينات معطلة</div>
+            </div>` : ''}
+
+            ${h.noResultCount > 0 ? `
+            <div class="ctr-card-modern" style="background:rgba(245,158,11,0.08); border-color:rgba(245,158,11,0.3); margin:12px 0;">
+                <div class="ctr-card-title-modern" style="color:#FCD34D; font-size:14px;">تنبيه: ${arNum(h.noResultCount)} عينة مستقبلة منذ أكثر من ٢٤ ساعة بدون نتيجة</div>
+            </div>` : ''}
+        </div>`;
+    });
+
+    // ========== الجدول الملخّص النهائي ==========
+    html += `
+    <div class="ctr-card-modern" id="fitSummaryTableWrap" style="margin-top:28px;">
+        <div class="ctr-card-header" style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+            <div>
+                <div class="ctr-card-title-modern">الجدول الملخّص لكل المستشفيات</div>
+                <div class="ctr-card-desc">نظرة سريعة على العينات المعلقة في كل مرحلة وأقدمها</div>
+            </div>
+            <button id="btnFitTableImage" class="btn-primary" style="padding:8px 16px; font-size:13px; white-space:nowrap;">
+                تصدير الجدول كصورة
+            </button>
+        </div>
+        <div id="fitSummaryTableInner">
+            <table class="ctr-modern-table" style="font-size:13px;">
+                <thead>
+                    <tr>
+                        <th rowspan="2" style="vertical-align:middle;">المستشفى</th>
+                        <th colspan="2" style="background:rgba(96,165,250,0.18);">المستقبَلة (في المختبر)</th>
+                        <th colspan="2" style="background:rgba(252,211,77,0.18);">المجموعة (لم تصل المختبر)</th>
+                        <th rowspan="2" style="vertical-align:middle;">الإجمالي</th>
+                    </tr>
+                    <tr>
+                        <th style="background:rgba(96,165,250,0.10); font-size:11.5px;">العدد</th>
+                        <th style="background:rgba(96,165,250,0.10); font-size:11.5px;">أقدم (يوم)</th>
+                        <th style="background:rgba(252,211,77,0.10); font-size:11.5px;">العدد</th>
+                        <th style="background:rgba(252,211,77,0.10); font-size:11.5px;">أقدم (يوم)</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+
+    // ترتيب حسب الإجمالي
+    const sortedForTable = [...data.hospitals].sort((a, b) => b.counts.total - a.counts.total);
+
+    let sumReceived = 0, sumCollected = 0, sumTotal = 0;
+    sortedForTable.forEach(h => {
+        const recAge = h.oldestReceived != null ? arNum(Math.round(h.oldestReceived)) : '—';
+        const colAge = h.oldestCollected != null ? arNum(Math.round(h.oldestCollected)) : '—';
+        const recAgeColor = h.oldestReceived != null && h.oldestReceived > 3 ? '#F87171' :
+                            h.oldestReceived != null && h.oldestReceived > 1 ? '#FCD34D' : '#34D399';
+        const colAgeColor = h.oldestCollected != null && h.oldestCollected > 3 ? '#F87171' :
+                            h.oldestCollected != null && h.oldestCollected > 1 ? '#FCD34D' : '#34D399';
+
+        sumReceived += h.receivedCount;
+        sumCollected += h.collectedCount;
+        sumTotal += h.counts.total;
+
+        html += `
+            <tr>
+                <td class="ctr-name-cell">${h.name}</td>
+                <td><b style="color:#60A5FA; font-size:15px;">${arNum(h.receivedCount)}</b></td>
+                <td><b style="color:${recAgeColor};">${recAge}</b></td>
+                <td><b style="color:#FCD34D; font-size:15px;">${arNum(h.collectedCount)}</b></td>
+                <td><b style="color:${colAgeColor};">${colAge}</b></td>
+                <td><b style="color:#F1F5F9;">${arNum(h.counts.total)}</b></td>
+            </tr>`;
+    });
+    // صف الإجمالي
+    html += `
+            <tr style="background:rgba(245,158,11,0.08); border-top:2px solid rgba(245,158,11,0.3); font-weight:800;">
+                <td class="ctr-name-cell" style="color:#FCD34D;">الإجمالي</td>
+                <td style="color:#60A5FA; font-size:15px;"><b>${arNum(sumReceived)}</b></td>
+                <td>—</td>
+                <td style="color:#FCD34D; font-size:15px;"><b>${arNum(sumCollected)}</b></td>
+                <td>—</td>
+                <td style="color:#F1F5F9; font-size:15px;"><b>${arNum(sumTotal)}</b></td>
+            </tr>`;
+    html += `</tbody></table>
+        </div>
+        <div style="margin-top:12px; padding:10px 14px; background:rgba(148,163,184,0.08); border-radius:8px; font-size:11.5px; color:#94A3B8; line-height:1.7;">
+            <b style="color:#60A5FA;">المستقبَلة:</b> العينات وصلت المختبر ولم تظهر نتيجتها بعد ·
+            <b style="color:#FCD34D;">المجموعة:</b> سُحبت من المريض ولم تصل المختبر ·
+            <b>الأقدم:</b> عدد الأيام منذ سحب/استقبال أقدم عينة لا تزال معلّقة
+        </div>
+    </div>`;
+
+    document.getElementById('fitReport').innerHTML = html;
+
+    // ربط زر تصدير الجدول كصورة
+    const btnImg = document.getElementById('btnFitTableImage');
+    if (btnImg) btnImg.addEventListener('click', exportFitTableImage);
+}
+
+// تصدير الجدول الملخّص كصورة PNG
+async function exportFitTableImage() {
+    const wrap = document.getElementById('fitSummaryTableWrap');
+    if (!wrap) return;
+
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.classList.add('active');
+    document.getElementById('loadingText').textContent = 'جاري إنشاء الصورة...';
+    await new Promise(r => setTimeout(r, 50));
+
+    try {
+        // نخفي الزر مؤقتاً
+        const btn = document.getElementById('btnFitTableImage');
+        const btnDisplay = btn ? btn.style.display : null;
+        if (btn) btn.style.display = 'none';
+
+        const canvas = await html2canvas(wrap, {
+            scale: 2.5,
+            backgroundColor: '#0F172A',
+            useCORS: true,
+            logging: false,
+            allowTaint: true
+        });
+
+        // ارجاع الزر
+        if (btn) btn.style.display = btnDisplay || '';
+
+        // تحميل الصورة
+        const link = document.createElement('a');
+        const dateStr = new Date().toISOString().slice(0, 10);
+        link.download = `ملخص_المستشفيات_${dateStr}.png`;
+        link.href = canvas.toDataURL('image/png');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    } catch (err) {
+        console.error('Image export error:', err);
+        alert('فشل تصدير الصورة: ' + err.message);
+    } finally {
+        overlay.classList.remove('active');
+    }
+}
+
+async function exportFitPdf() {
+    if (!__fitData) return;
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.classList.add('active');
+    document.getElementById('loadingText').textContent = 'جاري تحضير PDF...';
+    await new Promise(r => setTimeout(r, 100));
+
+    try {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+        const pageW = pdf.internal.pageSize.getWidth();
+        const pageH = pdf.internal.pageSize.getHeight();
+        const margin = 6;
+        const availW = pageW - margin * 2;
+        const availH = pageH - margin * 2;
+
+        const reportEl = document.getElementById('fitReport');
+        const canvas = await html2canvas(reportEl, {
+            scale: 1.4, backgroundColor: '#0F172A', useCORS: true, logging: false
+        });
+
+        const pxPerMm = canvas.width / availW;
+        const pageHPx = availH * pxPerMm;
+        const totalPages = Math.ceil(canvas.height / pageHPx);
+
+        for (let p = 0; p < totalPages; p++) {
+            const sliceHPx = Math.min(pageHPx, canvas.height - p * pageHPx);
+            const slice = document.createElement('canvas');
+            slice.width = canvas.width;
+            slice.height = sliceHPx;
+            const ctx = slice.getContext('2d');
+            ctx.fillStyle = '#0F172A';
+            ctx.fillRect(0, 0, slice.width, slice.height);
+            ctx.drawImage(canvas, 0, p * pageHPx, canvas.width, sliceHPx, 0, 0, slice.width, sliceHPx);
+
+            if (p > 0) pdf.addPage();
+            pdf.setFillColor(15, 23, 42);
+            pdf.rect(0, 0, pageW, pageH, 'F');
+            pdf.addImage(slice.toDataURL('image/jpeg', 0.82), 'JPEG', margin, margin, availW, sliceHPx / pxPerMm);
+        }
+
+        const dateStr = new Date().toISOString().slice(0, 10);
+        pdf.save(`FIT_Test_Report_${dateStr}.pdf`);
+    } catch (err) {
+        console.error(err);
+        alert('فشل التصدير: ' + err.message);
+    } finally {
+        overlay.classList.remove('active');
+    }
 }
 
 async function handleCentersFile(e) {
@@ -13325,6 +14063,22 @@ document.addEventListener('DOMContentLoaded', () => {
     if (centersFileInput) centersFileInput.addEventListener('change', handleCentersFile);
     const btnCentersExportPdf = document.getElementById('btnCentersExportPdf');
     if (btnCentersExportPdf) btnCentersExportPdf.addEventListener('click', exportCentersPdf);
+
+    // FIT Test buttons
+    const btnFit = document.getElementById('btnFitAnalysis');
+    if (btnFit) btnFit.addEventListener('click', () => {
+        document.getElementById('fitModal').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    });
+    const btnFitClose = document.getElementById('btnFitClose');
+    if (btnFitClose) btnFitClose.addEventListener('click', () => {
+        document.getElementById('fitModal').classList.remove('active');
+        document.body.style.overflow = '';
+    });
+    const fitFileInput = document.getElementById('fitFileInput');
+    if (fitFileInput) fitFileInput.addEventListener('change', handleFitFiles);
+    const btnFitExportPdf = document.getElementById('btnFitExportPdf');
+    if (btnFitExportPdf) btnFitExportPdf.addEventListener('click', exportFitPdf);
 });
 
 
@@ -13961,6 +14715,50 @@ function normalizeSampleId(sid) {
     return s || null;
 }
 
+// تنظيف MRN موحد بين KPI و Monitor
+function normalizeMrn(mrn) {
+    if (mrn == null || mrn === '') return null;
+    if (typeof mrn === 'number') return String(Math.trunc(mrn));
+    let s = String(mrn).trim();
+    // نزيل quotes في البداية والنهاية
+    s = s.replace(/^['"`]+|['"`]+$/g, '').trim();
+    // نزيل المسافات داخل الرقم
+    s = s.replace(/\s+/g, '');
+    // نزيل .0 ملحقة
+    s = s.replace(/\.0+$/, '');
+    return s || null;
+}
+
+// مفتاح موحد لمطابقة MRN+OrderDateTime بدقة الدقيقة
+// نستخدم local components - يفترض أن كل Date يحفظ wall-clock time في local
+function buildMrnTimeKey(mrn, dt) {
+    const m = normalizeMrn(mrn);
+    if (!m || !(dt instanceof Date) || isNaN(dt.getTime())) return null;
+    const Y = dt.getFullYear();
+    const M = String(dt.getMonth() + 1).padStart(2, '0');
+    const D = String(dt.getDate()).padStart(2, '0');
+    const h = String(dt.getHours()).padStart(2, '0');
+    const min = String(dt.getMinutes()).padStart(2, '0');
+    return `${m}|${Y}-${M}-${D} ${h}:${min}`;
+}
+
+// تحويل Date محتمل أنه UTC إلى Date local يحفظ wall-clock
+// (يستخدم لـ KPI Excel dates التي تأتي بـ UTC representation)
+function normalizeXlsxDate(dt) {
+    if (!(dt instanceof Date) || isNaN(dt.getTime())) return null;
+    // إذا الـ Date عنده UTC components مختلفة عن local، فهو من XLSX (UTC)
+    // نحوله: نأخذ UTC components ونبني Date local بنفس الأرقام (wall-clock preservation)
+    if (dt.getUTCHours() !== dt.getHours() ||
+        dt.getUTCDate() !== dt.getDate() ||
+        dt.getUTCMonth() !== dt.getMonth()) {
+        return new Date(
+            dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate(),
+            dt.getUTCHours(), dt.getUTCMinutes(), dt.getUTCSeconds()
+        );
+    }
+    return dt;
+}
+
 // تحقق من صحة اسم الموظف: يستثني الأسماء الرمزية مثل "-" أو "—" أو "?" أو الرموز فقط
 function isValidStaffName(name) {
     if (!name) return false;
@@ -13974,24 +14772,87 @@ function isValidStaffName(name) {
     return true;
 }
 
+// ============= قائمة فنيي المختبر المعتمدين لكل مستشفى =============
+// عند وجود قائمة فنيين معتمدة، يتم استثناء العينات التي استقبلها أي شخص خارج هذه القائمة
+// (مثل فنيي المراكز الصحية التي تستخدم المستشفى كمختبر مرجعي)
+const APPROVED_LAB_TECHS = {
+    kfh: [
+        "Abdullah saud shuwaykan",
+        "ABDULLAH HASSAN ABUAMER",
+        "Belal abdurab al rasoul al mearfy",
+        "Hussain rabeh al mukhalfy",
+        "Bander Saud Alenezi",
+        "RAWAN SALEH ALTHUBYANI",
+        "Fatma Marei Asiri",
+        "Mohammed Saud Al Rashidi",
+        "MOHAMMED SAUD Alhujaili ALHEJAILI",
+        "AHMAD HAMUD ALSAADI",
+        "MOHAMMED REDHA ABDULKARIM ALHAJUJ",
+        "Reda maqnas maqnas",
+        "Safaa ahmed al hairy",
+        "Mohammed othman al qerafy",
+        "YASER SALEH BARRI"
+    ]
+    // ممكن إضافة مستشفيات أخرى لاحقاً
+};
+
+// نطبّع الاسم للمطابقة: lowercase + إزالة الرموز + كلمات ذات معنى فقط
+function normalizeTechName(name) {
+    if (!name) return new Set();
+    const s = String(name).toLowerCase().trim()
+        .replace(/[^\w\sءأإآا-ي]/g, ' ')
+        .replace(/\s+/g, ' ');
+    const stopwords = new Set(['al', 'el', 'the', 'bin', 'ibn', 'abu', 'um', 'abd']);
+    const words = s.split(' ').filter(w => w.length >= 2 && !stopwords.has(w));
+    return new Set(words);
+}
+
+// نتحقق إذا كان اسم الفني يطابق أحد المعتمدين (matching ذكي بكلمات)
+function matchesApprovedTech(name, hospitalKey) {
+    if (!hospitalKey || !APPROVED_LAB_TECHS[hospitalKey]) return true;  // لا فلتر = اعتبر الكل معتمد
+    const approvedList = APPROVED_LAB_TECHS[hospitalKey];
+    if (!name) return false;
+    const nameWords = normalizeTechName(name);
+    if (nameWords.size === 0) return false;
+
+    for (const approved of approvedList) {
+        const appWords = normalizeTechName(approved);
+        if (appWords.size === 0) continue;
+        const common = new Set([...nameWords].filter(w => appWords.has(w)));
+        const smaller = Math.min(nameWords.size, appWords.size);
+        if (smaller === 0) continue;
+        const overlap = common.size / smaller;
+        if (overlap >= 0.7) return true;
+    }
+    return false;
+}
+
 function computeDoctorAnalysis(kpiRows, monitorRows, hospitalKey) {
-    // الخطوة 1: نبني خريطة Sample ID → اسم الطبيب من Lab Monitor
+    // الخطوة 1: نبني خرائط من Lab Monitor
+    // - sampleToDoc: Sample ID → الطبيب (الطريقة المعتادة)
+    // - mrnTimeToDoc: MRN+OrderDateTime → الطبيب (fallback للملفات بدون Sample ID)
     const sampleToDoc = new Map();
+    const mrnTimeToDoc = new Map();
     monitorRows.forEach(row => {
-        const sid = normalizeSampleId(row.sampleId);
-        if (!sid) return;
         const doctor = row.orderedBy;
         if (!doctor || String(doctor).trim() === '') return;
-        if (!isValidStaffName(doctor)) return;  // استثناء أسماء رمزية
-        if (!sampleToDoc.has(sid)) {
+        if (!isValidStaffName(doctor)) return;
+
+        const sid = normalizeSampleId(row.sampleId);
+        if (sid && !sampleToDoc.has(sid)) {
             sampleToDoc.set(sid, String(doctor).trim());
+        }
+
+        const mtKey = buildMrnTimeKey(row.mrn, row.orderDateTime);
+        if (mtKey && !mrnTimeToDoc.has(mtKey)) {
+            mrnTimeToDoc.set(mtKey, String(doctor).trim());
         }
     });
 
     console.log('Sample-to-doctor map size:', sampleToDoc.size);
-    console.log('First 5 sample IDs from Monitor:', Array.from(sampleToDoc.entries()).slice(0, 5));
+    console.log('MRN+Time-to-doctor map size:', mrnTimeToDoc.size);
 
-    if (sampleToDoc.size === 0) return null;
+    if (sampleToDoc.size === 0 && mrnTimeToDoc.size === 0) return null;
 
     // الخطوة 2: نفلتر Lab KPI على ER فقط + غير الملغية
     const erRows = kpiRows.filter(r => {
@@ -14002,19 +14863,16 @@ function computeDoctorAnalysis(kpiRows, monitorRows, hospitalKey) {
     });
 
     console.log('ER rows in KPI:', erRows.length);
-    console.log('First 3 ER samples from KPI:', erRows.slice(0, 3).map(r => ({
-        sid: r.sampleId, normalized: normalizeSampleId(r.sampleId), pt: r.patientType
-    })));
 
     if (erRows.length === 0) return null;
 
-    // الخطوة 3: لكل صف ER، نربط Sample ID مع الطبيب
+    // الخطوة 3: لكل صف ER، نربط مع الطبيب (Sample ID أولاً، ثم MRN+Time)
     const doctorMap = new Map();
     let unmatched = 0;
     let matched = 0;
+    let matchedBySid = 0, matchedByMrn = 0;
 
     // اكتشاف: هل episodeKey فعلياً episode أم هو OrderKey (فريد لكل اختبار)؟
-    // إذا عدد episode_keys الفريدة قريب من عدد الصفوف → هو OrderKey، نستخدم patientId فقط
     const episodesPerPatient = new Map();
     erRows.forEach(r => {
         if (!r.patientId) return;
@@ -14022,27 +14880,36 @@ function computeDoctorAnalysis(kpiRows, monitorRows, hospitalKey) {
         if (!episodesPerPatient.has(pid)) episodesPerPatient.set(pid, new Set());
         episodesPerPatient.get(pid).add(r.episodeKey != null ? r.episodeKey : 'noep');
     });
-    // متوسط episodes لكل مريض
     let totalEp = 0, patientWithMultiple = 0;
     episodesPerPatient.forEach(eps => {
         totalEp += eps.size;
         if (eps.size > 3) patientWithMultiple++;
     });
     const avgEpPerPatient = episodesPerPatient.size > 0 ? totalEp / episodesPerPatient.size : 0;
-    // لو متوسط episodes/مريض > 3 → هو OrderKey وليس episode حقيقي
     const useEpisode = avgEpPerPatient <= 3;
     console.log(`[Doctor analysis] avg episodes/patient = ${avgEpPerPatient.toFixed(2)}, useEpisode = ${useEpisode}`);
 
     erRows.forEach(row => {
+        // محاولة 1: Sample ID
+        let doctor = null;
         const sid = normalizeSampleId(row.sampleId);
-        if (!sid) return;
-        const doctor = sampleToDoc.get(sid);
+        if (sid && sampleToDoc.has(sid)) {
+            doctor = sampleToDoc.get(sid);
+            matchedBySid++;
+        } else {
+            // محاولة 2: MRN + Order DateTime
+            const mtKey = buildMrnTimeKey(row.patientId, row.orderDt);
+            if (mtKey && mrnTimeToDoc.has(mtKey)) {
+                doctor = mrnTimeToDoc.get(mtKey);
+                matchedByMrn++;
+            }
+        }
+
         if (!doctor) { unmatched++; return; }
         matched++;
 
         const patientId = row.patientId;
         if (!patientId) return;
-        // نستخدم Patient ID فقط إذا episodeKey فيه قيمة لكل اختبار (OrderKey)
         const patientKey = useEpisode
             ? `${patientId}|${row.episodeKey != null ? row.episodeKey : 'noep'}`
             : String(patientId);
@@ -14059,7 +14926,7 @@ function computeDoctorAnalysis(kpiRows, monitorRows, hospitalKey) {
         docEntry.patients.get(patientKey).count++;
     });
 
-    console.log('Matched:', matched, 'Unmatched:', unmatched, 'Doctors:', doctorMap.size);
+    console.log(`Matched: ${matched} (sid: ${matchedBySid}, mrn+time: ${matchedByMrn}), Unmatched: ${unmatched}, Doctors: ${doctorMap.size}`);
 
     if (doctorMap.size === 0) return null;
 
