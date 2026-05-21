@@ -10331,19 +10331,14 @@ function parseMonDate(v) {
     if (v == null) return null;
     if (v instanceof Date) {
         if (isNaN(v.getTime())) return null;
-        // طبّع: لو Date من XLSX UTC، نحوله لـ local wall-clock
-        if (v.getUTCHours() !== v.getHours() ||
-            v.getUTCDate() !== v.getDate() ||
-            v.getUTCMonth() !== v.getMonth()) {
-            return new Date(
-                v.getUTCFullYear(), v.getUTCMonth(), v.getUTCDate(),
-                v.getUTCHours(), v.getUTCMinutes(), v.getUTCSeconds()
-            );
-        }
+        // XLSX library بـ cellDates:true يبني الـ Date بقيم local wall-clock
+        // (يستخدم new Date(year, month, day, h, m, s) محلياً)
+        // فالـ Date نفسه يمثل الوقت الفعلي اللي في Excel - ما يحتاج تطبيع
         return v;
     }
     if (typeof v === 'number') {
-        // Excel serial date - يكون UTC، نطبّعه لـ local wall-clock
+        // Excel serial date - نحوّله لـ local wall-clock يدوياً
+        // 25569 = الأيام بين 1970-01-01 و 1899-12-30
         const utcMs = (v - 25569) * 86400 * 1000;
         const utcDate = new Date(utcMs);
         return new Date(
@@ -10433,7 +10428,38 @@ async function readMonitorForStages(file) {
 
     console.log('[readMonitorForStages] Built rows:', rows.length);
     if (rows.length > 0) {
-        console.log('[readMonitorForStages] First row:', rows[0]);
+        // نشوف صف فيه completedBy عشان نتأكد من التواريخ
+        const sample = rows.find(r => r.completedBy && r.orderDateTime && r.collectDateTime) || rows[0];
+        console.log('[readMonitorForStages] Sample row (with all dates):');
+        console.log('  sampleId=', sample.sampleId, 'type:', typeof sample.sampleId);
+        console.log('  orderDateTime=', sample.orderDateTime, 'isDate:', sample.orderDateTime instanceof Date);
+        console.log('  collectDateTime=', sample.collectDateTime, 'isDate:', sample.collectDateTime instanceof Date);
+        console.log('  receiveDateTime=', sample.receiveDateTime, 'isDate:', sample.receiveDateTime instanceof Date);
+        console.log('  completeDateTime=', sample.completeDateTime, 'isDate:', sample.completeDateTime instanceof Date);
+        console.log('  orderedBy=', JSON.stringify(sample.orderedBy));
+        console.log('  collectedBy=', JSON.stringify(sample.collectedBy));
+        console.log('  receivedBy=', JSON.stringify(sample.receivedBy));
+        console.log('  completedBy=', JSON.stringify(sample.completedBy));
+
+        // إحصائيات سريعة
+        const stats = {
+            hasOrder: 0, hasCollect: 0, hasRecv: 0, hasComplete: 0,
+            hasOrderedBy: 0, hasCollectedBy: 0, hasReceivedBy: 0, hasCompletedBy: 0,
+            hasSid: 0, hasAll4Dates: 0
+        };
+        rows.forEach(r => {
+            if (r.orderDateTime) stats.hasOrder++;
+            if (r.collectDateTime) stats.hasCollect++;
+            if (r.receiveDateTime) stats.hasRecv++;
+            if (r.completeDateTime) stats.hasComplete++;
+            if (r.orderedBy && String(r.orderedBy).trim()) stats.hasOrderedBy++;
+            if (r.collectedBy && String(r.collectedBy).trim()) stats.hasCollectedBy++;
+            if (r.receivedBy && String(r.receivedBy).trim()) stats.hasReceivedBy++;
+            if (r.completedBy && String(r.completedBy).trim()) stats.hasCompletedBy++;
+            if (r.sampleId != null && r.sampleId !== 0 && r.sampleId !== '0') stats.hasSid++;
+            if (r.orderDateTime && r.collectDateTime && r.receiveDateTime && r.completeDateTime) stats.hasAll4Dates++;
+        });
+        console.log('[readMonitorForStages] Stats:', stats);
     }
     return rows;
 }
@@ -14480,30 +14506,94 @@ function computeStageAnalysis(monitorRows, mode, hospitalKey) {
     let validDurationCount = 0;
 
     // ⚠️ مهم: نزيل التكرار بـ Sample ID — كل عينة تُحسب مرة واحدة
-    // لو نفس الـ sample id له عدة اختبارات (rows في Monitor)، نأخذ الأول فقط
+    // لو نفس الـ sample id له عدة اختبارات (rows في Monitor)، نختار الصف "الأصلح"
+    // (الذي فيه start و end صالحتان و duration موجبة وضمن الحدود)
+    // - أولوية: row فيه diff موجب وصغير (أوقع منطقياً للمرحلة)
+    // - fallback: لو لا يوجد، نأخذ أي row فيه start+end
     const seenSamples = new Set();
+    const bestRowPerSample = new Map(); // sid → best row
 
+    // diagnostics counters لمعرفة أين تفشل العينات
+    let missing_start = 0, missing_end = 0, missing_staff = 0;
+    let not_date_start = 0, not_date_end = 0;
+    let no_sid = 0, dup_sid_replaced = 0;
+    let bad_duration = 0, invalid_name = 0;
+
+    // تشخيص: أول ٣ صفوف لمعرفة شكل البيانات
+    if (mode === 'order' && monitorRows.length > 0) {
+        console.log(`[${mode}] === START === monitorRows count: ${monitorRows.length}`);
+        console.log(`[${mode}] startField=${startField}, endField=${endField}, staffField=${staffField}, targetMin=${targetMin}`);
+
+        // إحصائيات سريعة قبل البدء
+        const preStats = { hasStart: 0, hasEnd: 0, hasStaff: 0, hasSid: 0, hasAll: 0 };
+        monitorRows.forEach(r => {
+            if (r[startField]) preStats.hasStart++;
+            if (r[endField]) preStats.hasEnd++;
+            if (r[staffField] && String(r[staffField]).trim()) preStats.hasStaff++;
+            const sid = normalizeSampleId(r.sampleId);
+            if (sid) preStats.hasSid++;
+            if (r[startField] && r[endField] && r[staffField] && String(r[staffField]).trim() && sid) {
+                preStats.hasAll++;
+            }
+        });
+        console.log(`[${mode}] Pre-stats:`, preStats);
+
+        console.log(`[${mode}] First 3 rows sample:`);
+        for (let i = 0; i < Math.min(3, monitorRows.length); i++) {
+            const r = monitorRows[i];
+            console.log(`  Row ${i}: ${startField}=${r[startField]} (${typeof r[startField]}, isDate=${r[startField] instanceof Date}), ${endField}=${r[endField]} (${typeof r[endField]}, isDate=${r[endField] instanceof Date}), ${staffField}=${JSON.stringify(r[staffField])}, sampleId=${r.sampleId}`);
+        }
+    }
+
+    // PASS 1: لكل Sample ID نختار "أصلح" صف
     monitorRows.forEach(row => {
         const start = row[startField];
         const end = row[endField];
         const staff = row[staffField];
 
-        if (!start || !end || !staff) return;
-        if (!(start instanceof Date) || !(end instanceof Date)) return;
+        if (!start) { missing_start++; return; }
+        if (!end) { missing_end++; return; }
+        if (!staff) { missing_staff++; return; }
+        if (!(start instanceof Date)) { not_date_start++; return; }
+        if (!(end instanceof Date)) { not_date_end++; return; }
 
-        // dedupe بـ Sample ID
         const sid = normalizeSampleId(row.sampleId);
-        if (!sid) return;
-        if (seenSamples.has(sid)) return;
-        seenSamples.add(sid);
+        if (!sid) { no_sid++; return; }
 
         const diffMs = end - start;
-        if (diffMs < 0 || diffMs > 24 * 60 * 60 * 1000) return; // نتجاهل الأخطاء الكبيرة (>24س أو سالب)
+        const validDiff = diffMs >= 0 && diffMs <= 24 * 60 * 60 * 1000;
 
-        const diffMin = diffMs / 60000;
         const staffName = String(staff).trim();
-        if (!staffName) return;
-        if (!isValidStaffName(staffName)) return;  // استبعاد أسماء رمزية مثل "-" أو "—" أو "?"
+        if (!staffName) { missing_staff++; return; }
+        if (!isValidStaffName(staffName)) { invalid_name++; return; }
+
+        const candidate = { row, diffMs, validDiff, staffName };
+
+        const existing = bestRowPerSample.get(sid);
+        if (!existing) {
+            bestRowPerSample.set(sid, candidate);
+        } else {
+            // نفضل الصف اللي diff موجب وصالح
+            // لو الموجود غير صالح والجديد صالح → استبدل
+            // لو كلاهما صالح → نختار الأقل diff (أقرب لـ wall-time الحقيقي)
+            // لو كلاهما غير صالح → نتركه
+            if (!existing.validDiff && candidate.validDiff) {
+                bestRowPerSample.set(sid, candidate);
+                dup_sid_replaced++;
+            } else if (existing.validDiff && candidate.validDiff && candidate.diffMs < existing.diffMs) {
+                bestRowPerSample.set(sid, candidate);
+                dup_sid_replaced++;
+            }
+        }
+    });
+
+    // PASS 2: نحسب من أفضل صف لكل Sample ID
+    bestRowPerSample.forEach((cand, sid) => {
+        if (!cand.validDiff) { bad_duration++; return; }
+        seenSamples.add(sid);
+
+        const diffMin = cand.diffMs / 60000;
+        const staffName = cand.staffName;
 
         if (!staffMap.has(staffName)) {
             staffMap.set(staffName, { durations: [], delayedCount: 0, totalSamples: 0 });
@@ -14516,9 +14606,19 @@ function computeStageAnalysis(monitorRows, mode, hospitalKey) {
         processedCount++;
     });
 
-    console.log(`[${mode}] Processed: ${processedCount}, Valid: ${validDurationCount}, Staff: ${staffMap.size}`);
+    console.log(`[${mode}] Processed: ${processedCount}, Valid: ${validDurationCount}, Staff: ${staffMap.size}, Unique Sample IDs: ${bestRowPerSample.size}`);
+    console.log(`[${mode}] Diagnostics: missing_start=${missing_start}, missing_end=${missing_end}, missing_staff=${missing_staff}, not_date_start=${not_date_start}, not_date_end=${not_date_end}, no_sid=${no_sid}, dup_sid_replaced=${dup_sid_replaced}, bad_duration=${bad_duration}, invalid_name=${invalid_name}`);
 
-    if (staffMap.size === 0) return null;
+    if (staffMap.size === 0) {
+        console.warn(`[${mode}] ⚠️ NO STAFF MAP - returning null. Reasons: missing_start=${missing_start}, missing_end=${missing_end}, missing_staff=${missing_staff}, not_date_start=${not_date_start}, not_date_end=${not_date_end}, no_sid=${no_sid}, bad_duration=${bad_duration}, invalid_name=${invalid_name}`);
+        // نطبع أول ٥ صفوف فعلياً عشان نفهم وش يصير
+        console.warn(`[${mode}] ⚠️ Dumping first 5 monitor rows:`);
+        for (let i = 0; i < Math.min(5, monitorRows.length); i++) {
+            const r = monitorRows[i];
+            console.warn(`  Row ${i}: start(${startField})=${r[startField]} type=${typeof r[startField]} isDate=${r[startField] instanceof Date}, end(${endField})=${r[endField]} type=${typeof r[endField]} isDate=${r[endField] instanceof Date}, staff(${staffField})=${JSON.stringify(r[staffField])}, sampleId=${r.sampleId}`);
+        }
+        return null;
+    }
 
     // نحوّل لمصفوفة
     const staffList = [];
@@ -14703,16 +14803,17 @@ function normalizeSampleId(sid) {
     if (sid == null || sid === '') return null;
     // إذا كان رقم، نحوله لـ string بدون formatting
     if (typeof sid === 'number') {
-        // نتعامل مع الأرقام الكبيرة بدون أصفار عشرية
+        if (sid === 0 || !isFinite(sid)) return null;  // ٠ ليس Sample ID صالح
         return String(Math.trunc(sid));
     }
     let s = String(sid).trim();
-    if (!s) return null;
+    if (!s || s === '0') return null;
     // نزيل أي فواصل أو مسافات (في حال جاءت من Excel formatting)
     s = s.replace(/[,\s]/g, '');
     // نزيل أي .0 ملحقة
     s = s.replace(/\.0+$/, '');
-    return s || null;
+    if (!s || s === '0') return null;
+    return s;
 }
 
 // تنظيف MRN موحد بين KPI و Monitor
@@ -14742,20 +14843,11 @@ function buildMrnTimeKey(mrn, dt) {
     return `${m}|${Y}-${M}-${D} ${h}:${min}`;
 }
 
-// تحويل Date محتمل أنه UTC إلى Date local يحفظ wall-clock
-// (يستخدم لـ KPI Excel dates التي تأتي بـ UTC representation)
+// تحويل Date من XLSX إلى local wall-clock
+// ملاحظة: XLSX library بـ cellDates:true يبني الـ Date محلياً، فالـ Date نفسه صحيح
+// هذي الدالة تركها للاحتياط - ترجّع الـ Date كما هو
 function normalizeXlsxDate(dt) {
     if (!(dt instanceof Date) || isNaN(dt.getTime())) return null;
-    // إذا الـ Date عنده UTC components مختلفة عن local، فهو من XLSX (UTC)
-    // نحوله: نأخذ UTC components ونبني Date local بنفس الأرقام (wall-clock preservation)
-    if (dt.getUTCHours() !== dt.getHours() ||
-        dt.getUTCDate() !== dt.getDate() ||
-        dt.getUTCMonth() !== dt.getMonth()) {
-        return new Date(
-            dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate(),
-            dt.getUTCHours(), dt.getUTCMinutes(), dt.getUTCSeconds()
-        );
-    }
     return dt;
 }
 
