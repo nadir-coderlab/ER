@@ -10519,7 +10519,20 @@ async function readKpiDirectly(file) {
         'sample status': 'sampleStatus',
         'order date and time': 'orderDt',
         'order date': 'orderDt',
-        'order datetime': 'orderDt'
+        'order datetime': 'orderDt',
+        // 🆕 التواريخ الأربعة من KPI (المصدر الموثوق للأوقات - بدون TZ issues)
+        'collect date and time': 'collectDt',
+        'collect date': 'collectDt',
+        'collect datetime': 'collectDt',
+        'date and time of arrival in lab': 'arrivalDt',
+        'arrival in lab': 'arrivalDt',
+        'date and time of receiving in lab': 'receiveDt',
+        'receive date and time': 'receiveDt',
+        'date and time result sent back to reauester': 'completeDt',  // النسخة فيها typo
+        'date and time result sent back to requester': 'completeDt',
+        'result sent back to requester': 'completeDt',
+        'complete date and time': 'completeDt',
+        'complete date': 'completeDt'
     };
 
     // نمسح الصف 1 وأول 30 عمود لتحديد المواقع
@@ -10569,8 +10582,16 @@ async function readKpiDirectly(file) {
         // parseMonDate يتعامل مع Date/string/number ويطبّعها لـ wall-clock local
         const orderDt = parseMonDate(get('orderDt'));
 
+        // 🆕 التواريخ الأربعة الموثوقة من KPI (يستخدمها التحليل الشامل بدل تواريخ Monitor)
+        const collectDt = parseMonDate(get('collectDt'));
+        const receiveDt = parseMonDate(get('receiveDt'));
+        const completeDt = parseMonDate(get('completeDt'));
+
         if (!patientId && sampleId == null) continue;
-        rows.push({ patientId, episodeKey, patientType, sampleId, sampleStatus, orderDt });
+        rows.push({
+            patientId, episodeKey, patientType, sampleId, sampleStatus,
+            orderDt, collectDt, receiveDt, completeDt
+        });
     }
 
     console.log('[readKpiDirectly] Built rows:', rows.length);
@@ -11859,6 +11880,36 @@ async function computeFullComp(hkey) {
             }
         }
 
+        // 🆕 خرائط التواريخ من KPI — المصدر الموثوق للأوقات (بدون TZ issues)
+        // KPI يحفظ التواريخ كنصوص واضحة. Monitor يحفظ عمود L (Collect) كـ datetime cell
+        // اللي يتسبب في طرح ٣ ساعات خاطئ في بعض المتصفحات.
+        // الحل: ناخذ الأسماء من Monitor والأوقات من KPI.
+        const kpiDateBySid = new Map();      // sid → { orderDt, collectDt, receiveDt, completeDt }
+        const kpiDateByMrnTime = new Map();  // mrn+time → نفسه
+        if (useRows && useRows.length > 0) {
+            useRows.forEach(r => {
+                if (!isErType(r.patientType)) return;
+                const entry = {
+                    orderDt: r.orderDt instanceof Date ? r.orderDt : null,
+                    collectDt: r.collectDt instanceof Date ? r.collectDt : null,
+                    receiveDt: r.receiveDt instanceof Date ? r.receiveDt : null,
+                    completeDt: r.completeDt instanceof Date ? r.completeDt : null
+                };
+                // ما نضيف لو ما عندنا أي تاريخ
+                if (!entry.orderDt && !entry.collectDt && !entry.receiveDt && !entry.completeDt) return;
+
+                if (r.sampleId != null) {
+                    const sid = normalizeSampleId(r.sampleId);
+                    if (sid && !kpiDateBySid.has(sid)) kpiDateBySid.set(sid, entry);
+                }
+                if (r.patientId && r.orderDt instanceof Date) {
+                    const key = buildMrnTimeKey(r.patientId, r.orderDt);
+                    if (key && !kpiDateByMrnTime.has(key)) kpiDateByMrnTime.set(key, entry);
+                }
+            });
+            console.log(`[KPI dates] ${hkey}: ${kpiDateBySid.size} by Sample ID, ${kpiDateByMrnTime.size} by MRN+Time`);
+        }
+
         // Filter Monitor with multi-tier matching
         let erMonitorAll;
         if (erSampleIds && erSampleIds.size > 0) {
@@ -11883,6 +11934,38 @@ async function computeFullComp(hkey) {
                 const sid = normalizeSampleId(row.sampleId);
                 return !!sid;
             });
+        }
+
+        // 🔄 إعادة كتابة تواريخ كل صف Monitor بالتواريخ الموثوقة من KPI.
+        // الفكرة: Monitor مصدر الأسماء فقط. التواريخ من KPI (نصوص آمنة بدون TZ issues).
+        // لكل صف نبحث عنه بـ Sample ID أولاً، ثم بـ MRN+OrderTime (fallback).
+        if (kpiDateBySid.size > 0 || kpiDateByMrnTime.size > 0) {
+            let rewritten = 0, matchedBySid = 0, matchedByMrn = 0, notMatched = 0;
+            erMonitorAll = erMonitorAll.map(row => {
+                let kpiEntry = null;
+                const sid = normalizeSampleId(row.sampleId);
+                if (sid && kpiDateBySid.has(sid)) {
+                    kpiEntry = kpiDateBySid.get(sid);
+                    matchedBySid++;
+                } else {
+                    const mtKey = buildMrnTimeKey(row.mrn, row.orderDateTime);
+                    if (mtKey && kpiDateByMrnTime.has(mtKey)) {
+                        kpiEntry = kpiDateByMrnTime.get(mtKey);
+                        matchedByMrn++;
+                    }
+                }
+                if (!kpiEntry) { notMatched++; return row; }
+                rewritten++;
+                // نرجع صف جديد بنفس الأسماء + تواريخ KPI
+                return {
+                    ...row,
+                    orderDateTime: kpiEntry.orderDt || row.orderDateTime,
+                    collectDateTime: kpiEntry.collectDt || row.collectDateTime,
+                    receiveDateTime: kpiEntry.receiveDt || row.receiveDateTime,
+                    completeDateTime: kpiEntry.completeDt || row.completeDateTime
+                };
+            });
+            console.log(`[Date rewrite] ${hkey}: rewritten=${rewritten} (by_sid=${matchedBySid}, by_mrn=${matchedByMrn}), not_matched=${notMatched}`);
         }
 
         const erMonitorCompleted = erMonitorAll.filter(row => {
@@ -12489,6 +12572,42 @@ function processFitData(rows) {
             return hours > 24;
         });
 
+        // 🆕 جداول التوزيع اليومي:
+        // ١. المستقبلة حالياً (status=Received) — مجمّعة حسب يوم الاستلام
+        // ٢. المكتملة (status=Completed) — مجمّعة حسب يوم الاستلام
+        // ٣. المجموعة فقط (status=Collected) — مجمّعة حسب يوم الجمع
+        const dayKey = (d) => {
+            if (!(d instanceof Date) || isNaN(d.getTime())) return null;
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${dd}`;
+        };
+
+        const receivedByDay = new Map();  // مفتاح: yyyy-mm-dd → عدد العينات (status=Received)
+        const completedByDay = new Map(); // مفتاح: yyyy-mm-dd (يوم الاستلام) → عدد المكتملة
+        const collectedByDay = new Map(); // مفتاح: yyyy-mm-dd (يوم الجمع) → عدد المجموعة فقط
+
+        hRows.forEach(r => {
+            if (r.statusClass === 'received' && r.receiveDt) {
+                const k = dayKey(r.receiveDt);
+                if (k) receivedByDay.set(k, (receivedByDay.get(k) || 0) + 1);
+            } else if (r.statusClass === 'completed' && r.receiveDt) {
+                const k = dayKey(r.receiveDt);
+                if (k) completedByDay.set(k, (completedByDay.get(k) || 0) + 1);
+            } else if (r.statusClass === 'collected' && r.collectDt) {
+                const k = dayKey(r.collectDt);
+                if (k) collectedByDay.set(k, (collectedByDay.get(k) || 0) + 1);
+            }
+        });
+
+        // تحويل الـ Maps لـ arrays مرتبة تنازلياً (الأحدث أولاً)
+        const mapToSortedArray = (m) => {
+            return Array.from(m.entries())
+                .map(([day, count]) => ({ day, count }))
+                .sort((a, b) => b.day.localeCompare(a.day));
+        };
+
         hospitals.push({
             name,
             counts,
@@ -12507,6 +12626,10 @@ function processFitData(rows) {
             collectedCount: collectedOnly.length,
             oldestReceived, newestReceived, avgReceivedDays,
             oldestCollected, newestCollected, avgCollectedDays,
+            // 🆕 توزيع يومي
+            receivedByDay: mapToSortedArray(receivedByDay),
+            completedByDay: mapToSortedArray(completedByDay),
+            collectedByDay: mapToSortedArray(collectedByDay),
             rows: hRows
         });
     });
@@ -12630,16 +12753,73 @@ function renderFitReport(data) {
     html += `</tbody></table></div>`;
 
     // تفاصيل لكل مستشفى
-    data.hospitals.forEach(h => {
+    data.hospitals.forEach((h, hIdx) => {
         const c = h.counts;
         const total = c.total;
         if (total === 0) return;
 
+        // 🆕 معرّف فريد لكل قسم مستشفى (لزر التصدير كصورة)
+        const hospitalId = `fitHospital_${hIdx}`;
+        const safeName = String(h.name).replace(/[^\w\u0600-\u06FF]/g, '_');
+
+        // أيام عربية مختصرة
+        const arMonths = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+        const formatDay = (key) => {
+            // key = yyyy-mm-dd
+            const [y, m, d] = key.split('-').map(Number);
+            return `${arNum(d)} ${arMonths[m - 1]}`;
+        };
+
+        // دالة بناء جدول صغير ٣ أعمدة (#، التاريخ، العدد)
+        const buildDayTable = (title, items, colorAccent, emptyMsg) => {
+            const tot = items.reduce((s, x) => s + x.count, 0);
+            if (items.length === 0) {
+                return `
+                <div class="ctr-card-modern" style="border-color:${colorAccent}33; background:${colorAccent}0A; margin:0;">
+                    <div class="ctr-card-header" style="padding-bottom:8px;">
+                        <div class="ctr-card-title-modern" style="color:${colorAccent}; font-size:14px;">${title}</div>
+                    </div>
+                    <div style="padding:18px 10px; text-align:center; color:#94A3B8; font-size:13px;">${emptyMsg || 'لا توجد بيانات'}</div>
+                </div>`;
+            }
+            let rowsHtml = '';
+            items.forEach((it, i) => {
+                rowsHtml += `
+                <tr>
+                    <td style="text-align:center; color:#94A3B8; font-size:11.5px;">${arNum(i + 1)}</td>
+                    <td style="text-align:right;">${formatDay(it.day)}</td>
+                    <td style="text-align:center;"><b style="color:${colorAccent};">${arNum(it.count)}</b></td>
+                </tr>`;
+            });
+            return `
+            <div class="ctr-card-modern" style="border-color:${colorAccent}33; background:${colorAccent}0A; margin:0;">
+                <div class="ctr-card-header" style="padding-bottom:8px;">
+                    <div class="ctr-card-title-modern" style="color:${colorAccent}; font-size:14px;">${title}</div>
+                    <div class="ctr-card-desc" style="font-size:11.5px;">إجمالي: <b style="color:${colorAccent};">${arNum(tot)}</b> عينة موزعة على ${arNum(items.length)} ${items.length === 1 ? 'يوم' : 'أيام'}</div>
+                </div>
+                <table class="ctr-modern-table" style="font-size:12.5px; margin-top:0;">
+                    <thead>
+                        <tr>
+                            <th style="width:40px; text-align:center;">#</th>
+                            <th style="text-align:right;">التاريخ</th>
+                            <th style="width:80px; text-align:center;">العدد</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rowsHtml}</tbody>
+                </table>
+            </div>`;
+        };
+
         html += `
-        <div class="ctr-card-modern" style="border-color: rgba(124,58,237,0.2);">
-            <div class="ctr-card-header">
-                <div class="ctr-card-title-modern" style="color:#C4B5FD;">${h.name}</div>
-                <div class="ctr-card-desc">${fmt(total)} عينة - تفصيل كامل</div>
+        <div class="ctr-card-modern" id="${hospitalId}" style="border-color: rgba(124,58,237,0.2);">
+            <div class="ctr-card-header" style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+                <div>
+                    <div class="ctr-card-title-modern" style="color:#C4B5FD;">${h.name}</div>
+                    <div class="ctr-card-desc">${fmt(total)} عينة - تفصيل كامل</div>
+                </div>
+                <button class="btn-primary fit-hospital-export" data-hospital-id="${hospitalId}" data-hospital-name="${safeName}" style="padding:7px 14px; font-size:12px; white-space:nowrap;">
+                    📷 تصدير كصورة
+                </button>
             </div>
 
             <div class="ctr-cat-stats" style="margin-bottom:18px;">
@@ -12673,6 +12853,28 @@ function renderFitReport(data) {
                     <div class="ctr-cat-stat-value">${fmtTime(h.avgCollectToComplete)}</div>
                     <div class="ctr-cat-stat-sub">الوسيط: ${fmtTime(h.medCollectToComplete)}</div>
                 </div>
+            </div>
+
+            <!-- 🆕 الجداول الثلاثة: التوزيع اليومي حسب الحالة -->
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:12px; margin-bottom:14px;">
+                ${buildDayTable(
+                    'العينات المستقبَلة (في المختبر)',
+                    h.receivedByDay,
+                    '#60A5FA',
+                    'لا توجد عينات حالتها مستقبَلة'
+                )}
+                ${buildDayTable(
+                    'العينات المكتملة (طلعت نتيجتها)',
+                    h.completedByDay,
+                    '#34D399',
+                    'لا توجد عينات مكتملة'
+                )}
+                ${buildDayTable(
+                    'العينات المجموعة (لم تصل المختبر)',
+                    h.collectedByDay,
+                    '#FCD34D',
+                    'لا توجد عينات مجموعة معلقة'
+                )}
             </div>
 
             ${h.stuckCount > 0 ? `
@@ -12768,6 +12970,56 @@ function renderFitReport(data) {
     // ربط زر تصدير الجدول كصورة
     const btnImg = document.getElementById('btnFitTableImage');
     if (btnImg) btnImg.addEventListener('click', exportFitTableImage);
+
+    // 🆕 ربط أزرار تصدير صورة لكل مستشفى
+    document.querySelectorAll('.fit-hospital-export').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const hid = btn.dataset.hospitalId;
+            const hname = btn.dataset.hospitalName;
+            exportFitHospitalImage(hid, hname);
+        });
+    });
+}
+
+// 🆕 تصدير صورة لقسم مستشفى واحد
+async function exportFitHospitalImage(hospitalId, hospitalName) {
+    const wrap = document.getElementById(hospitalId);
+    if (!wrap) return;
+
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.classList.add('active');
+    document.getElementById('loadingText').textContent = 'جاري إنشاء صورة المستشفى...';
+    await new Promise(r => setTimeout(r, 50));
+
+    try {
+        // نخفي زر التصدير نفسه مؤقتاً (ما نبيه يطلع في الصورة)
+        const btn = wrap.querySelector('.fit-hospital-export');
+        const btnDisplay = btn ? btn.style.display : null;
+        if (btn) btn.style.display = 'none';
+
+        const canvas = await html2canvas(wrap, {
+            scale: 2.5,
+            backgroundColor: '#0F172A',
+            useCORS: true,
+            logging: false,
+            allowTaint: true
+        });
+
+        if (btn) btn.style.display = btnDisplay || '';
+
+        const link = document.createElement('a');
+        const dateStr = new Date().toISOString().slice(0, 10);
+        link.download = `FIT_${hospitalName}_${dateStr}.png`;
+        link.href = canvas.toDataURL('image/png');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    } catch (err) {
+        console.error('Hospital image export error:', err);
+        alert('فشل تصدير الصورة: ' + err.message);
+    } finally {
+        overlay.classList.remove('active');
+    }
 }
 
 // تصدير الجدول الملخّص كصورة PNG
