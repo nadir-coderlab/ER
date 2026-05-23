@@ -10735,6 +10735,60 @@ async function openComprehensiveAnalysis(hkey) {
             });
         }
 
+        // 🔄 إعادة كتابة تواريخ Monitor بالتواريخ الموثوقة من KPI
+        // (نفس المنطق الموجود في computeFullComp — يحل مشكلة عمود L اللي يُقرأ كـ datetime cell ويتسبب في فرق ٣ ساعات)
+        if (hasKpi && kpiRows && kpiRows.length > 0) {
+            const kpiDateBySid = new Map();
+            const kpiDateByMrnTime = new Map();
+            kpiRows.forEach(r => {
+                if (!isErType(r.patientType)) return;
+                const entry = {
+                    orderDt: r.orderDt instanceof Date ? r.orderDt : null,
+                    collectDt: r.collectDt instanceof Date ? r.collectDt : null,
+                    receiveDt: r.receiveDt instanceof Date ? r.receiveDt : null,
+                    completeDt: r.completeDt instanceof Date ? r.completeDt : null
+                };
+                if (!entry.orderDt && !entry.collectDt && !entry.receiveDt && !entry.completeDt) return;
+                if (r.sampleId != null) {
+                    const sid = normalizeSampleId(r.sampleId);
+                    if (sid && !kpiDateBySid.has(sid)) kpiDateBySid.set(sid, entry);
+                }
+                if (r.patientId && r.orderDt instanceof Date) {
+                    const key = buildMrnTimeKey(r.patientId, r.orderDt);
+                    if (key && !kpiDateByMrnTime.has(key)) kpiDateByMrnTime.set(key, entry);
+                }
+            });
+            console.log(`[KPI dates] ${hkey}: ${kpiDateBySid.size} by Sample ID, ${kpiDateByMrnTime.size} by MRN+Time`);
+
+            if (kpiDateBySid.size > 0 || kpiDateByMrnTime.size > 0) {
+                let rewritten = 0, matchedBySid = 0, matchedByMrn = 0, notMatched = 0;
+                erMonitorAll = erMonitorAll.map(row => {
+                    let kpiEntry = null;
+                    const sid = normalizeSampleId(row.sampleId);
+                    if (sid && kpiDateBySid.has(sid)) {
+                        kpiEntry = kpiDateBySid.get(sid);
+                        matchedBySid++;
+                    } else {
+                        const mtKey = buildMrnTimeKey(row.mrn, row.orderDateTime);
+                        if (mtKey && kpiDateByMrnTime.has(mtKey)) {
+                            kpiEntry = kpiDateByMrnTime.get(mtKey);
+                            matchedByMrn++;
+                        }
+                    }
+                    if (!kpiEntry) { notMatched++; return row; }
+                    rewritten++;
+                    return {
+                        ...row,
+                        orderDateTime: kpiEntry.orderDt || row.orderDateTime,
+                        collectDateTime: kpiEntry.collectDt || row.collectDateTime,
+                        receiveDateTime: kpiEntry.receiveDt || row.receiveDateTime,
+                        completeDateTime: kpiEntry.completeDt || row.completeDateTime
+                    };
+                });
+                console.log(`[Date rewrite] ${hkey}: rewritten=${rewritten} (by_sid=${matchedBySid}, by_mrn=${matchedByMrn}), not_matched=${notMatched}`);
+            }
+        }
+
         // استثناء العينات غير المكتملة: عمود S (Completed By) لازم يكون فيه اسم
         const erMonitorCompleted = erMonitorAll.filter(row => {
             const cb = row.completedBy;
@@ -12299,6 +12353,8 @@ function findCenterRef(phcName) {
 
 // ============= تحليل فحص FIT Test =============
 let __fitData = null;
+let __fitRawRows = [];  // 🆕 نحفظ rows الأصلية لإعادة التحليل عند تغيير الفلتر
+let __fitDateFilter = { from: null, to: null };  // 🆕 الفلتر الحالي
 
 async function handleFitFiles(e) {
     const files = Array.from(e.target.files || []);
@@ -12327,7 +12383,11 @@ async function handleFitFiles(e) {
         document.getElementById('loadingText').textContent = 'جاري التحليل...';
         await new Promise(r => setTimeout(r, 50));
 
-        __fitData = processFitData(allRows);
+        // 🆕 نحفظ الـ rows للفلترة لاحقاً
+        __fitRawRows = allRows;
+        __fitDateFilter = { from: null, to: null };
+
+        __fitData = processFitData(allRows, __fitDateFilter);
         renderFitReport(__fitData);
 
         document.getElementById('fitUploadZone').style.display = 'none';
@@ -12339,6 +12399,13 @@ async function handleFitFiles(e) {
     } finally {
         overlay.classList.remove('active');
     }
+}
+
+// 🆕 إعادة تحليل بفلتر الفترة الجديد
+function reapplyFitDateFilter() {
+    if (!__fitRawRows || __fitRawRows.length === 0) return;
+    __fitData = processFitData(__fitRawRows, __fitDateFilter);
+    renderFitReport(__fitData);
 }
 
 async function readFitFile(file) {
@@ -12411,9 +12478,13 @@ async function readFitFile(file) {
         idx = {
             patientId: 0,      // A
             orderDt: 7,        // H
+            orderedBy: 8,      // I
             collectDt: 11,     // L
+            collectedBy: 12,   // M
             receiveDt: 15,     // P
+            receivedBy: 16,    // Q
             completeDt: 17,    // R
+            completedBy: 18,   // S
             status: 30,        // AE = Collection Status
             hospital: 33,      // AH
             sampleId: 27,      // AB
@@ -12423,9 +12494,13 @@ async function readFitFile(file) {
     } else {
         idx = {
             orderDt: findCol('order date', 'order time', 'date time', 'request date', 'request time'),
+            orderedBy: findCol('ordered by', 'order by', 'requester'),
             collectDt: findCol('collection date', 'collect date', 'sample collection', 'collected date'),
+            collectedBy: findCol('collected by', 'collector'),
             receiveDt: findCol('receive', 'received', 'arrival'),
+            receivedBy: findCol('received by', 'receive by'),
             completeDt: findCol('complete date', 'completed', 'result date', 'released date', 'release date'),
+            completedBy: findCol('completed by', 'complete by'),
             status: findCol('collection status', 'sample status', 'status'),
             hospital: findCol('hospital', 'facility', 'مستشفى'),
             patientId: findCol('patient id', 'mrn', 'patient'),
@@ -12454,6 +12529,10 @@ async function readFitFile(file) {
             patientId: get('patientId'),
             sampleId: get('sampleId'),
             testName: get('testName'),
+            orderedBy: get('orderedBy'),
+            collectedBy: get('collectedBy'),
+            receivedBy: get('receivedBy'),
+            completedBy: get('completedBy'),
             orderDt: parseMonDate(get('orderDt')),
             collectDt: parseMonDate(get('collectDt')),
             receiveDt: parseMonDate(get('receiveDt')),
@@ -12465,7 +12544,10 @@ async function readFitFile(file) {
     return rows;
 }
 
-function processFitData(rows) {
+function processFitData(rows, dateFilter) {
+    // dateFilter: { from: Date|null, to: Date|null } — اختياري
+    // نطبق الفلتر على أي تاريخ متاح للعينة (collect/receive/complete) — يعني العينة تدخل لو واحد من تواريخها داخل الفترة
+
     // تصنيف الحالة
     const classifyStatus = (s) => {
         const lc = String(s || '').toLowerCase().trim();
@@ -12477,9 +12559,33 @@ function processFitData(rows) {
         return 'other';
     };
 
+    // فلترة بالفترة الزمنية (لو dateFilter محدد)
+    const inRange = (d) => {
+        if (!(d instanceof Date) || isNaN(d.getTime())) return false;
+        if (dateFilter && dateFilter.from && d < dateFilter.from) return false;
+        if (dateFilter && dateFilter.to && d > dateFilter.to) return false;
+        return true;
+    };
+
+    const applyFilter = !!(dateFilter && (dateFilter.from || dateFilter.to));
+    const filteredRows = applyFilter
+        ? rows.filter(r => inRange(r.collectDt) || inRange(r.receiveDt) || inRange(r.completeDt))
+        : rows;
+
+    // نحسب الـ date range الفعلي من البيانات (للعرض)
+    let dataDateMin = null, dataDateMax = null;
+    filteredRows.forEach(r => {
+        [r.collectDt, r.receiveDt, r.completeDt].forEach(d => {
+            if (d instanceof Date && !isNaN(d.getTime())) {
+                if (!dataDateMin || d < dataDateMin) dataDateMin = d;
+                if (!dataDateMax || d > dataDateMax) dataDateMax = d;
+            }
+        });
+    });
+
     // نجمع البيانات لكل مستشفى
     const byHospital = new Map();
-    rows.forEach(r => {
+    filteredRows.forEach(r => {
         const h = r.hospital;
         if (!byHospital.has(h)) byHospital.set(h, []);
         byHospital.get(h).push({ ...r, statusClass: classifyStatus(r.status) });
@@ -12608,6 +12714,82 @@ function processFitData(rows) {
                 .sort((a, b) => b.day.localeCompare(a.day));
         };
 
+        // 🆕 تحليل أعمق: التجميع الأسبوعي
+        // مفتاح الأسبوع: yyyy-W## (ISO week)
+        const weekKey = (d) => {
+            if (!(d instanceof Date) || isNaN(d.getTime())) return null;
+            // نحسب بداية الأسبوع (السبت في السعودية، نستخدم الأحد عالمياً)
+            const tmp = new Date(d);
+            tmp.setHours(0, 0, 0, 0);
+            // بداية الأسبوع = السبت (offset 6 من الأحد=0)
+            const dayOfWeek = tmp.getDay(); // 0=Sunday .. 6=Saturday
+            const daysFromSat = (dayOfWeek + 1) % 7;
+            tmp.setDate(tmp.getDate() - daysFromSat);
+            return `${tmp.getFullYear()}-${String(tmp.getMonth()+1).padStart(2,'0')}-${String(tmp.getDate()).padStart(2,'0')}`;
+        };
+
+        const receivedByWeek = new Map();
+        const completedByWeek = new Map();
+        const collectedByWeek = new Map();
+        hRows.forEach(r => {
+            if (r.statusClass === 'received' && r.receiveDt) {
+                const k = weekKey(r.receiveDt);
+                if (k) receivedByWeek.set(k, (receivedByWeek.get(k) || 0) + 1);
+            } else if (r.statusClass === 'completed' && r.receiveDt) {
+                const k = weekKey(r.receiveDt);
+                if (k) completedByWeek.set(k, (completedByWeek.get(k) || 0) + 1);
+            } else if (r.statusClass === 'collected' && r.collectDt) {
+                const k = weekKey(r.collectDt);
+                if (k) collectedByWeek.set(k, (collectedByWeek.get(k) || 0) + 1);
+            }
+        });
+
+        // 🆕 الفنيون الأكثر مشاركة (collectedBy + receivedBy + completedBy)
+        const techCount = new Map(); // اسم → { collected, received, completed, total }
+        const addTech = (name, key) => {
+            if (!name) return;
+            const trimmed = String(name).trim();
+            if (!trimmed) return;
+            if (!techCount.has(trimmed)) {
+                techCount.set(trimmed, { name: trimmed, collected: 0, received: 0, completed: 0, total: 0 });
+            }
+            techCount.get(trimmed)[key]++;
+            techCount.get(trimmed).total++;
+        };
+        hRows.forEach(r => {
+            addTech(r.collectedBy, 'collected');
+            addTech(r.receivedBy, 'received');
+            addTech(r.completedBy, 'completed');
+        });
+        const topTechs = Array.from(techCount.values())
+            .sort((a, b) => b.total - a.total)
+            .slice(0, 10);
+
+        // 🆕 KPIs إضافية للتحليل العميق
+        // نسبة الاكتمال
+        const completionRate = counts.total > 0 ? (counts.completed / counts.total * 100) : 0;
+        // نسبة المعلقات (مجموعة + مستقبلة) من الإجمالي
+        const pendingRate = counts.total > 0 ? ((counts.collected + counts.received) / counts.total * 100) : 0;
+
+        // 🆕 موزّع زمني (heatmap) — ساعات اليوم لـ الاستلام
+        const hourDistribution = Array.from({ length: 24 }, () => 0);
+        hRows.forEach(r => {
+            if (r.receiveDt instanceof Date && !isNaN(r.receiveDt.getTime())) {
+                hourDistribution[r.receiveDt.getHours()]++;
+            }
+        });
+
+        // 🆕 توزيع أعمار العينات المعلقة (collected) — bucket: 0-1d / 1-3d / 3-7d / >7d
+        const ageBuckets = { '0-1': 0, '1-3': 0, '3-7': 0, '>7': 0 };
+        collectedOnly.forEach(r => {
+            if (!r.collectDt) return;
+            const days = (now - r.collectDt) / 86400000;
+            if (days < 1) ageBuckets['0-1']++;
+            else if (days < 3) ageBuckets['1-3']++;
+            else if (days < 7) ageBuckets['3-7']++;
+            else ageBuckets['>7']++;
+        });
+
         hospitals.push({
             name,
             counts,
@@ -12621,15 +12803,24 @@ function processFitData(rows) {
             stuckList: stuck.slice(0, 10),
             noResultCount: noResult.length,
             noResultList: noResult.slice(0, 10),
-            // المتطلبات الجديدة
             receivedCount: receivedOnly.length,
             collectedCount: collectedOnly.length,
             oldestReceived, newestReceived, avgReceivedDays,
             oldestCollected, newestCollected, avgCollectedDays,
-            // 🆕 توزيع يومي
+            // توزيع يومي
             receivedByDay: mapToSortedArray(receivedByDay),
             completedByDay: mapToSortedArray(completedByDay),
             collectedByDay: mapToSortedArray(collectedByDay),
+            // 🆕 توزيع أسبوعي
+            receivedByWeek: mapToSortedArray(receivedByWeek),
+            completedByWeek: mapToSortedArray(completedByWeek),
+            collectedByWeek: mapToSortedArray(collectedByWeek),
+            // 🆕 تحليل أعمق
+            topTechs,
+            completionRate,
+            pendingRate,
+            hourDistribution,
+            ageBuckets,
             rows: hRows
         });
     });
@@ -12645,7 +12836,230 @@ function processFitData(rows) {
         Object.keys(totals).forEach(k => totals[k] += h.counts[k]);
     });
 
-    return { hospitals, totals, totalRows: rows.length };
+    return { hospitals, totals, totalRows: filteredRows.length, originalTotalRows: rows.length, dataDateMin, dataDateMax, dateFilter };
+}
+
+// 🆕 رسم بياني SVG للتوزيع اليومي (٣ خطوط: مستقبَلة + مكتملة + مجموعة)
+function buildFitDayChart(h, hIdx) {
+    const arNum = (n) => String(n).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+    // نجمع كل الأيام من الجداول الثلاثة
+    const allDays = new Set();
+    [...h.receivedByDay, ...h.completedByDay, ...h.collectedByDay].forEach(it => allDays.add(it.day));
+    if (allDays.size === 0) return '';
+
+    const sortedDays = Array.from(allDays).sort();  // تصاعدي للرسم
+    const recMap = new Map(h.receivedByDay.map(x => [x.day, x.count]));
+    const cmpMap = new Map(h.completedByDay.map(x => [x.day, x.count]));
+    const colMap = new Map(h.collectedByDay.map(x => [x.day, x.count]));
+
+    const data = sortedDays.map(d => ({
+        day: d,
+        rec: recMap.get(d) || 0,
+        cmp: cmpMap.get(d) || 0,
+        col: colMap.get(d) || 0
+    }));
+    const maxV = Math.max(1, ...data.map(d => Math.max(d.rec, d.cmp, d.col)));
+
+    const W = 760, H = 220, padL = 40, padR = 20, padT = 20, padB = 38;
+    const chartW = W - padL - padR;
+    const chartH = H - padT - padB;
+    const xStep = data.length > 1 ? chartW / (data.length - 1) : 0;
+    const xAt = (i) => padL + (data.length === 1 ? chartW / 2 : i * xStep);
+    const yAt = (v) => padT + chartH - (v / maxV) * chartH;
+
+    const buildPath = (key) => {
+        return data.map((d, i) => `${i === 0 ? 'M' : 'L'} ${xAt(i)} ${yAt(d[key])}`).join(' ');
+    };
+    const buildPoints = (key, color) => {
+        return data.map((d, i) => `<circle cx="${xAt(i)}" cy="${yAt(d[key])}" r="3" fill="${color}" stroke="#0F172A" stroke-width="1.5"/>`).join('');
+    };
+
+    // x-axis labels (نعرض كل يوم لو ≤10، أو كل يومين/ثلاثة لو أكثر)
+    const labelEvery = data.length <= 10 ? 1 : data.length <= 20 ? 2 : Math.ceil(data.length / 10);
+    const arMonths = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+    const xLabels = data.map((d, i) => {
+        if (i % labelEvery !== 0 && i !== data.length - 1) return '';
+        const [y, m, dd] = d.day.split('-').map(Number);
+        return `<text x="${xAt(i)}" y="${H - 12}" fill="#94A3B8" font-size="10" text-anchor="middle">${arNum(dd)} ${arMonths[m-1].slice(0,3)}</text>`;
+    }).join('');
+
+    // y-axis gridlines
+    const ySteps = 4;
+    const yLines = Array.from({ length: ySteps + 1 }, (_, i) => {
+        const v = (maxV * i / ySteps);
+        const y = yAt(v);
+        return `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="#334155" stroke-width="0.5" stroke-dasharray="2,3"/>
+                <text x="${padL - 6}" y="${y + 3}" fill="#94A3B8" font-size="9" text-anchor="end">${arNum(Math.round(v))}</text>`;
+    }).join('');
+
+    const chartId = `fitChart_${hIdx}`;
+
+    return `
+    <div class="ctr-card-modern" id="${chartId}" style="margin-bottom:14px;">
+        <div class="ctr-card-header" style="padding-bottom:8px; display:flex; justify-content:space-between; align-items:center; gap:8px;">
+            <div>
+                <div class="ctr-card-title-modern" style="font-size:14px;">📈 الرسم البياني للتوزيع اليومي</div>
+                <div class="ctr-card-desc" style="font-size:11.5px;">
+                    <span style="color:#60A5FA;">━ مستقبَلة</span> &nbsp;
+                    <span style="color:#34D399;">━ مكتملة</span> &nbsp;
+                    <span style="color:#FCD34D;">━ مجموعة</span>
+                </div>
+            </div>
+            <button class="btn-primary fit-table-export" data-table-id="${chartId}" data-table-name="chart_${hIdx}" style="padding:5px 10px; font-size:11px; white-space:nowrap;">📷 تصدير</button>
+        </div>
+        <div style="overflow-x:auto;">
+            <svg viewBox="0 0 ${W} ${H}" style="width:100%; max-width:${W}px; height:auto; min-height:200px;" xmlns="http://www.w3.org/2000/svg">
+                ${yLines}
+                <path d="${buildPath('rec')}" stroke="#60A5FA" stroke-width="2" fill="none"/>
+                <path d="${buildPath('cmp')}" stroke="#34D399" stroke-width="2" fill="none"/>
+                <path d="${buildPath('col')}" stroke="#FCD34D" stroke-width="2" fill="none"/>
+                ${buildPoints('rec', '#60A5FA')}
+                ${buildPoints('cmp', '#34D399')}
+                ${buildPoints('col', '#FCD34D')}
+                ${xLabels}
+            </svg>
+        </div>
+    </div>`;
+}
+
+// 🆕 بطاقة توزيع أعمار العينات المعلّقة (مجموعة)
+function buildAgeBucketCard(buckets, arNum, fmt) {
+    const total = buckets['0-1'] + buckets['1-3'] + buckets['3-7'] + buckets['>7'];
+    if (total === 0) {
+        return `
+        <div class="ctr-cat-stat-card" style="border-color:#94A3B833; background:#94A3B80A;">
+            <div class="ctr-cat-stat-label">أعمار المعلّقات</div>
+            <div class="ctr-cat-stat-value" style="color:#94A3B8;">—</div>
+            <div class="ctr-cat-stat-sub">لا توجد عينات معلّقة</div>
+        </div>`;
+    }
+    const items = [
+        { label: '٠-١ يوم', count: buckets['0-1'], color: '#34D399' },
+        { label: '١-٣ أيام', count: buckets['1-3'], color: '#FCD34D' },
+        { label: '٣-٧ أيام', count: buckets['3-7'], color: '#F97316' },
+        { label: '> ٧ أيام', count: buckets['>7'], color: '#EF4444' }
+    ];
+    return `
+    <div class="ctr-cat-stat-card" style="border-color:#F9731633; background:#F973160A;">
+        <div class="ctr-cat-stat-label">أعمار العينات المعلّقة</div>
+        <div style="margin-top:6px; display:flex; flex-direction:column; gap:3px;">
+            ${items.map(it => `
+                <div style="display:flex; justify-content:space-between; align-items:center; font-size:11.5px;">
+                    <span style="color:${it.color};">${it.label}</span>
+                    <span style="color:${it.color}; font-weight:700;">${arNum(it.count)}</span>
+                </div>
+            `).join('')}
+        </div>
+        <div class="ctr-cat-stat-sub" style="margin-top:6px;">إجمالي معلّق: ${fmt(total)}</div>
+    </div>`;
+}
+
+// 🆕 جدول التجميع الأسبوعي
+function buildFitWeeklyTable(h, hIdx, arNum, fmt) {
+    const allWeeks = new Set();
+    [...h.receivedByWeek, ...h.completedByWeek, ...h.collectedByWeek].forEach(it => allWeeks.add(it.day));
+    if (allWeeks.size === 0) return '';
+
+    const sortedWeeks = Array.from(allWeeks).sort().reverse(); // الأحدث أولاً
+    const recMap = new Map(h.receivedByWeek.map(x => [x.day, x.count]));
+    const cmpMap = new Map(h.completedByWeek.map(x => [x.day, x.count]));
+    const colMap = new Map(h.collectedByWeek.map(x => [x.day, x.count]));
+
+    const arMonths = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+    const formatWeek = (start) => {
+        const [y, m, d] = start.split('-').map(Number);
+        const startDate = new Date(y, m-1, d);
+        const endDate = new Date(startDate);
+        endDate.setDate(endDate.getDate() + 6);
+        return `${arNum(startDate.getDate())} ${arMonths[startDate.getMonth()].slice(0,3)} - ${arNum(endDate.getDate())} ${arMonths[endDate.getMonth()].slice(0,3)}`;
+    };
+
+    const tableId = `fitWeekly_${hIdx}`;
+
+    let rowsHtml = '';
+    sortedWeeks.forEach((w, i) => {
+        const rec = recMap.get(w) || 0;
+        const cmp = cmpMap.get(w) || 0;
+        const col = colMap.get(w) || 0;
+        const total = rec + cmp + col;
+        rowsHtml += `
+            <tr>
+                <td style="text-align:center; color:#94A3B8; font-size:11.5px;">${arNum(i + 1)}</td>
+                <td style="text-align:right;">${formatWeek(w)}</td>
+                <td style="text-align:center;"><b style="color:#60A5FA;">${arNum(rec)}</b></td>
+                <td style="text-align:center;"><b style="color:#34D399;">${arNum(cmp)}</b></td>
+                <td style="text-align:center;"><b style="color:#FCD34D;">${arNum(col)}</b></td>
+                <td style="text-align:center;"><b style="color:#F1F5F9;">${arNum(total)}</b></td>
+            </tr>`;
+    });
+
+    return `
+    <div class="ctr-card-modern" id="${tableId}" style="margin-bottom:14px;">
+        <div class="ctr-card-header" style="padding-bottom:8px; display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
+            <div>
+                <div class="ctr-card-title-modern" style="font-size:14px;">📅 التجميع الأسبوعي</div>
+                <div class="ctr-card-desc" style="font-size:11.5px;">توزيع العينات حسب الأسبوع (السبت - الجمعة)</div>
+            </div>
+            <button class="btn-primary fit-table-export" data-table-id="${tableId}" data-table-name="weekly_${hIdx}" style="padding:5px 10px; font-size:11px; white-space:nowrap;">📷 تصدير</button>
+        </div>
+        <table class="ctr-modern-table" style="font-size:12.5px;">
+            <thead>
+                <tr>
+                    <th style="width:40px; text-align:center;">#</th>
+                    <th style="text-align:right;">الأسبوع</th>
+                    <th style="text-align:center; color:#60A5FA;">مستقبَلة</th>
+                    <th style="text-align:center; color:#34D399;">مكتملة</th>
+                    <th style="text-align:center; color:#FCD34D;">مجموعة</th>
+                    <th style="text-align:center;">الإجمالي</th>
+                </tr>
+            </thead>
+            <tbody>${rowsHtml}</tbody>
+        </table>
+    </div>`;
+}
+
+// 🆕 جدول الفنيين الأكثر مشاركة
+function buildFitTechsTable(h, hIdx, arNum, fmt, safeName) {
+    if (!h.topTechs || h.topTechs.length === 0) return '';
+
+    const tableId = `fitTechs_${hIdx}`;
+
+    let rowsHtml = '';
+    h.topTechs.forEach((t, i) => {
+        rowsHtml += `
+            <tr>
+                <td style="text-align:center; color:#94A3B8; font-size:11.5px;">${arNum(i + 1)}</td>
+                <td style="text-align:right; font-size:12px;">${t.name}</td>
+                <td style="text-align:center;"><b style="color:#FCD34D;">${arNum(t.collected)}</b></td>
+                <td style="text-align:center;"><b style="color:#60A5FA;">${arNum(t.received)}</b></td>
+                <td style="text-align:center;"><b style="color:#34D399;">${arNum(t.completed)}</b></td>
+                <td style="text-align:center;"><b style="color:#F1F5F9;">${arNum(t.total)}</b></td>
+            </tr>`;
+    });
+
+    return `
+    <div class="ctr-card-modern" id="${tableId}" style="margin-bottom:14px;">
+        <div class="ctr-card-header" style="padding-bottom:8px; display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
+            <div>
+                <div class="ctr-card-title-modern" style="font-size:14px;">👥 الفنيون الأكثر مشاركة</div>
+                <div class="ctr-card-desc" style="font-size:11.5px;">أعلى ١٠ فنيين حسب عدد العينات المُعالَجة</div>
+            </div>
+            <button class="btn-primary fit-table-export" data-table-id="${tableId}" data-table-name="techs_${hIdx}" style="padding:5px 10px; font-size:11px; white-space:nowrap;">📷 تصدير</button>
+        </div>
+        <table class="ctr-modern-table" style="font-size:12.5px;">
+            <thead>
+                <tr>
+                    <th style="width:40px; text-align:center;">#</th>
+                    <th style="text-align:right;">الاسم</th>
+                    <th style="text-align:center; color:#FCD34D;">جمع</th>
+                    <th style="text-align:center; color:#60A5FA;">استقبال</th>
+                    <th style="text-align:center; color:#34D399;">إكمال</th>
+                    <th style="text-align:center;">الإجمالي</th>
+                </tr>
+            </thead>
+            <tbody>${rowsHtml}</tbody>
+        </table>
+    </div>`;
 }
 
 function renderFitReport(data) {
@@ -12671,8 +13085,43 @@ function renderFitReport(data) {
             <div class="ctr-hero-subtitle">تتبع وضع العينات من الجمع إلى ظهور النتيجة</div>
             <div class="ctr-hero-meta">
                 <span>${arNum(data.hospitals.length)} مستشفى</span>
-                <span>${fmt(data.totalRows)} عينة</span>
+                <span>${fmt(data.totalRows)} عينة${data.originalTotalRows !== data.totalRows ? ` <span style="color:#94A3B8;">من ${fmt(data.originalTotalRows)}</span>` : ''}</span>
             </div>
+        </div>
+    </div>
+    `;
+
+    // 🆕 شريط فلتر الفترة
+    const fmtDateInput = (d) => {
+        if (!(d instanceof Date) || isNaN(d.getTime())) return '';
+        return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    };
+    const fromVal = data.dateFilter && data.dateFilter.from ? fmtDateInput(data.dateFilter.from) : '';
+    const toVal = data.dateFilter && data.dateFilter.to ? fmtDateInput(data.dateFilter.to) : '';
+    const dataRangeText = (data.dataDateMin && data.dataDateMax)
+        ? `${fmtDateInput(data.dataDateMin)} → ${fmtDateInput(data.dataDateMax)}`
+        : '—';
+
+    html += `
+    <div class="ctr-card-modern" style="margin-bottom:14px;">
+        <div class="ctr-card-header" style="padding-bottom:10px;">
+            <div class="ctr-card-title-modern" style="font-size:14px;">📅 فلترة بالفترة الزمنية</div>
+            <div class="ctr-card-desc" style="font-size:11.5px;">نطاق البيانات الكامل: ${dataRangeText}</div>
+        </div>
+        <div style="display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end; padding:4px 0 4px 0;">
+            <div style="flex:0 0 auto;">
+                <label style="display:block; font-size:11.5px; color:#94A3B8; margin-bottom:4px;">من تاريخ</label>
+                <input type="date" id="fitDateFrom" value="${fromVal}" style="padding:6px 10px; background:#0F172A; color:#F1F5F9; border:1px solid #334155; border-radius:6px; font-size:13px; min-width:140px;">
+            </div>
+            <div style="flex:0 0 auto;">
+                <label style="display:block; font-size:11.5px; color:#94A3B8; margin-bottom:4px;">إلى تاريخ</label>
+                <input type="date" id="fitDateTo" value="${toVal}" style="padding:6px 10px; background:#0F172A; color:#F1F5F9; border:1px solid #334155; border-radius:6px; font-size:13px; min-width:140px;">
+            </div>
+            <div style="display:flex; gap:8px;">
+                <button id="btnFitDateApply" class="btn-primary" style="padding:7px 14px; font-size:13px;">تطبيق</button>
+                <button id="btnFitDateReset" class="btn-primary" style="padding:7px 14px; font-size:13px; background:#475569;">إلغاء الفلتر</button>
+            </div>
+            ${(fromVal || toVal) ? `<div style="color:#34D399; font-size:12px; padding:6px 12px; background:rgba(52,211,153,0.1); border-radius:6px;">✓ الفلتر مُفعّل</div>` : ''}
         </div>
     </div>
     `;
@@ -12770,14 +13219,21 @@ function renderFitReport(data) {
             return `${arNum(d)} ${arMonths[m - 1]}`;
         };
 
-        // دالة بناء جدول صغير ٣ أعمدة (#، التاريخ، العدد)
-        const buildDayTable = (title, items, colorAccent, emptyMsg) => {
+        // دالة بناء جدول صغير ٣ أعمدة (#، التاريخ، العدد) مع زر تصدير
+        const buildDayTable = (title, items, colorAccent, emptyMsg, tableKey) => {
             const tot = items.reduce((s, x) => s + x.count, 0);
+            const tableId = `fitTable_${hIdx}_${tableKey}`;
+            const exportBtn = `
+                <button class="btn-primary fit-table-export" data-table-id="${tableId}" data-table-name="${safeName}_${tableKey}" style="padding:5px 10px; font-size:11px; white-space:nowrap; background:${colorAccent}; border:none;">
+                    📷 تصدير
+                </button>`;
+
             if (items.length === 0) {
                 return `
-                <div class="ctr-card-modern" style="border-color:${colorAccent}33; background:${colorAccent}0A; margin:0;">
-                    <div class="ctr-card-header" style="padding-bottom:8px;">
+                <div class="ctr-card-modern" id="${tableId}" style="border-color:${colorAccent}33; background:${colorAccent}0A; margin:0;">
+                    <div class="ctr-card-header" style="padding-bottom:8px; display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
                         <div class="ctr-card-title-modern" style="color:${colorAccent}; font-size:14px;">${title}</div>
+                        ${exportBtn}
                     </div>
                     <div style="padding:18px 10px; text-align:center; color:#94A3B8; font-size:13px;">${emptyMsg || 'لا توجد بيانات'}</div>
                 </div>`;
@@ -12792,10 +13248,13 @@ function renderFitReport(data) {
                 </tr>`;
             });
             return `
-            <div class="ctr-card-modern" style="border-color:${colorAccent}33; background:${colorAccent}0A; margin:0;">
-                <div class="ctr-card-header" style="padding-bottom:8px;">
-                    <div class="ctr-card-title-modern" style="color:${colorAccent}; font-size:14px;">${title}</div>
-                    <div class="ctr-card-desc" style="font-size:11.5px;">إجمالي: <b style="color:${colorAccent};">${arNum(tot)}</b> عينة موزعة على ${arNum(items.length)} ${items.length === 1 ? 'يوم' : 'أيام'}</div>
+            <div class="ctr-card-modern" id="${tableId}" style="border-color:${colorAccent}33; background:${colorAccent}0A; margin:0;">
+                <div class="ctr-card-header" style="padding-bottom:8px; display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
+                    <div style="flex:1;">
+                        <div class="ctr-card-title-modern" style="color:${colorAccent}; font-size:14px;">${title}</div>
+                        <div class="ctr-card-desc" style="font-size:11.5px;">إجمالي: <b style="color:${colorAccent};">${arNum(tot)}</b> عينة موزعة على ${arNum(items.length)} ${items.length === 1 ? 'يوم' : 'أيام'}</div>
+                    </div>
+                    ${exportBtn}
                 </div>
                 <table class="ctr-modern-table" style="font-size:12.5px; margin-top:0;">
                     <thead>
@@ -12861,21 +13320,48 @@ function renderFitReport(data) {
                     'العينات المستقبَلة (في المختبر)',
                     h.receivedByDay,
                     '#60A5FA',
-                    'لا توجد عينات حالتها مستقبَلة'
+                    'لا توجد عينات حالتها مستقبَلة',
+                    'received'
                 )}
                 ${buildDayTable(
-                    'العينات المكتملة (طلعت نتيجتها)',
+                    'العينات المُكتملة',
                     h.completedByDay,
                     '#34D399',
-                    'لا توجد عينات مكتملة'
+                    'لا توجد عينات مكتملة',
+                    'completed'
                 )}
                 ${buildDayTable(
                     'العينات المجموعة (لم تصل المختبر)',
                     h.collectedByDay,
                     '#FCD34D',
-                    'لا توجد عينات مجموعة معلقة'
+                    'لا توجد عينات مجموعة معلقة',
+                    'collected'
                 )}
             </div>
+
+            <!-- 🆕 رسم بياني للتوزيع اليومي (٣ خطوط) -->
+            ${buildFitDayChart(h, hIdx)}
+
+            <!-- 🆕 KPIs عميق + توزيع الأعمار -->
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; margin:14px 0;">
+                <div class="ctr-cat-stat-card" style="border-color:#34D39933; background:#34D3990A;">
+                    <div class="ctr-cat-stat-label">نسبة الإكتمال</div>
+                    <div class="ctr-cat-stat-value" style="color:#34D399;">${arNum(Math.round(h.completionRate))}٪</div>
+                    <div class="ctr-cat-stat-sub">${fmt(h.counts.completed)} من ${fmt(total)} عينة</div>
+                </div>
+                <div class="ctr-cat-stat-card" style="border-color:#FCD34D33; background:#FCD34D0A;">
+                    <div class="ctr-cat-stat-label">نسبة المعلّقات</div>
+                    <div class="ctr-cat-stat-value" style="color:#FCD34D;">${arNum(Math.round(h.pendingRate))}٪</div>
+                    <div class="ctr-cat-stat-sub">${fmt(h.counts.collected + h.counts.received)} عينة معلّقة</div>
+                </div>
+                ${buildAgeBucketCard(h.ageBuckets, arNum, fmt)}
+            </div>
+
+            <!-- 🆕 جدول التجميع الأسبوعي -->
+            ${buildFitWeeklyTable(h, hIdx, arNum, fmt)}
+
+            <!-- 🆕 جدول الفنيين الأكثر مشاركة -->
+            ${buildFitTechsTable(h, hIdx, arNum, fmt, safeName)}
 
             ${h.stuckCount > 0 ? `
             <div class="ctr-card-modern" style="background:rgba(220,38,38,0.08); border-color:rgba(220,38,38,0.3); margin:12px 0;">
@@ -12979,6 +13465,78 @@ function renderFitReport(data) {
             exportFitHospitalImage(hid, hname);
         });
     });
+
+    // 🆕 ربط أزرار تصدير صورة لكل جدول صغير
+    document.querySelectorAll('.fit-table-export').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const tid = btn.dataset.tableId;
+            const tname = btn.dataset.tableName;
+            exportFitSingleTableImage(tid, tname);
+        });
+    });
+
+    // 🆕 ربط أزرار فلتر الفترة
+    const btnApply = document.getElementById('btnFitDateApply');
+    if (btnApply) {
+        btnApply.addEventListener('click', () => {
+            const fromStr = document.getElementById('fitDateFrom').value;
+            const toStr = document.getElementById('fitDateTo').value;
+            __fitDateFilter = {
+                from: fromStr ? new Date(fromStr + 'T00:00:00') : null,
+                to: toStr ? new Date(toStr + 'T23:59:59') : null
+            };
+            reapplyFitDateFilter();
+        });
+    }
+    const btnReset = document.getElementById('btnFitDateReset');
+    if (btnReset) {
+        btnReset.addEventListener('click', () => {
+            __fitDateFilter = { from: null, to: null };
+            reapplyFitDateFilter();
+        });
+    }
+}
+
+// 🆕 تصدير صورة لجدول صغير واحد
+async function exportFitSingleTableImage(tableId, tableName) {
+    const wrap = document.getElementById(tableId);
+    if (!wrap) return;
+
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.classList.add('active');
+    document.getElementById('loadingText').textContent = 'جاري إنشاء صورة الجدول...';
+    await new Promise(r => setTimeout(r, 50));
+
+    try {
+        // نخفي زر التصدير نفسه من الصورة
+        const btn = wrap.querySelector('.fit-table-export');
+        const btnDisplay = btn ? btn.style.display : null;
+        if (btn) btn.style.display = 'none';
+
+        const canvas = await html2canvas(wrap, {
+            scale: 2.5,
+            backgroundColor: '#0F172A',
+            useCORS: true,
+            logging: false,
+            allowTaint: true
+        });
+
+        if (btn) btn.style.display = btnDisplay || '';
+
+        const link = document.createElement('a');
+        const dateStr = new Date().toISOString().slice(0, 10);
+        link.download = `FIT_${tableName}_${dateStr}.png`;
+        link.href = canvas.toDataURL('image/png');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    } catch (err) {
+        console.error('Single table image export error:', err);
+        alert('فشل تصدير الصورة: ' + err.message);
+    } finally {
+        overlay.classList.remove('active');
+    }
 }
 
 // 🆕 تصدير صورة لقسم مستشفى واحد
@@ -12992,10 +13550,12 @@ async function exportFitHospitalImage(hospitalId, hospitalName) {
     await new Promise(r => setTimeout(r, 50));
 
     try {
-        // نخفي زر التصدير نفسه مؤقتاً (ما نبيه يطلع في الصورة)
-        const btn = wrap.querySelector('.fit-hospital-export');
-        const btnDisplay = btn ? btn.style.display : null;
-        if (btn) btn.style.display = 'none';
+        // نخفي كل أزرار التصدير (المستشفى + الجداول الداخلية) من الصورة
+        const hiddenBtns = [];
+        wrap.querySelectorAll('.fit-hospital-export, .fit-table-export').forEach(b => {
+            hiddenBtns.push({ el: b, display: b.style.display });
+            b.style.display = 'none';
+        });
 
         const canvas = await html2canvas(wrap, {
             scale: 2.5,
@@ -13005,7 +13565,8 @@ async function exportFitHospitalImage(hospitalId, hospitalName) {
             allowTaint: true
         });
 
-        if (btn) btn.style.display = btnDisplay || '';
+        // إرجاع الأزرار لحالتها
+        hiddenBtns.forEach(x => { x.el.style.display = x.display || ''; });
 
         const link = document.createElement('a');
         const dateStr = new Date().toISOString().slice(0, 10);
