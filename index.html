@@ -7263,6 +7263,7 @@ const CENTERS_REFERENCE = [{"num": 1, "name": "مركز الدفاع", "category
     rawProcessed: {},   // الناتج الكامل بدون فلترة (المرجع الأصلي)
     monitorFiles: {},   // ملفات Lab Monitor لكل مستشفى (للتحليل الشامل)
     monitorData: {},    // البيانات المُحلَّلة من Monitor + نتائج التحليل الشامل
+    hajjStats: {},      // 🕋 إحصاءات سلايد الحج الموحّدة من Monitor (نفس فلاتر التحليل الشامل)
     dateRange: { min: null, max: null, from: null, to: null }
 };
 Object.keys(HOSPITALS).forEach(k => { 
@@ -7273,6 +7274,7 @@ Object.keys(HOSPITALS).forEach(k => {
     STATE.rawProcessed[k] = null;
     STATE.monitorFiles[k] = null;
     STATE.monitorData[k] = null;
+    STATE.hajjStats[k] = null;
 });
 
 const TARGET_TOTAL = 60;
@@ -10331,14 +10333,19 @@ function parseMonDate(v) {
     if (v == null) return null;
     if (v instanceof Date) {
         if (isNaN(v.getTime())) return null;
-        // XLSX library بـ cellDates:true يبني الـ Date بقيم local wall-clock
-        // (يستخدم new Date(year, month, day, h, m, s) محلياً)
-        // فالـ Date نفسه يمثل الوقت الفعلي اللي في Excel - ما يحتاج تطبيع
+        // طبّع: لو Date من XLSX UTC، نحوله لـ local wall-clock
+        if (v.getUTCHours() !== v.getHours() ||
+            v.getUTCDate() !== v.getDate() ||
+            v.getUTCMonth() !== v.getMonth()) {
+            return new Date(
+                v.getUTCFullYear(), v.getUTCMonth(), v.getUTCDate(),
+                v.getUTCHours(), v.getUTCMinutes(), v.getUTCSeconds()
+            );
+        }
         return v;
     }
     if (typeof v === 'number') {
-        // Excel serial date - نحوّله لـ local wall-clock يدوياً
-        // 25569 = الأيام بين 1970-01-01 و 1899-12-30
+        // Excel serial date - يكون UTC، نطبّعه لـ local wall-clock
         const utcMs = (v - 25569) * 86400 * 1000;
         const utcDate = new Date(utcMs);
         return new Date(
@@ -10428,38 +10435,7 @@ async function readMonitorForStages(file) {
 
     console.log('[readMonitorForStages] Built rows:', rows.length);
     if (rows.length > 0) {
-        // نشوف صف فيه completedBy عشان نتأكد من التواريخ
-        const sample = rows.find(r => r.completedBy && r.orderDateTime && r.collectDateTime) || rows[0];
-        console.log('[readMonitorForStages] Sample row (with all dates):');
-        console.log('  sampleId=', sample.sampleId, 'type:', typeof sample.sampleId);
-        console.log('  orderDateTime=', sample.orderDateTime, 'isDate:', sample.orderDateTime instanceof Date);
-        console.log('  collectDateTime=', sample.collectDateTime, 'isDate:', sample.collectDateTime instanceof Date);
-        console.log('  receiveDateTime=', sample.receiveDateTime, 'isDate:', sample.receiveDateTime instanceof Date);
-        console.log('  completeDateTime=', sample.completeDateTime, 'isDate:', sample.completeDateTime instanceof Date);
-        console.log('  orderedBy=', JSON.stringify(sample.orderedBy));
-        console.log('  collectedBy=', JSON.stringify(sample.collectedBy));
-        console.log('  receivedBy=', JSON.stringify(sample.receivedBy));
-        console.log('  completedBy=', JSON.stringify(sample.completedBy));
-
-        // إحصائيات سريعة
-        const stats = {
-            hasOrder: 0, hasCollect: 0, hasRecv: 0, hasComplete: 0,
-            hasOrderedBy: 0, hasCollectedBy: 0, hasReceivedBy: 0, hasCompletedBy: 0,
-            hasSid: 0, hasAll4Dates: 0
-        };
-        rows.forEach(r => {
-            if (r.orderDateTime) stats.hasOrder++;
-            if (r.collectDateTime) stats.hasCollect++;
-            if (r.receiveDateTime) stats.hasRecv++;
-            if (r.completeDateTime) stats.hasComplete++;
-            if (r.orderedBy && String(r.orderedBy).trim()) stats.hasOrderedBy++;
-            if (r.collectedBy && String(r.collectedBy).trim()) stats.hasCollectedBy++;
-            if (r.receivedBy && String(r.receivedBy).trim()) stats.hasReceivedBy++;
-            if (r.completedBy && String(r.completedBy).trim()) stats.hasCompletedBy++;
-            if (r.sampleId != null && r.sampleId !== 0 && r.sampleId !== '0') stats.hasSid++;
-            if (r.orderDateTime && r.collectDateTime && r.receiveDateTime && r.completeDateTime) stats.hasAll4Dates++;
-        });
-        console.log('[readMonitorForStages] Stats:', stats);
+        console.log('[readMonitorForStages] First row:', rows[0]);
     }
     return rows;
 }
@@ -14521,27 +14497,10 @@ function computeStageAnalysis(monitorRows, mode, hospitalKey) {
 
     // تشخيص: أول ٣ صفوف لمعرفة شكل البيانات
     if (mode === 'order' && monitorRows.length > 0) {
-        console.log(`[${mode}] === START === monitorRows count: ${monitorRows.length}`);
-        console.log(`[${mode}] startField=${startField}, endField=${endField}, staffField=${staffField}, targetMin=${targetMin}`);
-
-        // إحصائيات سريعة قبل البدء
-        const preStats = { hasStart: 0, hasEnd: 0, hasStaff: 0, hasSid: 0, hasAll: 0 };
-        monitorRows.forEach(r => {
-            if (r[startField]) preStats.hasStart++;
-            if (r[endField]) preStats.hasEnd++;
-            if (r[staffField] && String(r[staffField]).trim()) preStats.hasStaff++;
-            const sid = normalizeSampleId(r.sampleId);
-            if (sid) preStats.hasSid++;
-            if (r[startField] && r[endField] && r[staffField] && String(r[staffField]).trim() && sid) {
-                preStats.hasAll++;
-            }
-        });
-        console.log(`[${mode}] Pre-stats:`, preStats);
-
         console.log(`[${mode}] First 3 rows sample:`);
         for (let i = 0; i < Math.min(3, monitorRows.length); i++) {
             const r = monitorRows[i];
-            console.log(`  Row ${i}: ${startField}=${r[startField]} (${typeof r[startField]}, isDate=${r[startField] instanceof Date}), ${endField}=${r[endField]} (${typeof r[endField]}, isDate=${r[endField] instanceof Date}), ${staffField}=${JSON.stringify(r[staffField])}, sampleId=${r.sampleId}`);
+            console.log(`  Row ${i}: ${startField}=${r[startField]} (${typeof r[startField]}, isDate=${r[startField] instanceof Date}), ${endField}=${r[endField]} (${typeof r[endField]}, isDate=${r[endField] instanceof Date}), ${staffField}=${r[staffField]}, sampleId=${r.sampleId}`);
         }
     }
 
@@ -14609,16 +14568,7 @@ function computeStageAnalysis(monitorRows, mode, hospitalKey) {
     console.log(`[${mode}] Processed: ${processedCount}, Valid: ${validDurationCount}, Staff: ${staffMap.size}, Unique Sample IDs: ${bestRowPerSample.size}`);
     console.log(`[${mode}] Diagnostics: missing_start=${missing_start}, missing_end=${missing_end}, missing_staff=${missing_staff}, not_date_start=${not_date_start}, not_date_end=${not_date_end}, no_sid=${no_sid}, dup_sid_replaced=${dup_sid_replaced}, bad_duration=${bad_duration}, invalid_name=${invalid_name}`);
 
-    if (staffMap.size === 0) {
-        console.warn(`[${mode}] ⚠️ NO STAFF MAP - returning null. Reasons: missing_start=${missing_start}, missing_end=${missing_end}, missing_staff=${missing_staff}, not_date_start=${not_date_start}, not_date_end=${not_date_end}, no_sid=${no_sid}, bad_duration=${bad_duration}, invalid_name=${invalid_name}`);
-        // نطبع أول ٥ صفوف فعلياً عشان نفهم وش يصير
-        console.warn(`[${mode}] ⚠️ Dumping first 5 monitor rows:`);
-        for (let i = 0; i < Math.min(5, monitorRows.length); i++) {
-            const r = monitorRows[i];
-            console.warn(`  Row ${i}: start(${startField})=${r[startField]} type=${typeof r[startField]} isDate=${r[startField] instanceof Date}, end(${endField})=${r[endField]} type=${typeof r[endField]} isDate=${r[endField] instanceof Date}, staff(${staffField})=${JSON.stringify(r[staffField])}, sampleId=${r.sampleId}`);
-        }
-        return null;
-    }
+    if (staffMap.size === 0) return null;
 
     // نحوّل لمصفوفة
     const staffList = [];
@@ -14843,11 +14793,20 @@ function buildMrnTimeKey(mrn, dt) {
     return `${m}|${Y}-${M}-${D} ${h}:${min}`;
 }
 
-// تحويل Date من XLSX إلى local wall-clock
-// ملاحظة: XLSX library بـ cellDates:true يبني الـ Date محلياً، فالـ Date نفسه صحيح
-// هذي الدالة تركها للاحتياط - ترجّع الـ Date كما هو
+// تحويل Date محتمل أنه UTC إلى Date local يحفظ wall-clock
+// (يستخدم لـ KPI Excel dates التي تأتي بـ UTC representation)
 function normalizeXlsxDate(dt) {
     if (!(dt instanceof Date) || isNaN(dt.getTime())) return null;
+    // إذا الـ Date عنده UTC components مختلفة عن local، فهو من XLSX (UTC)
+    // نحوله: نأخذ UTC components ونبني Date local بنفس الأرقام (wall-clock preservation)
+    if (dt.getUTCHours() !== dt.getHours() ||
+        dt.getUTCDate() !== dt.getDate() ||
+        dt.getUTCMonth() !== dt.getMonth()) {
+        return new Date(
+            dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate(),
+            dt.getUTCHours(), dt.getUTCMinutes(), dt.getUTCSeconds()
+        );
+    }
     return dt;
 }
 
@@ -15228,9 +15187,110 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-function openHajj() {
+// ============================================================
+// 🕋 سلايد الحج — حسبة موحّدة مع التحليل الشامل
+// ============================================================
+// المنطق: لكل مستشفى عنده ملف Lab Monitor، نطبّق نفس فلاتر
+// computeFullComp (KPI ER filter + APPROVED_LAB_TECHS + best-row dedup)
+// ثم نحسب stage1/2/3/total compliance + byHour heatmap
+// النتيجة: نفس أرقام التحليل الشامل بالضبط
+// ============================================================
+async function buildHajjStatsFromMonitor() {
+    const result = {};
+
+    for (const hkey of Object.keys(HOSPITALS)) {
+        const monitorData = STATE.monitorData ? STATE.monitorData[hkey] : null;
+        if (!monitorData || !monitorData.monitorRows) {
+            result[hkey] = null;
+            continue;
+        }
+
+        try {
+            // نستدعي نفس دالة التحليل الكامل لضمان تطابق الحسبة
+            const comp = await computeFullComp(hkey);
+            if (!comp || !comp.results) {
+                result[hkey] = null;
+                continue;
+            }
+
+            const R = comp.results;
+            const erMonitor = comp.monitor || [];
+
+            // الالتزام الكلي ≤ ٦٠ د من Monitor (نفس منطق computeOverallStats)
+            // dedup بـ Sample ID، أول صف صالح لكل عينة
+            let totalDur = 0, totalCnt = 0, onTime60 = 0;
+            const seen = new Set();
+            const byHour = Array.from({ length: 24 }, () => ({ count: 0, onTime: 0 }));
+
+            erMonitor.forEach(row => {
+                const sid = normalizeSampleId(row.sampleId);
+                if (!sid || seen.has(sid)) return;
+                if (!(row.orderDateTime instanceof Date) || !(row.completeDateTime instanceof Date)) return;
+                const diff = (row.completeDateTime - row.orderDateTime) / 60000;
+                if (diff < 0 || diff > 24 * 60) return;
+                seen.add(sid);
+                totalDur += diff;
+                totalCnt++;
+                if (diff <= 60) onTime60++;
+
+                // byHour حساب موازي
+                const h = row.orderDateTime.getHours();
+                byHour[h].count++;
+                if (diff <= 60) byHour[h].onTime++;
+            });
+
+            const totalCompliance = totalCnt > 0 ? (onTime60 / totalCnt) * 100 : null;
+            const avgTotal = totalCnt > 0 ? totalDur / totalCnt : null;
+
+            // byHour في الصيغة اللي يقرأها renderHajjSlide
+            const byHourOut = {};
+            for (let h = 0; h < 24; h++) {
+                byHourOut[h] = {
+                    count: byHour[h].count,
+                    comp: byHour[h].count > 0 ? (byHour[h].onTime / byHour[h].count) * 100 : null
+                };
+            }
+
+            result[hkey] = {
+                stage1_compliance: R.order ? R.order.overallCompliance : null,
+                stage2_compliance: R.nursing ? R.nursing.overallCompliance : null,
+                stage3_compliance: R.lab ? R.lab.overallCompliance : null,
+                total_compliance: totalCompliance,
+                avg_total: avgTotal,
+                completed: R.matched,           // عدد العينات الفريدة بعد كل الفلاتر
+                completedRows: R.matchedRows,    // عدد الصفوف
+                byHour: byHourOut
+            };
+
+            console.log(`[Hajj] ${hkey}: samples=${R.matched}, total=${totalCompliance != null ? totalCompliance.toFixed(1) + '%' : '—'}, s1=${R.order ? R.order.overallCompliance.toFixed(1) + '%' : '—'}, s2=${R.nursing ? R.nursing.overallCompliance.toFixed(1) + '%' : '—'}, s3=${R.lab ? R.lab.overallCompliance.toFixed(1) + '%' : '—'}`);
+        } catch (err) {
+            console.error(`[Hajj] Failed for ${hkey}:`, err);
+            result[hkey] = null;
+        }
+    }
+
+    STATE.hajjStats = result;
+    return result;
+}
+
+async function openHajj() {
     const data = buildPromiseData();
     if (!data) return;
+
+    // نحسب الإحصاءات الموحدة من Lab Monitor (نفس منطق التحليل الشامل)
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.classList.add('active');
+    document.getElementById('loadingText').textContent = 'جاري حساب المؤشرات الموحدة من Lab Monitor...';
+    await new Promise(r => setTimeout(r, 50));
+
+    try {
+        await buildHajjStatsFromMonitor();
+    } catch (err) {
+        console.error('Failed to build Hajj stats:', err);
+    } finally {
+        overlay.classList.remove('active');
+    }
+
     renderHajjSlide(data);
     document.getElementById('hajjModal').classList.add('active');
     document.body.style.overflow = 'hidden';
@@ -15244,19 +15304,41 @@ function closeHajj() {
 function renderHajjSlide(data) {
     const slide = document.getElementById('hajjSlide');
 
+    // 🔑 المصدر الموحّد: STATE.hajjStats (محسوب من Lab Monitor بنفس فلاتر التحليل الشامل)
+    // fallback: لو ما رُفع Monitor للمستشفى، نستخدم STATE.processed (من KPI) ونضع علامة
+    const hajjStats = STATE.hajjStats || {};
+
     const hospitalRows = data.ranked.map(h => {
-        const p = STATE.processed[h.key];
-        const overall = p && p.overall ? p.overall : {};
-        const samplesCount = p && p.completed ? p.completed : 0;
+        const hs = hajjStats[h.key];
+        let stage1Pct = null, stage2Pct = null, stage3Pct = null, totalPct = null, samplesCount = 0, source = 'none';
+
+        if (hs) {
+            // المصدر الأساسي: Lab Monitor (موحّد مع التحليل الشامل)
+            stage1Pct = hs.stage1_compliance;
+            stage2Pct = hs.stage2_compliance;
+            stage3Pct = hs.stage3_compliance;
+            totalPct = hs.total_compliance;
+            samplesCount = hs.completed || 0;
+            source = 'monitor';
+        } else {
+            // fallback: ملف KPI فقط (للمستشفيات اللي ما رُفع لها Monitor)
+            const p = STATE.processed[h.key];
+            const overall = p && p.overall ? p.overall : {};
+            stage1Pct = overall.stage1_compliance != null ? overall.stage1_compliance : null;
+            stage2Pct = overall.stage2_compliance != null ? overall.stage2_compliance : null;
+            stage3Pct = overall.stage3_compliance != null ? overall.stage3_compliance : null;
+            totalPct = overall.total_compliance != null ? overall.total_compliance : null;
+            samplesCount = p && p.completed ? p.completed : 0;
+            source = (p && p.completed) ? 'kpi_only' : 'none';
+        }
+
         return {
             key: h.key,
             name: h.name,
-            stage1Pct: overall.stage1_compliance != null ? overall.stage1_compliance : null,
-            stage2Pct: overall.stage2_compliance != null ? overall.stage2_compliance : null,
-            stage3Pct: overall.stage3_compliance != null ? overall.stage3_compliance : null,
-            totalPct: overall.total_compliance != null ? overall.total_compliance : null,
+            stage1Pct, stage2Pct, stage3Pct, totalPct,
             avgTests: h.avg,
-            samples: samplesCount
+            samples: samplesCount,
+            source
         };
     }).filter(r => r.samples > 0 || r.avgTests > 0);
 
@@ -15304,15 +15386,17 @@ function renderHajjSlide(data) {
     };
 
     // بناء بيانات الخريطة الحرارية (نسبة الالتزام بالـ TAT الإجمالي لكل ساعة لكل مستشفى)
+    // المصدر الموحّد: hajjStats.byHour (من Monitor بنفس الفلاتر) أو fallback STATE.processed.byHour
     const heatmapRows = hospitalRows.map(r => {
-        const p = STATE.processed[r.key];
+        const hs = hajjStats[r.key];
+        const byHourSource = (hs && hs.byHour) ? hs.byHour : (STATE.processed[r.key] && STATE.processed[r.key].byHour);
         const hours = [];
         for (let h = 0; h < 24; h++) {
-            const hd = p && p.byHour ? p.byHour[h] : null;
+            const hd = byHourSource ? byHourSource[h] : null;
             hours.push({
                 hour: h,
                 count: hd && hd.count ? hd.count : 0,
-                comp: hd && hd.comp !== null ? hd.comp : null
+                comp: hd && hd.comp !== null && hd.comp !== undefined ? hd.comp : null
             });
         }
         return { name: r.name, hours };
