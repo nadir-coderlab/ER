@@ -10675,14 +10675,21 @@ async function openComprehensiveAnalysis(hkey) {
                             const sid = normalizeSampleId(r.sampleId);
                             if (sid) erSampleIds.add(sid);
                         }
-                        // محاولة 2 (fallback): MRN + Order DateTime
+                        // محاولة 2 (fallback): MRN + Order DateTime + variants ±3h
+                        // (Monitor قد يحفظ orderDateTime مكسور بـ ±3 ساعات بسبب datetime cells)
                         if (r.patientId && r.orderDt instanceof Date) {
                             const key = buildMrnTimeKey(r.patientId, r.orderDt);
                             if (key) erMrnTimeKeys.add(key);
+                            const minus3 = new Date(r.orderDt.getTime() - 3 * 3600 * 1000);
+                            const keyMinus3 = buildMrnTimeKey(r.patientId, minus3);
+                            if (keyMinus3) erMrnTimeKeys.add(keyMinus3);
+                            const plus3 = new Date(r.orderDt.getTime() + 3 * 3600 * 1000);
+                            const keyPlus3 = buildMrnTimeKey(r.patientId, plus3);
+                            if (keyPlus3) erMrnTimeKeys.add(keyPlus3);
                         }
                     }
                 });
-                console.log(`[Comp Analysis] KPI ER: ${erSampleIds.size} Sample IDs, ${erMrnTimeKeys.size} MRN+Time keys`);
+                console.log(`[Comp Analysis] KPI ER: ${erSampleIds.size} Sample IDs, ${erMrnTimeKeys.size} MRN+Time keys (incl. ±3h)`);
                 // عرض أول ٥ مفاتيح للتشخيص
                 if (erMrnTimeKeys.size > 0) {
                     console.log('[Comp Analysis] First 5 KPI keys:', Array.from(erMrnTimeKeys).slice(0, 5));
@@ -10754,11 +10761,23 @@ async function openComprehensiveAnalysis(hkey) {
                     if (sid && !kpiDateBySid.has(sid)) kpiDateBySid.set(sid, entry);
                 }
                 if (r.patientId && r.orderDt instanceof Date) {
-                    const key = buildMrnTimeKey(r.patientId, r.orderDt);
-                    if (key && !kpiDateByMrnTime.has(key)) kpiDateByMrnTime.set(key, entry);
+                    // نخزّن المفتاح بـ orderDt الصحيح + variants للـ Monitor المحتمل (orderDt-3h و +3h)
+                    // لأن Monitor قد يحفظ orderDateTime مكسور بـ ±3 ساعات
+                    const baseKey = buildMrnTimeKey(r.patientId, r.orderDt);
+                    if (baseKey && !kpiDateByMrnTime.has(baseKey)) kpiDateByMrnTime.set(baseKey, entry);
+
+                    // variant 1: orderDt - 3 ساعات (لما Monitor مكسور بطرح ٣ ساعات)
+                    const minus3 = new Date(r.orderDt.getTime() - 3 * 3600 * 1000);
+                    const keyMinus3 = buildMrnTimeKey(r.patientId, minus3);
+                    if (keyMinus3 && !kpiDateByMrnTime.has(keyMinus3)) kpiDateByMrnTime.set(keyMinus3, entry);
+
+                    // variant 2: orderDt + 3 ساعات (للسلامة)
+                    const plus3 = new Date(r.orderDt.getTime() + 3 * 3600 * 1000);
+                    const keyPlus3 = buildMrnTimeKey(r.patientId, plus3);
+                    if (keyPlus3 && !kpiDateByMrnTime.has(keyPlus3)) kpiDateByMrnTime.set(keyPlus3, entry);
                 }
             });
-            console.log(`[KPI dates] ${hkey}: ${kpiDateBySid.size} by Sample ID, ${kpiDateByMrnTime.size} by MRN+Time`);
+            console.log(`[KPI dates] ${hkey}: ${kpiDateBySid.size} by Sample ID, ${kpiDateByMrnTime.size} by MRN+Time (incl. ±3h variants)`);
 
             if (kpiDateBySid.size > 0 || kpiDateByMrnTime.size > 0) {
                 let rewritten = 0, matchedBySid = 0, matchedByMrn = 0, notMatched = 0;
@@ -11917,8 +11936,15 @@ async function computeFullComp(hkey) {
                                 if (sid) erSampleIds.add(sid);
                             }
                             if (r.patientId && r.orderDt instanceof Date) {
+                                // KPI key + variants ±3h (Monitor قد يحفظ orderDateTime مكسور)
                                 const key = buildMrnTimeKey(r.patientId, r.orderDt);
                                 if (key) erMrnTimeKeys.add(key);
+                                const minus3 = new Date(r.orderDt.getTime() - 3 * 3600 * 1000);
+                                const keyMinus3 = buildMrnTimeKey(r.patientId, minus3);
+                                if (keyMinus3) erMrnTimeKeys.add(keyMinus3);
+                                const plus3 = new Date(r.orderDt.getTime() + 3 * 3600 * 1000);
+                                const keyPlus3 = buildMrnTimeKey(r.patientId, plus3);
+                                if (keyPlus3) erMrnTimeKeys.add(keyPlus3);
                             }
                         }
                     });
@@ -11957,11 +11983,21 @@ async function computeFullComp(hkey) {
                     if (sid && !kpiDateBySid.has(sid)) kpiDateBySid.set(sid, entry);
                 }
                 if (r.patientId && r.orderDt instanceof Date) {
-                    const key = buildMrnTimeKey(r.patientId, r.orderDt);
-                    if (key && !kpiDateByMrnTime.has(key)) kpiDateByMrnTime.set(key, entry);
+                    // نخزّن المفتاح بـ orderDt الصحيح + variants للـ Monitor المحتمل (orderDt±3h)
+                    // لأن Monitor قد يحفظ orderDateTime مكسور بـ ±3 ساعات في بعض المتصفحات
+                    const baseKey = buildMrnTimeKey(r.patientId, r.orderDt);
+                    if (baseKey && !kpiDateByMrnTime.has(baseKey)) kpiDateByMrnTime.set(baseKey, entry);
+
+                    const minus3 = new Date(r.orderDt.getTime() - 3 * 3600 * 1000);
+                    const keyMinus3 = buildMrnTimeKey(r.patientId, minus3);
+                    if (keyMinus3 && !kpiDateByMrnTime.has(keyMinus3)) kpiDateByMrnTime.set(keyMinus3, entry);
+
+                    const plus3 = new Date(r.orderDt.getTime() + 3 * 3600 * 1000);
+                    const keyPlus3 = buildMrnTimeKey(r.patientId, plus3);
+                    if (keyPlus3 && !kpiDateByMrnTime.has(keyPlus3)) kpiDateByMrnTime.set(keyPlus3, entry);
                 }
             });
-            console.log(`[KPI dates] ${hkey}: ${kpiDateBySid.size} by Sample ID, ${kpiDateByMrnTime.size} by MRN+Time`);
+            console.log(`[KPI dates] ${hkey}: ${kpiDateBySid.size} by Sample ID, ${kpiDateByMrnTime.size} by MRN+Time (incl. ±3h variants)`);
         }
 
         // Filter Monitor with multi-tier matching
