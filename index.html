@@ -10401,7 +10401,10 @@ function parseMonDate(v) {
 //   AB=SampleID, AH=Hospital
 async function readMonitorForStages(file) {
     const buffer = await file.arrayBuffer();
-    const wb = XLSX.read(new Uint8Array(buffer), { type: 'array', cellDates: true });
+    // ⚠️ cellDates: false مهم! نريد datetime cells كـ Excel serial numbers (raw),
+    // عشان parseMonDate يحوّلها بطريقة موحّدة وآمنة عبر كل المتصفحات.
+    // الـ string cells (تواريخ كنصوص "5/22/2026, 11:19 AM") لا تتأثر.
+    const wb = XLSX.read(new Uint8Array(buffer), { type: 'array', cellDates: false });
     const sheetName = wb.SheetNames[0];
     const ws = wb.Sheets[sheetName];
 
@@ -10444,7 +10447,7 @@ async function readMonitorForStages(file) {
 // indices: I=8 (Ordered By), AB=27 (Sample ID), AH=33 (Hospital)
 async function readMonitorDirectly(file) {
     const buffer = await file.arrayBuffer();
-    const wb = XLSX.read(new Uint8Array(buffer), { type: 'array', cellDates: true });
+    const wb = XLSX.read(new Uint8Array(buffer), { type: 'array', cellDates: false });
     const sheetName = wb.SheetNames[0];
     const ws = wb.Sheets[sheetName];
 
@@ -10486,7 +10489,8 @@ async function readMonitorDirectly(file) {
 // قراءة Lab KPI: header في الصف الأول، البيانات من الثاني
 async function readKpiDirectly(file) {
     const buffer = await file.arrayBuffer();
-    const wb = XLSX.read(new Uint8Array(buffer), { type: 'array', cellDates: true });
+    // ⚠️ cellDates: false مهم! نفس السبب في readMonitorForStages
+    const wb = XLSX.read(new Uint8Array(buffer), { type: 'array', cellDates: false });
     const sheetName = wb.SheetNames[0];
     const ws = wb.Sheets[sheetName];
 
